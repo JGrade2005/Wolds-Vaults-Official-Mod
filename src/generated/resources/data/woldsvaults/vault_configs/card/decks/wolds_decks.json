@@ -123,6 +123,31 @@
         "min": 3,
         "max": 3
       }
+    },
+    "fives": {
+      "model": "woldsvaults:deck/fives#inventory",
+      "name": "The Fives Deck",
+      "essence": {
+        "min": 4,
+        "max": 4
+      },
+      "layout": [
+        {
+          "value": [
+            "XXOXAXOXX",
+            "XOAOXOAOX",
+            "AXOXOXOXA",
+            "XOXOAOXOX",
+            "OAOXOXOAO",
+            "XOXAXAXOX"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "socketCount": {
+        "min": 3,
+        "max": 3
+      }
     }
   }
 }
