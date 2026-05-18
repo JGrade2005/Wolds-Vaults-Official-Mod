@@ -363,7 +363,7 @@
     "survival_of_the_fittest": {
       "objective": {
         "objective_probability": 0.5,
-        "target": 45,
+        "target": 30,
         "waveGroups": [
           "t1",
           "t1_t2",

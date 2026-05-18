@@ -64,6 +64,7 @@ public class DataGenerators {
             gen.addProvider(new ModVaultPortalBlocksProvider(gen));
             gen.addProvider(new ModChampionsProvider(gen));
             gen.addProvider(new ModEnigmaEggProvider(gen));
+            gen.addProvider(new ModAugmentBoxProvider(gen));
             gen.addProvider(new ModExpertisesProvider(gen));
             gen.addProvider(new ModEtchingsProvider(gen));
             gen.addProvider(new ModExpertiseStylesProvider(gen));

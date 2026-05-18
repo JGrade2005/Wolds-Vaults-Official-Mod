@@ -125,7 +125,7 @@ public class ModChallengeCrystalProvider extends AbstractChallengeCrystalProvide
 
             builder.addEntry("survival_of_the_fittest", challengeEntryBuilder -> {
                 challengeEntryBuilder
-                        .objective(new SurvivalCrystalObjective(0.5F, 45, List.of("t1", "t1_t2", "t2", "t2_t3", "t3", "t3_t4", "t4")))
+                        .objective(new SurvivalCrystalObjective(0.5F, 30, List.of("t1", "t1_t2", "t2", "t2_t3", "t3", "t3_t4", "t4")))
                         .modifier(VaultMod.id("no_companion"), 1)
                         .layout(new ClassicInfiniteCrystalLayout(1))
                         .exhausted();

@@ -21,9 +21,11 @@ import iskallia.vault.core.vault.objective.BingoObjective;
 import iskallia.vault.core.vault.objective.Objective;
 import iskallia.vault.core.vault.objective.Objectives;
 import iskallia.vault.core.vault.objective.PvPObjective;
+import iskallia.vault.core.vault.player.Completion;
 import iskallia.vault.core.vault.player.Listener;
 import iskallia.vault.core.vault.player.Listeners;
 import iskallia.vault.core.vault.player.Runner;
+import iskallia.vault.core.vault.stat.StatCollector;
 import iskallia.vault.core.world.storage.VirtualWorld;
 import iskallia.vault.init.ModConfigs;
 import iskallia.vault.init.ModKeybinds;
@@ -38,6 +40,7 @@ import iskallia.vault.task.source.EntityTaskSource;
 import iskallia.vault.task.source.TaskSource;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
@@ -176,18 +179,28 @@ public class BallisticBingoObjective extends BingoObjective {
         });
         CommonEvents.LISTENER_LEAVE.register(this, (data) -> {
             if (data.getVault() == vault) {
-                Listener patt5575$temp = data.getListener();
-                if (patt5575$temp instanceof Runner) {
-                    Runner runner = (Runner)patt5575$temp;
+                Listener patt6371$temp = data.getListener();
+                if (patt6371$temp instanceof Runner) {
+                    Runner runner = (Runner)patt6371$temp;
+                    if (this.getOr(BLACKOUT, false) && !this.isCompleted()) {
+                        vault.ifPresent(Vault.STATS, (collector) -> {
+                            StatCollector stats = collector.get(runner.getId());
+                            if (stats != null) {
+                                stats.set(StatCollector.COMPLETION, Completion.BAILED);
+                            }
+
+                        });
+                    }
+
                     if (this.pvp) {
-                        BingoTask board = (BingoTask)((BingoObjective.TaskMap)this.get(TASKS)).remove(runner.getId());
+                        BingoTask board = (BingoTask)((TaskMap)this.get(TASKS)).remove(runner.getId());
                         if (board != null) {
                             board.onDetach();
                         }
                     } else {
-                        Object patt5819$temp = this.get(TASK_SOURCE);
-                        if (patt5819$temp instanceof EntityTaskSource) {
-                            EntityTaskSource entitySource = (EntityTaskSource)patt5819$temp;
+                        Object patt6994$temp = this.get(TASK_SOURCE);
+                        if (patt6994$temp instanceof EntityTaskSource) {
+                            EntityTaskSource entitySource = (EntityTaskSource)patt6994$temp;
                             entitySource.remove(new UUID[]{runner.getId()});
                         }
                     }
@@ -418,6 +431,7 @@ public class BallisticBingoObjective extends BingoObjective {
         } else {
             TaskRendererContext context = new TaskRendererContext(poseStack, partialTicks, MultiBufferSource.immediate(Tesselator.getInstance().getBuilder()), Minecraft.getInstance().font);
             task.onRender(context);
+
             return true;
         }
     }

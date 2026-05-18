@@ -335,7 +335,6 @@
     "vaulthunters.custom.MixinVaultModifierStack",
     "vaulthunters.custom.MixinVaultRegistry",
     "vaulthunters.custom.MixinVaultSwordItem",
-    "vaulthunters.custom.MixinWildSpawnerTileEntity",
     "vaulthunters.custom.artisan.MixinArtisanStationContainer",
     "vaulthunters.custom.artisan.MixinArtisanStationTileEntity",
     "vaulthunters.custom.artisan.enum_extension.VaultArtisanTabEnumExtension",
