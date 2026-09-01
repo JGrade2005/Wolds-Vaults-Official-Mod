@@ -175,6 +175,8 @@ public class ModItems {
     public static BasicItem VAULT_DECO_SCROLL;
     public static BasicItem ARCANE_ESSENCE;
     public static BasicItem ARCANE_SHARD;
+    public static xyz.iwolfking.woldsvaults.items.ExtractorItem EXTRACTOR;
+    public static xyz.iwolfking.woldsvaults.items.PowerCellItem POWER_CELL;
     public static BasicItem EXTRAORDINARY_POG_PRISM;
     public static BasicItem HEART_OF_CHAOS;
     public static BasicItem GEM_REAGENT_ASHIUM;
@@ -334,6 +336,8 @@ public class ModItems {
         registry.register(VAULT_DECO_SCROLL);
         registry.register(ARCANE_ESSENCE);
         registry.register(ARCANE_SHARD);
+        registry.register(EXTRACTOR);
+        registry.register(POWER_CELL);
         registry.register(EXTRAORDINARY_POG_PRISM);
         registry.register(HEART_OF_CHAOS);
         registry.register(GEM_REAGENT_GORGINITE);
@@ -543,6 +547,8 @@ public class ModItems {
         EXTRAORDINARY_POG_PRISM = new BasicItem(WoldsVaults.id("extraordinary_pog_prism"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         ARCANE_ESSENCE = new BasicItem(WoldsVaults.id("arcane_essence"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         ARCANE_SHARD = new BasicItem(WoldsVaults.id("arcane_shard"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
+        EXTRACTOR = new xyz.iwolfking.woldsvaults.items.ExtractorItem(WoldsVaults.id("extractor"));
+        POWER_CELL = new xyz.iwolfking.woldsvaults.items.PowerCellItem(WoldsVaults.id("power_cell"));
         HEART_OF_CHAOS = new BasicItem(WoldsVaults.id("heart_of_chaos"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         AUGMENT_PIECE = new BasicItem(WoldsVaults.id("augment_piece"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         VAULT_DIAMOND_NUGGET = new BasicItem(WoldsVaults.id("vault_diamond_nugget"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));

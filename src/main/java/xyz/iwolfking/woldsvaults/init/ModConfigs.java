@@ -45,6 +45,7 @@ public class ModConfigs {
     public static AlchemyObjectiveConfig ALCHEMY_OBJECTIVE;
     public static SurvivalObjectiveConfig SURVIVAL_OBJECTIVE;
     public static HyperObjectiveConfig HYPER_OBJECTIVE;
+    public static ExtractionObjectiveConfig EXTRACTION_OBJECTIVE;
 
     public static AugmentRecipesConfig AUGMENT_RECIPES;
     public static ModBoxRecipesConfig MOD_BOX_RECIPES_CONFIG;
@@ -101,6 +102,7 @@ public class ModConfigs {
         ALCHEMY_OBJECTIVE = new AlchemyObjectiveConfig().readConfig();
         SURVIVAL_OBJECTIVE = new SurvivalObjectiveConfig().readConfig();
         HYPER_OBJECTIVE = new HyperObjectiveConfig().readConfig();
+        EXTRACTION_OBJECTIVE = new ExtractionObjectiveConfig().readConfig();
         AUGMENT_RECIPES = new AugmentRecipesConfig().readConfig();
         MOD_BOX_RECIPES_CONFIG = new ModBoxRecipesConfig().readConfig();
         CUSTOM_RECYCLER_CONFIG = new CustomVaultRecyclerConfig().readConfig();

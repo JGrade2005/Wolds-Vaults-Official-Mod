@@ -115,6 +115,11 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.CRYSTAL_SEAL_SURVIVOR, "Seal of the Survivor");
         add(ModItems.SCAVENGER_POUCH_ITEM, "Scavenger Pouch");
         add(ModItems.COMBINED_TRINKET, "Fusion Trinket");
+        add(ModItems.EXTRACTOR, "Extractor");
+        add(ModItems.POWER_CELL, "Power Cell");
+        add("block.woldsvaults.vault_crate_extraction", "Extraction Crate");
+        add("objective.the_vault.extraction", "Extraction");
+        add("entity.woldsvaults.extractor", "Extractor");
         add(ModItems.PRISMATIC_GLUE_BUCKET, "Bucket of Prismatic Glue");
         add(ModItems.MOLTEN_TRINKET_BUCKET, "Bucket of Molten Trinket");
         add(ModBlocks.PRISMATIC_GLUE_BLOCK, "Prismatic Glue");
