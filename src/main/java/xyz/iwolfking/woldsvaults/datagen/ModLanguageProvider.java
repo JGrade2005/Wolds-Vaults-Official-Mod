@@ -117,8 +117,6 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.COMBINED_TRINKET, "Fusion Trinket");
         add(ModItems.EXTRACTOR, "Extractor");
         add(ModItems.POWER_CELL, "Power Cell");
-        add("block.woldsvaults.vault_crate_extraction", "Extraction Crate");
-        add("objective.the_vault.extraction", "Extraction");
         add("entity.woldsvaults.extractor", "Extractor");
         add(ModItems.PRISMATIC_GLUE_BUCKET, "Bucket of Prismatic Glue");
         add(ModItems.MOLTEN_TRINKET_BUCKET, "Bucket of Molten Trinket");
