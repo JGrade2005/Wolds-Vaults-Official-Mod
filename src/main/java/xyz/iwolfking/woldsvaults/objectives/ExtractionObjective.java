@@ -86,6 +86,13 @@ import java.util.UUID;
 
 public class ExtractionObjective extends Objective {
     public static final ResourceLocation HUD = WoldsVaults.id("textures/gui/extraction/hud.png");
+    private static final int PAD = 2;
+    private static final java.util.Map<String, int[][]> PIP_UVS = java.util.Map.of(
+            "velara", new int[][]{{169, 138}, {186, 138}, {203, 138}},
+            "tenos", new int[][]{{220, 138}, {237, 138}, {0, 155}},
+            "wendarr", new int[][]{{17, 155}, {34, 155}, {51, 155}},
+            "idona", new int[][]{{68, 155}, {85, 155}, {102, 155}});
+    private static final Set<String> UNKNOWN_PIP_GODS = new HashSet<>();
     private static final ResourceLocation ROOM_POOL = new ResourceLocation("the_vault", "vault/rooms/special/extraction");
     private static final BlockPos[] CAVE_ANCHORS = new BlockPos[]{
             new BlockPos(5, 20, 5), new BlockPos(41, 20, 5), new BlockPos(5, 20, 41), new BlockPos(41, 20, 41)
@@ -630,7 +637,7 @@ public class ExtractionObjective extends Objective {
         ExtractionSite nearby = this.findNearbyDrillingSite(sites, player);
         boolean showNumbers = ModOptions.ELIXIR_ORB_NUMBERS.getValue();
         if (nearby != null) {
-            this.renderPlacedHud(matrixStack, nearby, sites, showNumbers);
+            this.renderPlacedHud(matrixStack, nearby, sites, showNumbers, player, partialTicks);
         } else {
             this.renderIdleHud(matrixStack, sites);
         }
@@ -656,28 +663,40 @@ public class ExtractionObjective extends Objective {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void renderPlacedHud(PoseStack matrixStack, ExtractionSite site, ExtractionSite[] sites, boolean showNumbers) {
+    private void renderPlacedHud(PoseStack matrixStack, ExtractionSite site, ExtractionSite[] sites, boolean showNumbers, Player player, float partialTicks) {
         float progress = clamp01(site.get(ExtractionSite.PROGRESS) / Math.max(1.0F, site.get(ExtractionSite.REQUIRED)));
         float hpFrac = frac(site.get(ExtractionSite.HP), site.get(ExtractionSite.MAX_HP));
         float shieldFrac = frac(site.get(ExtractionSite.SHIELD), site.get(ExtractionSite.MAX_SHIELD));
         float energyFrac = frac(site.get(ExtractionSite.ENERGY), site.get(ExtractionSite.MAX_ENERGY));
+        long gameTime = player.level.getGameTime();
+        float t = (gameTime + partialTicks) * 0.06F;
 
         matrixStack.pushPose();
-        matrixStack.translate(-76.0D, 0.0D, 0.0D);
+        matrixStack.translate(-115.0D, 0.0D, 0.0D);
         bindHud();
-        GuiComponent.blit(matrixStack, 0, 0, 0, 0, 152, 16, 256, 128);
-        GuiComponent.blit(matrixStack, 2, 4, 2, 18, (int) (148.0F * progress), 8, 256, 128);
-        GuiComponent.blit(matrixStack, 0, 19, 152, 32, 10, 10, 256, 128);
-        GuiComponent.blit(matrixStack, 12, 18, 0, 32, 118, 12, 256, 128);
-        GuiComponent.blit(matrixStack, 14, 20, 2, 46, (int) (114.0F * hpFrac), 8, 256, 128);
-        GuiComponent.blit(matrixStack, 0, 33, 152, 44, 10, 10, 256, 128);
-        GuiComponent.blit(matrixStack, 12, 32, 0, 60, 118, 12, 256, 128);
-        GuiComponent.blit(matrixStack, 14, 34, 2, 74, (int) (114.0F * shieldFrac), 8, 256, 128);
-        this.blitCircles(matrixStack, sites, 136, 20, 20);
-        GuiComponent.blit(matrixStack, 200, 12, 208, 0, 14, 22, 256, 128);
-        int filled = (int) (22.0F * energyFrac);
-        if (filled > 0) {
-            GuiComponent.blit(matrixStack, 200, 12 + 22 - filled, 224, 22 - filled, 14, filled, 256, 128);
+        GuiComponent.blit(matrixStack, 11, 0, 0, 185, 176, 6, 256, 256);
+        GuiComponent.blit(matrixStack, 195, 0, 0, 0, 35, 48, 256, 256);
+        this.blitBar(matrixStack, 9, 4, 0, 49, 0, 68, 181, 68, 180, 18, 176, progress);
+        this.blitBubbles(matrixStack, 11, 6, 14, 176, Math.round(176.0F * progress), 6, 5, t);
+        this.blitBar(matrixStack, 22, 19, 0, 87, 0, 104, 131, 104, 130, 16, 126, hpFrac);
+        this.blitBubbles(matrixStack, 24, 21, 12, 126, Math.round(126.0F * hpFrac), 5, 13, t + 2.1F);
+        this.blitBar(matrixStack, 22, 31, 0, 121, 0, 138, 131, 138, 130, 16, 126, shieldFrac);
+        this.blitBubbles(matrixStack, 24, 33, 12, 126, Math.round(126.0F * shieldFrac), 5, 13, t + 4.3F);
+        GuiComponent.blit(matrixStack, 0, 2, 186, 0, 22, 22, 256, 256);
+        GuiComponent.blit(matrixStack, 176, 2, 209, 0, 22, 22, 256, 256);
+        GuiComponent.blit(matrixStack, 9, 19, 135, 138, 16, 16, 256, 256);
+        GuiComponent.blit(matrixStack, 9, 31, 152, 138, 16, 16, 256, 256);
+        for (int i = 0; i < sites.length - 1; i++) {
+            GuiComponent.blit(matrixStack, 159 + 15 * i, 26, 119, 155, 15, 14, 256, 256);
+        }
+        for (int i = 0; i < sites.length; i++) {
+            this.blitPip(matrixStack, 151 + 15 * i, 25, sites[i]);
+        }
+        GuiComponent.blit(matrixStack, 198, 2, 36, 0, 29, 44, 256, 256);
+        int lit = Math.round(40.0F * energyFrac);
+        if (lit >= 1) {
+            int frame = (int) ((gameTime / 3L) % 4L);
+            GuiComponent.blit(matrixStack, 198, 4 + 40 - lit, 66 + 30 * frame, PAD + 40 - lit, 25 + 2 * PAD, lit + PAD, 256, 256);
         }
         matrixStack.popPose();
 
@@ -685,11 +704,11 @@ public class ExtractionObjective extends Objective {
             Font font = Minecraft.getInstance().font;
             MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             matrixStack.pushPose();
-            matrixStack.translate(-76.0D, 0.0D, 100.0D);
+            matrixStack.translate(-115.0D, 0.0D, 100.0D);
             matrixStack.scale(0.7F, 0.7F, 0.7F);
-            drawCentered(font, buffer, matrixStack, String.format("%.2f%%", progress * 100.0F), 76 / 0.7F, 5.0F / 0.7F, 0xFFFFFF);
-            drawCentered(font, buffer, matrixStack, String.format("%,.0f/%,.0f", site.get(ExtractionSite.HP), site.get(ExtractionSite.MAX_HP)), 71 / 0.7F, 20.5F / 0.7F, 0xC8FFC8);
-            drawCentered(font, buffer, matrixStack, String.format("%,.0f/%,.0f", site.get(ExtractionSite.SHIELD), site.get(ExtractionSite.MAX_SHIELD)), 71 / 0.7F, 34.5F / 0.7F, 0xC8E8FF);
+            drawCentered(font, buffer, matrixStack, String.format("%.2f%%", progress * 100.0F), 99.0F / 0.7F, (13.0F - 3.5F) / 0.7F, 0xFFF6E4);
+            drawCentered(font, buffer, matrixStack, String.format("%,.0f/%,.0f", site.get(ExtractionSite.HP), site.get(ExtractionSite.MAX_HP)), 80.5F / 0.7F, (27.0F - 3.5F) / 0.7F, 0xE2FFEA);
+            drawCentered(font, buffer, matrixStack, String.format("%,.0f/%,.0f", site.get(ExtractionSite.SHIELD), site.get(ExtractionSite.MAX_SHIELD)), 80.5F / 0.7F, (39.0F - 3.5F) / 0.7F, 0xE2F4FF);
             buffer.endBatch();
             matrixStack.popPose();
         }
@@ -697,25 +716,63 @@ public class ExtractionObjective extends Objective {
 
     @OnlyIn(Dist.CLIENT)
     private void renderIdleHud(PoseStack matrixStack, ExtractionSite[] sites) {
+        int width = 16 + 15 * (sites.length - 1);
         matrixStack.pushPose();
-        matrixStack.translate(-(sites.length * 20 - 4) / 2.0D, 0.0D, 0.0D);
+        matrixStack.translate(-width / 2.0D, 0.0D, 0.0D);
         bindHud();
-        this.blitCircles(matrixStack, sites, 0, 0, 20);
+        for (int i = 0; i < sites.length - 1; i++) {
+            GuiComponent.blit(matrixStack, 8 + 15 * i, 1, 119, 155, 15, 14, 256, 256);
+        }
+        for (int i = 0; i < sites.length; i++) {
+            this.blitPip(matrixStack, 15 * i, 0, sites[i]);
+        }
         matrixStack.popPose();
     }
 
+    /** Track, then the partial fill cut with a clean vertical edge, then the bright head column. */
     @OnlyIn(Dist.CLIENT)
-    private void blitCircles(PoseStack matrixStack, ExtractionSite[] sites, int x, int y, int pitch) {
-        for (int i = 0; i < sites.length; i++) {
-            int u = sites[i].isComplete() ? 192 : sites[i].isDrilling() ? 176 : 160;
-            GuiComponent.blit(matrixStack, x + i * pitch, y, u, 0, 16, 16, 256, 128);
+    private void blitBar(PoseStack matrixStack, int blitX, int blitY, int trackU, int trackV, int fillU, int fillV, int edgeU, int edgeV, int spriteW, int spriteH, int barW, float fraction) {
+        GuiComponent.blit(matrixStack, blitX, blitY, trackU, trackV, spriteW, spriteH, 256, 256);
+        int w = Math.round(barW * clamp01(fraction));
+        if (w >= 1) {
+            GuiComponent.blit(matrixStack, blitX, blitY, fillU, fillV, PAD + w, spriteH, 256, 256);
         }
+        if (w > 0 && w < barW) {
+            GuiComponent.blit(matrixStack, blitX + PAD + w - 1, blitY, edgeU, edgeV, 3, spriteH, 256, 256);
+        }
+    }
+
+    /** The bubble field is periodic with period 6, so a 6-tall window scrolled by v wraps forever. */
+    @OnlyIn(Dist.CLIENT)
+    private void blitBubbles(PoseStack matrixStack, int barX, int barY, int barH, int barW, int fillW, int marginLeft, int cutRight, float phase) {
+        int bx = barX + marginLeft;
+        int bw = Math.min(fillW - marginLeft, barW - cutRight - 1);
+        if (bw > 1) {
+            float sv = ((phase % 6.0F) + 6.0F) % 6.0F;
+            GuiComponent.blit(matrixStack, bx, barY + (barH - 6) / 2, bw, 6, 0.0F, 172.0F + sv, bw, 6, 256, 256);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void blitPip(PoseStack matrixStack, int x, int y, ExtractionSite site) {
+        String god = site.get(ExtractionSite.GOD);
+        int[][] rows = PIP_UVS.get(god);
+        if (rows == null) {
+            if (UNKNOWN_PIP_GODS.add(god)) {
+                WoldsVaults.LOGGER.error("Extraction HUD has no pip sprites for god '{}'; drawing the idona set instead.", god);
+            }
+            rows = PIP_UVS.get("idona");
+        }
+        int state = Math.max(0, Math.min(2, site.get(ExtractionSite.STATE)));
+        GuiComponent.blit(matrixStack, x, y, rows[state][0], rows[state][1], 16, 16, 256, 256);
     }
 
     @OnlyIn(Dist.CLIENT)
     private static void bindHud() {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderTexture(0, HUD);
     }
 

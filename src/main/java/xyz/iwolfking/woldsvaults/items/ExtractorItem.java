@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -104,6 +105,27 @@ public class ExtractorItem extends Item {
     public static UUID getDeployedEntity(ItemStack stack) {
         CompoundTag data = getData(stack);
         return data.hasUUID("DeployEntity") ? data.getUUID("DeployEntity") : null;
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        CompoundTag data = getData(stack);
+        return data.getInt("MaxDurability") > 0 && data.getInt("Durability") < data.getInt("MaxDurability");
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        CompoundTag data = getData(stack);
+        int max = data.getInt("MaxDurability");
+        return max <= 0 ? 0 : Math.round(13.0F * data.getInt("Durability") / max);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        CompoundTag data = getData(stack);
+        int max = data.getInt("MaxDurability");
+        float fraction = max <= 0 ? 0.0F : Math.max(0.0F, (float) data.getInt("Durability") / max);
+        return Mth.hsvToRgb(fraction / 3.0F, 1.0F, 1.0F);
     }
 
     @Override
