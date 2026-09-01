@@ -423,7 +423,7 @@ public class ExtractionObjective extends Objective {
         }
         Vec3 pedestal = this.sitePedestalCenter(target);
         extractor.initFromItem(stack, player, targetIndex, ModConfigs.EXTRACTION_OBJECTIVE.DEPLOYMENT.initialEnergyFraction);
-        extractor.moveTo(pedestal.x, pedestal.y, pedestal.z, 0.0F, 0.0F);
+        extractor.moveTo(pedestal.x, pedestal.y - 2.0D, pedestal.z, 0.0F, 0.0F);
         world.addWithUUID(extractor);
         target.set(ExtractionSite.ENTITY, extractor.getUUID());
         target.set(ExtractionSite.STATE, ExtractionSite.STATE_DRILLING);
@@ -512,12 +512,14 @@ public class ExtractionObjective extends Objective {
         } else {
             int count = job.payoutMin >= job.payoutMax ? job.payoutMin
                     : job.payoutMin + world.getRandom().nextInt(job.payoutMax - job.payoutMin + 1);
+            int rolled = count;
             int maxStack = new ItemStack(payoutItem).getMaxStackSize();
             while (count > 0) {
                 int size = Math.min(count, maxStack);
                 payout.add(new ItemStack(payoutItem, size));
                 count -= size;
             }
+            WoldsVaults.LOGGER.info("Extraction site paid out {}x {} into the extractor storage.", rolled, job.payoutItem);
         }
         extractor.completeJob(payout);
         site.set(ExtractionSite.STATE, ExtractionSite.STATE_COMPLETE);
@@ -620,12 +622,11 @@ public class ExtractionObjective extends Objective {
             return false;
         }
         ExtractionSite nearby = this.findNearbyDrillingSite(sites, player);
-        int midX = window.getGuiScaledWidth() / 2;
         boolean showNumbers = ModOptions.ELIXIR_ORB_NUMBERS.getValue();
         if (nearby != null) {
-            this.renderPlacedHud(matrixStack, midX, nearby, sites, showNumbers);
+            this.renderPlacedHud(matrixStack, nearby, sites, showNumbers);
         } else {
-            this.renderIdleHud(matrixStack, midX, sites);
+            this.renderIdleHud(matrixStack, sites);
         }
         return true;
     }
@@ -649,14 +650,14 @@ public class ExtractionObjective extends Objective {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void renderPlacedHud(PoseStack matrixStack, int midX, ExtractionSite site, ExtractionSite[] sites, boolean showNumbers) {
+    private void renderPlacedHud(PoseStack matrixStack, ExtractionSite site, ExtractionSite[] sites, boolean showNumbers) {
         float progress = clamp01(site.get(ExtractionSite.PROGRESS) / Math.max(1.0F, site.get(ExtractionSite.REQUIRED)));
         float hpFrac = frac(site.get(ExtractionSite.HP), site.get(ExtractionSite.MAX_HP));
         float shieldFrac = frac(site.get(ExtractionSite.SHIELD), site.get(ExtractionSite.MAX_SHIELD));
         float energyFrac = frac(site.get(ExtractionSite.ENERGY), site.get(ExtractionSite.MAX_ENERGY));
 
         matrixStack.pushPose();
-        matrixStack.translate(midX - 76, 8.0D, 0.0D);
+        matrixStack.translate(-76.0D, 0.0D, 0.0D);
         bindHud();
         GuiComponent.blit(matrixStack, 0, 0, 0, 0, 152, 16, 256, 128);
         GuiComponent.blit(matrixStack, 2, 4, 2, 18, (int) (148.0F * progress), 8, 256, 128);
@@ -678,7 +679,7 @@ public class ExtractionObjective extends Objective {
             Font font = Minecraft.getInstance().font;
             MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             matrixStack.pushPose();
-            matrixStack.translate(midX - 76, 8.0D, 100.0D);
+            matrixStack.translate(-76.0D, 0.0D, 100.0D);
             matrixStack.scale(0.7F, 0.7F, 0.7F);
             drawCentered(font, buffer, matrixStack, String.format("%.2f%%", progress * 100.0F), 76 / 0.7F, 5.0F / 0.7F, 0xFFFFFF);
             drawCentered(font, buffer, matrixStack, String.format("%,.0f/%,.0f", site.get(ExtractionSite.HP), site.get(ExtractionSite.MAX_HP)), 71 / 0.7F, 20.5F / 0.7F, 0xC8FFC8);
@@ -689,9 +690,9 @@ public class ExtractionObjective extends Objective {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void renderIdleHud(PoseStack matrixStack, int midX, ExtractionSite[] sites) {
+    private void renderIdleHud(PoseStack matrixStack, ExtractionSite[] sites) {
         matrixStack.pushPose();
-        matrixStack.translate(midX - (sites.length * 20 - 4) / 2.0D, 10.0D, 0.0D);
+        matrixStack.translate(-(sites.length * 20 - 4) / 2.0D, 0.0D, 0.0D);
         bindHud();
         this.blitCircles(matrixStack, sites, 0, 0, 20);
         matrixStack.popPose();

@@ -11,11 +11,9 @@ import xyz.iwolfking.woldsvaults.models.treasure.LockModel;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModModelLayers {
     public static final ModelLayerLocation LOCK = new ModelLayerLocation(WoldsVaults.id("treasure_lock"), "main");
-    public static final ModelLayerLocation EXTRACTOR = new ModelLayerLocation(WoldsVaults.id("extractor"), "main");
 
     @SubscribeEvent
     public static void register(EntityRenderersEvent.RegisterLayerDefinitions event){
         event.registerLayerDefinition(ModModelLayers.LOCK, LockModel::createBodyLayer);
-        event.registerLayerDefinition(ModModelLayers.EXTRACTOR, xyz.iwolfking.woldsvaults.entities.extraction.client.ExtractorModel::createBodyLayer);
     }
 }

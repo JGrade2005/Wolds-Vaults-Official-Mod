@@ -35,6 +35,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.IItemHandler;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
 import top.theillusivec4.curios.api.CuriosApi;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.init.ModConfigs;
@@ -46,9 +53,21 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ExtractorEntity extends LivingEntity {
+@SuppressWarnings({"deprecated", "removal"})
+public class ExtractorEntity extends LivingEntity implements IAnimatable {
     private static final EntityDataAccessor<Boolean> DATA_DRILLING = SynchedEntityData.defineId(ExtractorEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_JOB_DONE = SynchedEntityData.defineId(ExtractorEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> DATA_VARIANTS = SynchedEntityData.defineId(ExtractorEntity.class, EntityDataSerializers.STRING);
+
+    public static final String[] ALL_VARIANT_BONES = {"frame_a_braced", "bit_a_auger", "bit_b_tricone", "bit_c_lance",
+            "housing_a_oak", "housing_b_brass", "cell_a_twin", "cell_b_quad"};
+    public static final String DEFAULT_VARIANT_BONES = "frame_a_braced,bit_a_auger,housing_a_oak,cell_a_twin";
+
+    private final AnimationFactory factory = new AnimationFactory(this);
+    private AnimationBuilder mainChain;
+    private AnimationBuilder drillChain;
+    private boolean mainChainDrilling;
+    private boolean drillChainDrilling;
 
     private final NonNullList<ItemStack> armorItems = NonNullList.withSize(4, ItemStack.EMPTY);
     private final SimpleContainer loot = new SimpleContainer(9);
@@ -89,6 +108,54 @@ public class ExtractorEntity extends LivingEntity {
         super.defineSynchedData();
         this.entityData.define(DATA_DRILLING, false);
         this.entityData.define(DATA_JOB_DONE, false);
+        this.entityData.define(DATA_VARIANTS, DEFAULT_VARIANT_BONES);
+    }
+
+    @Override
+    public void registerControllers(AnimationData animationData) {
+        animationData.addAnimationController(new AnimationController<>(this, "main", 2, this::mainPredicate));
+        animationData.addAnimationController(new AnimationController<>(this, "drill", 0, this::drillPredicate));
+    }
+
+    private <E extends IAnimatable> PlayState mainPredicate(AnimationEvent<E> event) {
+        boolean drilling = this.isDrillingAnim();
+        if (this.mainChain == null) {
+            this.mainChain = drilling
+                    ? new AnimationBuilder().addAnimation("deploy", false).addAnimation("active", true)
+                    : new AnimationBuilder().addAnimation("idle", true);
+            this.mainChainDrilling = drilling;
+        } else if (drilling != this.mainChainDrilling) {
+            this.mainChain = drilling
+                    ? new AnimationBuilder().addAnimation("deploy", false).addAnimation("active", true)
+                    : new AnimationBuilder().addAnimation("retract", false).addAnimation("idle", true);
+            this.mainChainDrilling = drilling;
+        }
+        event.getController().setAnimation(this.mainChain);
+        return PlayState.CONTINUE;
+    }
+
+    private <E extends IAnimatable> PlayState drillPredicate(AnimationEvent<E> event) {
+        boolean drilling = this.isDrillingAnim();
+        if (drilling != this.drillChainDrilling || (this.drillChain == null && drilling)) {
+            this.drillChain = drilling
+                    ? new AnimationBuilder().addAnimation("spin_wind_up", false).addAnimation("spin_fast", true)
+                    : new AnimationBuilder().addAnimation("spin_wind_down", false);
+            this.drillChainDrilling = drilling;
+        }
+        if (this.drillChain == null) {
+            return PlayState.STOP;
+        }
+        event.getController().setAnimation(this.drillChain);
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return this.factory;
+    }
+
+    public String[] getEquippedVariantBones() {
+        return this.entityData.get(DATA_VARIANTS).split(",");
     }
 
     /** Snapshots the deploying item's stat block onto this entity and charges the initial energy. */
@@ -210,7 +277,7 @@ public class ExtractorEntity extends LivingEntity {
                         new TextComponent("Extractor Storage")));
                 return InteractionResult.CONSUME;
             }
-            player.displayClientMessage(new TextComponent("Job complete. Right-click with this extractor's item to collect it.").withStyle(ChatFormatting.GREEN), true);
+            player.displayClientMessage(new TextComponent("Job complete. Open the hanging side pod for the payout, or right-click with this extractor's item to collect it.").withStyle(ChatFormatting.GREEN), true);
             return InteractionResult.CONSUME;
         }
         int deposited = this.depositCellsFrom(player);
@@ -235,7 +302,7 @@ public class ExtractorEntity extends LivingEntity {
     }
 
     private static boolean isLootBoxHit(Vec3 localHit) {
-        return localHit.x > 0.3D && localHit.y > 0.05D && localHit.y < 1.0D && Math.abs(localHit.z) < 0.45D;
+        return localHit.x < -0.85D && localHit.y >= 2.2D && localHit.y <= 3.1D;
     }
 
     private int depositCellsFrom(Player player) {
@@ -324,6 +391,11 @@ public class ExtractorEntity extends LivingEntity {
     }
 
     @Override
+    protected void tickDeath() {
+        this.remove(RemovalReason.KILLED);
+    }
+
+    @Override
     public void travel(@Nonnull Vec3 input) {
     }
 
@@ -399,6 +471,7 @@ public class ExtractorEntity extends LivingEntity {
         if (this.owner != null) {
             tag.putUUID("WvOwner", this.owner);
         }
+        tag.putString("WvVariants", this.entityData.get(DATA_VARIANTS));
         tag.put("WvLoot", this.loot.createTag());
     }
 
@@ -425,6 +498,10 @@ public class ExtractorEntity extends LivingEntity {
         this.setJobDone(tag.getBoolean("WvJobDone"));
         if (tag.hasUUID("WvOwner")) {
             this.owner = tag.getUUID("WvOwner");
+        }
+        String variants = tag.getString("WvVariants");
+        if (!variants.isEmpty()) {
+            this.entityData.set(DATA_VARIANTS, variants);
         }
         this.loot.fromTag(tag.getList("WvLoot", 10));
     }
