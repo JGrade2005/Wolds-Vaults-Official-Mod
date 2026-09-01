@@ -47,6 +47,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -114,6 +115,7 @@ public class ExtractionObjective extends Objective {
 
     private ExtractionSpawnManager spawnManager;
     private final Set<UUID> discoveredPlayers = new HashSet<>();
+    private final Set<Integer> sparkleFallbackLogged = new HashSet<>();
 
     protected ExtractionObjective() {
         this.set(SITES, new ExtractionSite[0]);
@@ -461,6 +463,9 @@ public class ExtractionObjective extends Objective {
         if (this.spawnManager != null) {
             this.spawnManager.tick();
         }
+        if (world.getGameTime() % 3L == 0L) {
+            guarded("pedestal sparkle", () -> this.sparklePedestals(world, vault));
+        }
         if (this.get(COMPLETED)) {
             super.tickServer(world, vault);
             return;
@@ -476,6 +481,57 @@ public class ExtractionObjective extends Objective {
         if (ticked) {
             this.markDirty(SITES);
         }
+    }
+
+    /** Marks every pedestal that still wants an extractor with a sparkle column visible from anywhere in its room. */
+    private void sparklePedestals(VirtualWorld world, Vault vault) {
+        ExtractionSite[] sites = this.get(SITES);
+        List<ServerPlayer> players = new ArrayList<>();
+        for (Runner runner : vault.get(Vault.LISTENERS).getAll(Runner.class)) {
+            runner.getPlayer().ifPresent(players::add);
+        }
+        if (players.isEmpty()) {
+            return;
+        }
+        boolean twinkle = world.getGameTime() % 9L == 0L;
+        for (int i = 0; i < sites.length; i++) {
+            ExtractionSite site = sites[i];
+            if (site.isComplete() || this.getLiveExtractor(world, site) != null) {
+                continue;
+            }
+            AABB visibleFrom = this.siteRoomBounds(site).inflate(8.0D);
+            List<ServerPlayer> watching = new ArrayList<>();
+            for (ServerPlayer player : players) {
+                if (player.level == world && visibleFrom.contains(player.position())) {
+                    watching.add(player);
+                }
+            }
+            Vec3 center = this.sitePedestalCenter(site);
+            BlockPos probe = new BlockPos(center);
+            if (watching.isEmpty() || !world.isLoaded(probe)) {
+                continue;
+            }
+            double top = this.pedestalTop(world, probe, center.y, i);
+            for (ServerPlayer player : watching) {
+                world.sendParticles(player, ParticleTypes.END_ROD, true, center.x, top + 0.3D, center.z, 2, 0.25D, 0.2D, 0.25D, 0.01D);
+                if (twinkle) {
+                    world.sendParticles(player, ParticleTypes.FIREWORK, true, center.x, top + 0.6D, center.z, 3, 0.3D, 0.3D, 0.3D, 0.02D);
+                }
+            }
+        }
+    }
+
+    private double pedestalTop(VirtualWorld world, BlockPos probe, double nominalY, int siteIndex) {
+        for (int i = 0; i <= 3; i++) {
+            BlockPos pos = probe.below(i);
+            if (!world.getBlockState(pos).isAir()) {
+                return pos.getY() + 1.0D;
+            }
+        }
+        if (this.sparkleFallbackLogged.add(siteIndex)) {
+            WoldsVaults.LOGGER.error("Extraction site {} has no solid pedestal block within 3 below {}; sparkling at the nominal pedestal height instead.", siteIndex, probe);
+        }
+        return nominalY;
     }
 
     private void tickSite(VirtualWorld world, Vault vault, ExtractionSite site) {

@@ -5,6 +5,7 @@ import iskallia.vault.core.vault.VaultUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -50,6 +51,7 @@ import xyz.iwolfking.woldsvaults.items.ExtractorItem;
 import xyz.iwolfking.woldsvaults.objectives.ExtractionObjective;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,6 +64,8 @@ public class ExtractorEntity extends LivingEntity implements IAnimatable {
     public static final String[] ALL_VARIANT_BONES = {"frame_a_braced", "bit_a_auger", "bit_b_tricone", "bit_c_lance",
             "housing_a_oak", "housing_b_brass", "cell_a_twin", "cell_b_quad"};
     public static final String DEFAULT_VARIANT_BONES = "frame_a_braced,bit_a_auger,housing_a_oak,cell_a_twin";
+    private static final int LOOT_ROWS = 6;
+    private static final Component FUEL_PROMPT = new TextComponent("Right-click with Power Cells to fuel the extractor").withStyle(ChatFormatting.YELLOW);
 
     private final AnimationFactory factory = new AnimationFactory(this);
     private AnimationBuilder mainChain;
@@ -70,7 +74,7 @@ public class ExtractorEntity extends LivingEntity implements IAnimatable {
     private boolean drillChainDrilling;
 
     private final NonNullList<ItemStack> armorItems = NonNullList.withSize(4, ItemStack.EMPTY);
-    private final SimpleContainer loot = new SimpleContainer(9);
+    private final SimpleContainer loot = new SimpleContainer(9 * LOOT_ROWS);
 
     private float shield;
     private float energy;
@@ -273,11 +277,11 @@ public class ExtractorEntity extends LivingEntity implements IAnimatable {
                 return InteractionResult.CONSUME;
             }
             if (isLootBoxHit(localHit)) {
-                player.openMenu(new SimpleMenuProvider((id, inv, p) -> new ChestMenu(MenuType.GENERIC_9x1, id, inv, this.loot, 1),
+                player.openMenu(new SimpleMenuProvider((id, inv, p) -> new ChestMenu(MenuType.GENERIC_9x6, id, inv, this.loot, LOOT_ROWS),
                         new TextComponent("Extractor Storage")));
                 return InteractionResult.CONSUME;
             }
-            player.displayClientMessage(new TextComponent("Job complete. Open the hanging side pod for the payout, or right-click with this extractor's item to collect it.").withStyle(ChatFormatting.GREEN), true);
+            player.displayClientMessage(new TextComponent("Pick up the extractor by right-clicking it with its item in hand!").withStyle(ChatFormatting.GREEN), true);
             return InteractionResult.CONSUME;
         }
         int deposited = this.depositCellsFrom(player);
@@ -384,9 +388,19 @@ public class ExtractorEntity extends LivingEntity implements IAnimatable {
     public void tick() {
         super.tick();
         this.setDeltaMovement(Vec3.ZERO);
+        if (!this.level.isClientSide()) {
+            this.updateNameplate();
+        }
         if (!this.level.isClientSide() && this.tickCount % 100 == 0 && VaultUtils.getVault(this.level).isEmpty()) {
             WoldsVaults.LOGGER.info("Extractor entity {} found itself outside a vault and self-destructed.", this.getUUID());
             this.discard();
+        }
+    }
+
+    private void updateNameplate() {
+        Component desired = this.isJobDone() ? null : FUEL_PROMPT;
+        if (!Objects.equals(desired, this.getCustomName())) {
+            this.setCustomName(desired);
         }
     }
 

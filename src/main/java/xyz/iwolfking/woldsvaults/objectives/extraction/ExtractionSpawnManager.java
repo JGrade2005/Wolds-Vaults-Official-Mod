@@ -15,10 +15,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.registries.ForgeRegistries;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.config.ExtractionObjectiveConfig;
@@ -118,6 +120,9 @@ public class ExtractionSpawnManager extends ObjectiveManager<ExtractionObjective
         if (living instanceof Mob mob) {
             mob.setPersistenceRequired();
             mob.spawnAnim();
+            ForgeEventFactory.doSpecialSpawn(mob, world, (float) mob.getX(), (float) mob.getY(), (float) mob.getZ(), null, MobSpawnType.SPAWNER);
+        } else {
+            WoldsVaults.LOGGER.error("Extraction wave entity {} is not a Mob; vault modifiers will not be applied to it.", id);
         }
         world.addWithUUID(living);
         EntityScaler.scale(vault, living);
