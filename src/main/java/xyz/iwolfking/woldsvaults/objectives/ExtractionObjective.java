@@ -428,6 +428,7 @@ public class ExtractionObjective extends Objective {
         target.set(ExtractionSite.ENTITY, extractor.getUUID());
         target.set(ExtractionSite.STATE, ExtractionSite.STATE_DRILLING);
         target.set(ExtractionSite.REQUIRED, job.baseDurationTicks);
+        this.markDirty(SITES);
         ExtractorItem.markDeployed(stack, vault.get(Vault.ID), extractor.getUUID());
         world.playSound(null, new BlockPos(pedestal.x, pedestal.y, pedestal.z), SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.8F);
         player.displayClientMessage(new TextComponent("Extractor deployed - defend it while it drills!").withStyle(ChatFormatting.GOLD), true);
@@ -458,10 +459,15 @@ public class ExtractionObjective extends Objective {
             return;
         }
         ExtractionSite[] sites = this.get(SITES);
+        boolean ticked = false;
         for (ExtractionSite site : sites) {
             if (site.isDrilling()) {
                 this.tickSite(world, vault, site);
+                ticked = true;
             }
+        }
+        if (ticked) {
+            this.markDirty(SITES);
         }
     }
 
