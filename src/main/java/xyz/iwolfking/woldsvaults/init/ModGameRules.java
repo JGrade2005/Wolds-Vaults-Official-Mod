@@ -25,7 +25,6 @@ public class ModGameRules {
     public static GameRules.Key<GameRules.BooleanValue> ALLOW_WATERFRAMES;
     public static GameRules.Key<GameRules.BooleanValue> OLD_OVERPOWER_MECHANIC;
     public static GameRules.Key<GameRules.BooleanValue> VANILLA_WILD_WEST_ROOMS;
-    public static GameRules.Key<GameRules.BooleanValue> GREED_SCALES_WITH_DIFFICULTY;
 
     public static void initialize() {
         ALLOW_FLIGHT_IN_VAULTS = GameRules.register("enableFlightInVaults", GameRules.Category.PLAYER, booleanRule(false));
@@ -41,7 +40,6 @@ public class ModGameRules {
         ALLOW_WATERFRAMES = GameRules.register("enableWaterframes", GameRules.Category.PLAYER, booleanRule(true));
         OLD_OVERPOWER_MECHANIC = GameRules.register("oldOverpowerMechanic", GameRules.Category.PLAYER, booleanRule(false));
         VANILLA_WILD_WEST_ROOMS = GameRules.register("vanillaWildWestRooms", GameRules.Category.PLAYER, booleanRule(false));
-        GREED_SCALES_WITH_DIFFICULTY = GameRules.register("greedScalesWithDifficulty", GameRules.Category.PLAYER, booleanRule(true));
     }
 
 
