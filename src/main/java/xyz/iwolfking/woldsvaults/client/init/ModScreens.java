@@ -23,5 +23,8 @@ public class ModScreens {
         MenuScreens.register(ModContainers.TRINKET_FUSION_CONTAINER, TrinketFusionScreen::new);
         MenuScreens.register(ModContainers.GREED_MILESTONES_CONTAINER, GreedMilestonesScreen::new);
         MenuScreens.register(ModContainers.GOD_TREE_CONTAINER, GodTreeScreen::new);
+        MenuScreens.register(ModContainers.EXTRACTOR_ASSEMBLER_CONTAINER, ExtractorAssemblerScreen::new);
+        MenuScreens.register(ModContainers.EXTRACTOR_FORGE_CONTAINER, ExtractorForgeScreen::new);
+        MenuScreens.register(ModContainers.EXTRACTOR_CARD_CONTAINER, ExtractorCardScreen::new);
     }
 }

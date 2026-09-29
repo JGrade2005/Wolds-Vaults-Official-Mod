@@ -3,7 +3,7 @@ package xyz.iwolfking.woldsvaults.gods.trees.wendarr;
 import iskallia.vault.core.vault.Vault;
 import iskallia.vault.core.vault.influence.VaultGod;
 import iskallia.vault.core.vault.time.TickClock;
-import iskallia.vault.core.vault.time.modifier.GreedExtension;
+import iskallia.vault.core.vault.time.modifier.PylonExtension;
 import iskallia.vault.world.data.ServerVaults;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +29,7 @@ public final class WendarrTimeHandlers {
     private WendarrTimeHandlers() {
     }
 
-    /** Extender: adds vault time as a {@link GreedExtension}, per player and stacking across a party. */
+    /** Extender: adds vault time as a {@link PylonExtension} (GreedExtension is not in VaultRegistry.CLOCK_MODIFIER and corrupts vault serialization), per player and stacking across a party. */
     public record ExtenderHandler(GodEffect effect) implements VaultContributor {
         @Override
         public void onVaultStart(GodNodeContext context, Vault vault) {
@@ -39,7 +39,7 @@ public final class WendarrTimeHandlers {
                         context.player().getGameProfile().getName());
                 return;
             }
-            clock.addModifier(new GreedExtension(context.player(),
+            clock.addModifier(new PylonExtension(context.player(),
                     this.effect.params(WendarrNodeHandlers.ExtenderParams.class).ticks()));
         }
     }

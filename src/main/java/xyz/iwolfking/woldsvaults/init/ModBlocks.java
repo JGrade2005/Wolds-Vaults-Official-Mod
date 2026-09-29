@@ -46,6 +46,11 @@ public class ModBlocks {
     public static final SurvivalMobBarrier SURVIVAL_MOB_BARRIER;
     public static final VaultInfuserBlock VAULT_INFUSER_BLOCK;
     public static final VaultInfuserBlock CHROMATIC_STEEL_INFUSER_BLOCK;
+    public static final xyz.iwolfking.woldsvaults.blocks.ExtractorAssemblerBlock EXTRACTOR_ASSEMBLER_BLOCK;
+    public static final xyz.iwolfking.woldsvaults.blocks.ExtractorForgeBlock EXTRACTOR_FORGE_BLOCK;
+    public static final xyz.iwolfking.woldsvaults.blocks.ExtractorStructureBlock EXTRACTOR_ASSEMBLER_PART_BLOCK;
+    public static final xyz.iwolfking.woldsvaults.blocks.ExtractorStructureBlock EXTRACTION_FORGE_PART_BLOCK;
+    public static final xyz.iwolfking.woldsvaults.blocks.MobileFluidTankBlock MOBILE_FLUID_TANK;
     public static final GatewayChannelingBlock GATEWAY_CHANNELING_BLOCK;
     public static final FracturedObelisk FRACTURED_OBELISK;
     public static final MonolithControllerBlock MONOLITH_CONTROLLER;
@@ -91,6 +96,10 @@ public class ModBlocks {
     public static final BlockEntityType<SurvivalMobBarrierTileEntity> SURVIVAL_MOB_BARRIER_TILE_ENTITY_BLOCK_ENTITY_TYPE;
     public static final BlockEntityType<BackpackBlockEntity> SOPHISTICATED_BACKPACK;
     public static final BlockEntityType<VaultInfuserTileEntity> VAULT_INFUSER_TILE_ENTITY_BLOCK_ENTITY_TYPE;
+    public static final BlockEntityType<xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorAssemblerTileEntity> EXTRACTOR_ASSEMBLER_TILE_ENTITY_TYPE;
+    public static final BlockEntityType<xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorForgeTileEntity> EXTRACTOR_FORGE_TILE_ENTITY_TYPE;
+    public static final BlockEntityType<xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorStructureTileEntity> EXTRACTOR_STRUCTURE_TILE_ENTITY_TYPE;
+    public static final BlockEntityType<xyz.iwolfking.woldsvaults.blocks.tiles.MobileFluidTankTileEntity> MOBILE_FLUID_TANK_TILE_ENTITY_TYPE;
     public static final BlockEntityType<DollDismantlingTileEntity> DOLL_DISMANTLING_TILE_ENTITY_BLOCK_ENTITY_TYPE;
     public static final BlockEntityType<CrateCrackerTileEntity> CRATE_CRACKER_TILE_ENTITY_BLOCK_ENTITY_TYPE;
     public static final BlockEntityType<OwnedCraftingTableTileEntity> OWNED_CRAFTING_TABLE_TILE_ENTITY_BLOCK_ENTITY_TYPE;
@@ -240,6 +249,11 @@ public class ModBlocks {
         XL_BACKPACK = new BackpackBlock(12000);
         VAULT_INFUSER_BLOCK = new VaultInfuserBlock(1);
         CHROMATIC_STEEL_INFUSER_BLOCK = new VaultInfuserBlock(4);
+        EXTRACTOR_ASSEMBLER_BLOCK = new xyz.iwolfking.woldsvaults.blocks.ExtractorAssemblerBlock();
+        EXTRACTOR_FORGE_BLOCK = new xyz.iwolfking.woldsvaults.blocks.ExtractorForgeBlock();
+        EXTRACTOR_ASSEMBLER_PART_BLOCK = new xyz.iwolfking.woldsvaults.blocks.ExtractorStructureBlock.AssemblerPart();
+        EXTRACTION_FORGE_PART_BLOCK = new xyz.iwolfking.woldsvaults.blocks.ExtractorStructureBlock.ForgePart();
+        MOBILE_FLUID_TANK = new xyz.iwolfking.woldsvaults.blocks.MobileFluidTankBlock();
         AUGMENT_CRAFTING_TABLE = new AugmentCraftingTableBlock();
         MOD_BOX_WORKSTATION = new ModBoxWorkstationBlock();
         WEAVING_STATION = new WeavingStationBlock();
@@ -285,6 +299,10 @@ public class ModBlocks {
         DECO_TENOS_ALTAR_TILE_ENTITY_BLOCK_ENTITY_TYPE = BlockEntityType.Builder.of(DecoTenosAltarTileEntity::new, DECO_TENOS_ALTAR_BLOCK).build(null);
         SURVIVAL_MOB_BARRIER_TILE_ENTITY_BLOCK_ENTITY_TYPE = BlockEntityType.Builder.of(SurvivalMobBarrierTileEntity::new, SURVIVAL_MOB_BARRIER).build(null);
         VAULT_INFUSER_TILE_ENTITY_BLOCK_ENTITY_TYPE = BlockEntityType.Builder.of(VaultInfuserTileEntity::new, new Block[]{VAULT_INFUSER_BLOCK, CHROMATIC_STEEL_INFUSER_BLOCK}).build(null);
+        EXTRACTOR_ASSEMBLER_TILE_ENTITY_TYPE = BlockEntityType.Builder.of(xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorAssemblerTileEntity::new, EXTRACTOR_ASSEMBLER_BLOCK).build(null);
+        EXTRACTOR_FORGE_TILE_ENTITY_TYPE = BlockEntityType.Builder.of(xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorForgeTileEntity::new, EXTRACTOR_FORGE_BLOCK).build(null);
+        EXTRACTOR_STRUCTURE_TILE_ENTITY_TYPE = BlockEntityType.Builder.of(xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorStructureTileEntity::new, EXTRACTOR_ASSEMBLER_PART_BLOCK, EXTRACTION_FORGE_PART_BLOCK).build(null);
+        MOBILE_FLUID_TANK_TILE_ENTITY_TYPE = BlockEntityType.Builder.of(xyz.iwolfking.woldsvaults.blocks.tiles.MobileFluidTankTileEntity::new, MOBILE_FLUID_TANK).build(null);
         SOPHISTICATED_BACKPACK = BlockEntityType.Builder.of(BackpackBlockEntity::new, new Block[]{XL_BACKPACK}).build(null);
         AUGMENT_CRAFTING_TABLE_ENTITY = BlockEntityType.Builder.of(AugmentCraftingTableTileEntity::new, new Block[]{AUGMENT_CRAFTING_TABLE}).build(null);
         MOD_BOX_WORKSTATION_TILE_ENTITY_BLOCK_ENTITY_TYPE = BlockEntityType.Builder.of(ModBoxWorkstationTileEntity::new, new Block[]{MOD_BOX_WORKSTATION}).build(null);
@@ -396,6 +414,11 @@ public class ModBlocks {
         registerBlock(event, NULLITE_ORE, WoldsVaults.id("nullite_ore"));
         registerBlock(event, VAULT_INFUSER_BLOCK, WoldsVaults.id("chromatic_iron_vault_infuser"));
         registerBlock(event, CHROMATIC_STEEL_INFUSER_BLOCK, WoldsVaults.id("chromatic_steel_vault_infuser"));
+        registerBlock(event, EXTRACTOR_ASSEMBLER_BLOCK, WoldsVaults.id("extractor_assembler"));
+        registerBlock(event, EXTRACTOR_FORGE_BLOCK, WoldsVaults.id("extraction_forge"));
+        registerBlock(event, EXTRACTOR_ASSEMBLER_PART_BLOCK, WoldsVaults.id("extractor_assembler_part"));
+        registerBlock(event, EXTRACTION_FORGE_PART_BLOCK, WoldsVaults.id("extraction_forge_part"));
+        registerBlock(event, MOBILE_FLUID_TANK, WoldsVaults.id("mobile_extractor_fluid_tank"));
         registerBlock(event, TRINKET_FUSION_BLOCK, WoldsVaults.id("trinket_fusion_forge"));
         registerBlock(event, PRISMATIC_GLUE_BLOCK, WoldsVaults.id("prismatic_glue_block"));
         registerBlock(event, MOLTEN_TRINKET_BLOCK, WoldsVaults.id("molten_trinket_block"));
@@ -501,6 +524,10 @@ public class ModBlocks {
         registerTileEntity(event, MOD_BOX_WORKSTATION_TILE_ENTITY_BLOCK_ENTITY_TYPE, WoldsVaults.id("mod_box_workstation_entity"));
         registerTileEntity(event, WEAVING_STATION_TILE_ENTITY_BLOCK_ENTITY_TYPE, WoldsVaults.id("weaving_station_entity"));
         registerTileEntity(event, VAULT_INFUSER_TILE_ENTITY_BLOCK_ENTITY_TYPE, WoldsVaults.id("vault_infuser_entity"));
+        registerTileEntity(event, EXTRACTOR_ASSEMBLER_TILE_ENTITY_TYPE, WoldsVaults.id("extractor_assembler_entity"));
+        registerTileEntity(event, EXTRACTOR_FORGE_TILE_ENTITY_TYPE, WoldsVaults.id("extractor_forge_entity"));
+        registerTileEntity(event, EXTRACTOR_STRUCTURE_TILE_ENTITY_TYPE, WoldsVaults.id("extractor_structure_entity"));
+        registerTileEntity(event, MOBILE_FLUID_TANK_TILE_ENTITY_TYPE, WoldsVaults.id("mobile_extractor_fluid_tank_entity"));
         registerTileEntity(event, FRACTURED_OBELISK_TILE_ENTITY_BLOCK_ENTITY_TYPE, WoldsVaults.id("fractured_obelisk_tile_entity"));
         registerTileEntity(event, MONOLITH_CONTROLLER_BLOCK_ENTITY_TYPE, WoldsVaults.id("monolith_controller_tile_entity"));
         registerTileEntity(event, BREWING_ALTAR_TILE_ENTITY_BLOCK_ENTITY_TYPE, WoldsVaults.id("brewing_altar_tile_entity"));
@@ -536,6 +563,9 @@ public class ModBlocks {
         registerBlockItem(event, NULLITE_ORE, 64, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
         registerBlockItem(event, VAULT_INFUSER_BLOCK, 64, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
         registerBlockItem(event, CHROMATIC_STEEL_INFUSER_BLOCK, 64, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
+        registerBlockItem(event, EXTRACTOR_ASSEMBLER_BLOCK, 1, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
+        registerBlockItem(event, EXTRACTOR_FORGE_BLOCK, 1, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
+        registerBlockItem(event, MOBILE_FLUID_TANK, new xyz.iwolfking.woldsvaults.items.MobileFluidTankItem(MOBILE_FLUID_TANK, new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS)));
         registerBlockItem(event, TRINKET_FUSION_BLOCK, 64, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
         registerBlockItem(event, GATEWAY_CHANNELING_BLOCK, 64, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
         registerBlockItem(event, ETCHING_PEDESTAL, 64, properties -> properties.tab(ModCreativeTabs.WOLDS_VAULTS));
@@ -639,6 +669,8 @@ public class ModBlocks {
         event.registerBlockEntityRenderer(DUNGEON_PEDESTAL_TILE_ENTITY_BLOCK_ENTITY_TYPE, DungeonPedestalRenderer::new);
         event.registerBlockEntityRenderer(FRACTURED_OBELISK_TILE_ENTITY_BLOCK_ENTITY_TYPE, FracturedObeliskRenderer::new);
         event.registerBlockEntityRenderer(MONOLITH_CONTROLLER_BLOCK_ENTITY_TYPE, MonolithControllerRenderer::new);
+        event.registerBlockEntityRenderer(EXTRACTOR_ASSEMBLER_TILE_ENTITY_TYPE, context -> new xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRenderer<>(context, xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRig.ASSEMBLER));
+        event.registerBlockEntityRenderer(EXTRACTOR_FORGE_TILE_ENTITY_TYPE, context -> new xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRenderer<>(context, xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRig.FORGE));
         event.registerBlockEntityRenderer(BREWING_ALTAR_TILE_ENTITY_BLOCK_ENTITY_TYPE, BrewingAltarRenderer::new);
         event.registerBlockEntityRenderer(VAULT_EVENT_ACTIVATOR_TILE_ENTITY_BLOCK_ENTITY_TYPE, VaultEventActivatorRenderer::new);
         event.registerBlockEntityRenderer(DOLL_DISMANTLING_TILE_ENTITY_BLOCK_ENTITY_TYPE, DollDismantlingRenderer::new);

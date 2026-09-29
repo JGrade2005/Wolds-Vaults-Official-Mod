@@ -35,6 +35,12 @@ import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.init.ModGearAttributes;
 import xyz.iwolfking.woldsvaults.items.gear.VaultMapItem;
 
+import iskallia.vault.init.ModConfigs;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
+import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
 import java.util.UUID;
 
 @Mixin(value = VaultGearHelper.class, remap = false)
@@ -48,6 +54,20 @@ public class MixinVaultGearHelper {
                 data.write(stack);
             }
         }
+    }
+
+    /** Unidentified gear that is already flagged ancient says so in its name, in the ancient ember colour. */
+    @Inject(method = "getDisplayName(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/Component;", at = @At("HEAD"), cancellable = true)
+    private static void nameUnidentifiedAncient(ItemStack stack, Component defaultName, CallbackInfoReturnable<Component> cir) {
+        if (!ModConfigs.isInitialized()) {
+            return;
+        }
+        GearDataCache cache = GearDataCache.of(stack);
+        if (cache.getState() != VaultGearState.UNIDENTIFIED || !cache.hasAttribute(xyz.iwolfking.woldsvaults.init.ModGearAttributes.ANCIENT_UNIQUE)) {
+            return;
+        }
+        Style style = defaultName.getStyle().withColor(TextColor.fromRgb(AncientUniqueHelper.ANCIENT_COLOR));
+        cir.setReturnValue(new TextComponent("Unidentified Ancient ").setStyle(style).append(defaultName.copy().setStyle(style)));
     }
 
     /** Applies {@code health_boost} as MULTIPLY_TOTAL on max health, so a 0.10 roll is 1.10x the total. */

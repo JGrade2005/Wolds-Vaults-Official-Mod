@@ -150,11 +150,8 @@ public class ModItems {
      */
     public static final Map<GreedMedallionTier, GreedMedallionItem> GREED_MEDALLIONS = new EnumMap<>(GreedMedallionTier.class);
 
-    /**
-     * Testing-only source of ancient uniques: yields a level 100 ancient unique drawn uniformly from every unique
-     * with an ancient tier config.
-     */
-    public static UnidentifiedAncientUniqueItem UNIDENTIFIED_ANCIENT_UNIQUE;
+    /** Retired item kept registered so stacks from older builds convert into real unidentified ancient gear. */
+    public static LegacyUnidentifiedAncientItem UNIDENTIFIED_ANCIENT_UNIQUE;
 
     public static BasicItem STYLISH_FOCUS;
     public static BasicItem MERCY_ORB;
@@ -177,6 +174,8 @@ public class ModItems {
     public static BasicItem ARCANE_SHARD;
     public static xyz.iwolfking.woldsvaults.items.ExtractorItem EXTRACTOR;
     public static xyz.iwolfking.woldsvaults.items.PowerCellItem POWER_CELL;
+    public static final EnumMap<xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType, xyz.iwolfking.woldsvaults.items.ExtractorBlueprintItem> EXTRACTOR_BLUEPRINTS = new EnumMap<>(xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType.class);
+    public static final EnumMap<xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType, xyz.iwolfking.woldsvaults.items.ExtractorPartItem> EXTRACTOR_PARTS = new EnumMap<>(xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType.class);
     public static BasicItem EXTRAORDINARY_POG_PRISM;
     public static BasicItem HEART_OF_CHAOS;
     public static BasicItem GEM_REAGENT_ASHIUM;
@@ -338,6 +337,8 @@ public class ModItems {
         registry.register(ARCANE_SHARD);
         registry.register(EXTRACTOR);
         registry.register(POWER_CELL);
+        EXTRACTOR_BLUEPRINTS.values().forEach(registry::register);
+        EXTRACTOR_PARTS.values().forEach(registry::register);
         registry.register(EXTRAORDINARY_POG_PRISM);
         registry.register(HEART_OF_CHAOS);
         registry.register(GEM_REAGENT_GORGINITE);
@@ -515,7 +516,7 @@ public class ModItems {
             GREED_MEDALLIONS.put(medallionTier, new GreedMedallionItem(medallionTier, (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16)));
         }
 
-        UNIDENTIFIED_ANCIENT_UNIQUE = new UnidentifiedAncientUniqueItem(WoldsVaults.id("unidentified_ancient_unique"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16));
+        UNIDENTIFIED_ANCIENT_UNIQUE = new LegacyUnidentifiedAncientItem(WoldsVaults.id("unidentified_ancient_unique"), (new Item.Properties()).stacksTo(16));
 
         STYLISH_FOCUS = new BasicItem(WoldsVaults.id("stylish_focus"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS));
         CHISELING_FOCUS = new ToolModifierNullifyingItem(WoldsVaults.id("chiseling_focus"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS));
@@ -549,6 +550,12 @@ public class ModItems {
         ARCANE_SHARD = new BasicItem(WoldsVaults.id("arcane_shard"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         EXTRACTOR = new xyz.iwolfking.woldsvaults.items.ExtractorItem(WoldsVaults.id("extractor"));
         POWER_CELL = new xyz.iwolfking.woldsvaults.items.PowerCellItem(WoldsVaults.id("power_cell"));
+        for (xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType type : xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType.values()) {
+            EXTRACTOR_BLUEPRINTS.put(type, new xyz.iwolfking.woldsvaults.items.ExtractorBlueprintItem(WoldsVaults.id(type.getId() + "_blueprint"),
+                    new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1), type));
+            EXTRACTOR_PARTS.put(type, new xyz.iwolfking.woldsvaults.items.ExtractorPartItem(WoldsVaults.id("extractor_" + type.getId()),
+                    new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1), type));
+        }
         HEART_OF_CHAOS = new BasicItem(WoldsVaults.id("heart_of_chaos"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         AUGMENT_PIECE = new BasicItem(WoldsVaults.id("augment_piece"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         VAULT_DIAMOND_NUGGET = new BasicItem(WoldsVaults.id("vault_diamond_nugget"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));

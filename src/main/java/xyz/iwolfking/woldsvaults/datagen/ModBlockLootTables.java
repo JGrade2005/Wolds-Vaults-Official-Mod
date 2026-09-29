@@ -52,6 +52,11 @@ public class ModBlockLootTables implements Consumer<BiConsumer<ResourceLocation,
     private static final LootItemCondition.Builder HAS_SILK_TOUCH = MatchTool.toolMatches(ItemPredicate.Builder.item().hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1))));
 
     protected void addTables() {
+        dropSelf(ModBlocks.EXTRACTOR_ASSEMBLER_BLOCK);
+        dropSelf(ModBlocks.EXTRACTOR_FORGE_BLOCK);
+        add(ModBlocks.EXTRACTOR_ASSEMBLER_PART_BLOCK, noDrop());
+        add(ModBlocks.EXTRACTION_FORGE_PART_BLOCK, noDrop());
+        add(ModBlocks.MOBILE_FLUID_TANK, noDrop());
         dropSelf(ModBlocks.CARBON_BLOCK);
         dropSelf(ModBlocks.PRISMATIC_FIBER_BLOCK);
         dropSelf(ModBlocks.CHROMATIC_GOLD_BLOCK);

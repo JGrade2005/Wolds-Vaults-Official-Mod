@@ -68,6 +68,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.config.ExtractionObjectiveConfig;
 import xyz.iwolfking.woldsvaults.entities.extraction.ExtractorEntity;
+import xyz.iwolfking.woldsvaults.extraction.jobs.ExtractionPayouts;
+import xyz.iwolfking.woldsvaults.extraction.jobs.GreedCardUpgrades;
+import iskallia.vault.world.data.PlayerGreedTreeData;
+import xyz.iwolfking.woldsvaults.medallions.GreedMedallionTier;
+import xyz.iwolfking.woldsvaults.medallions.GreedMedallionVaultState;
 import xyz.iwolfking.woldsvaults.init.ModConfigs;
 import xyz.iwolfking.woldsvaults.init.ModEntities;
 import xyz.iwolfking.woldsvaults.init.ModItems;
@@ -197,6 +202,10 @@ public class ExtractionObjective extends Objective {
             ExtractionObjectiveConfig.CellsEntry cells = ModConfigs.EXTRACTION_OBJECTIVE.CELLS;
             if (entity.getTags().contains(ExtractionSpawnManager.TAG_CARRIER)) {
                 chance = 1.0D;
+            } else if (entity.getTags().contains(ExtractionSpawnManager.TAG_BOSS)) {
+                chance = cells.bossMobDropChance;
+            } else if (entity.getTags().contains(ExtractionSpawnManager.TAG_ELITE)) {
+                chance = cells.eliteMobDropChance;
             } else if (entity.getTags().contains(ExtractionSpawnManager.TAG_ASSASSIN)) {
                 chance = cells.assassinMobDropChance;
             } else if (entity.getTags().contains(ExtractionSpawnManager.TAG_HORDE)) {
@@ -209,8 +218,70 @@ public class ExtractionObjective extends Objective {
             }
         }));
 
+        CommonEvents.LISTENER_LEAVE.register(this, data -> guarded("return infuser cards", () -> {
+            if (data.getVault() != vault) {
+                return;
+            }
+            data.getListener().getPlayer().ifPresent(player -> this.returnCardsOnLeave(world, player));
+        }));
+
         this.spawnManager = new ExtractionSpawnManager(vault, world, this);
         super.initServer(world, vault);
+    }
+
+    /**
+     * A placer leaving the vault takes their cards with them: upgraded if their Greed Infuser finished, as inserted
+     * otherwise, in which case the unfinished job is cancelled and the rig removed.
+     */
+    private void returnCardsOnLeave(VirtualWorld world, ServerPlayer player) {
+        for (ExtractionSite site : this.get(SITES)) {
+            ExtractorEntity extractor = this.getLiveExtractor(world, site);
+            if (extractor == null || extractor.getCards().isEmpty() || !extractor.getOwner().map(player.getUUID()::equals).orElse(false)) {
+                continue;
+            }
+            boolean finished = extractor.isJobDone();
+            int count = extractor.giveCardsTo(player);
+            player.displayClientMessage(new TextComponent(String.format("%d greed card%s returned from your Greed Infuser%s", count, count == 1 ? "" : "s",
+                    finished ? "." : " - its unfinished job was cancelled.")).withStyle(ChatFormatting.YELLOW), false);
+            if (!finished) {
+                if (site.isArmed()) {
+                    site.set(ExtractionSite.STATE, site.get(ExtractionSite.PROGRESS) > 0.0F ? ExtractionSite.STATE_DRILLING : ExtractionSite.STATE_UNTOUCHED);
+                }
+                site.set(ExtractionSite.OCCUPIED, false);
+                extractor.discard();
+                this.markDirty(SITES);
+            }
+        }
+    }
+
+    /** Switches the armed site holding this rig to drilling; false (and logged) when the rig is not an armed site's occupant. */
+    public boolean startArmedExtractor(ExtractorEntity extractor) {
+        for (ExtractionSite site : this.get(SITES)) {
+            if (site.has(ExtractionSite.ENTITY) && extractor.getUUID().equals(site.get(ExtractionSite.ENTITY))) {
+                if (!site.isArmed()) {
+                    WoldsVaults.LOGGER.error("Extractor {} asked to start but its site is in state {}, not armed.", extractor.getUUID(), site.get(ExtractionSite.STATE));
+                    return false;
+                }
+                site.set(ExtractionSite.STATE, ExtractionSite.STATE_DRILLING);
+                this.markDirty(SITES);
+                return true;
+            }
+        }
+        WoldsVaults.LOGGER.error("Armed extractor {} asked to start but no extraction site is keyed to it.", extractor.getUUID());
+        return false;
+    }
+
+    /** A never-started rig was taken back: the site returns to the state it had before it was placed. */
+    public void onArmedExtractorCollected(ExtractorEntity extractor) {
+        for (ExtractionSite site : this.get(SITES)) {
+            if (site.has(ExtractionSite.ENTITY) && extractor.getUUID().equals(site.get(ExtractionSite.ENTITY))) {
+                site.set(ExtractionSite.STATE, site.get(ExtractionSite.PROGRESS) > 0.0F ? ExtractionSite.STATE_DRILLING : ExtractionSite.STATE_UNTOUCHED);
+                site.set(ExtractionSite.OCCUPIED, false);
+                this.markDirty(SITES);
+                return;
+            }
+        }
+        WoldsVaults.LOGGER.error("Armed extractor {} was collected but no extraction site was keyed to it.", extractor.getUUID());
     }
 
     private static ItemStack createCellStack(Vault vault) {
@@ -421,9 +492,32 @@ public class ExtractionObjective extends Objective {
             player.displayClientMessage(new TextComponent("This extractor's drill head is not configured (job '" + jobId + "').").withStyle(ChatFormatting.RED), true);
             return InteractionResult.FAIL;
         }
-        if (ExtractorItem.getData(stack).getInt("Power") < job.minPower) {
+        int power = ExtractorItem.getData(stack).getInt("Power");
+        if (power < job.minPower) {
             player.displayClientMessage(new TextComponent("This extractor lacks the power for its job (needs " + job.minPower + ").").withStyle(ChatFormatting.RED), true);
             return InteractionResult.FAIL;
+        }
+        int rank = GreedMedallionVaultState.get(vault).map(GreedMedallionTier::getRankIndex).orElse(0);
+        if (rank < job.minRank) {
+            String needed = GreedMedallionTier.byRankIndex(job.minRank).map(tier -> tier.getBand() + " " + tier.getTierInBand()).orElse("rank " + job.minRank);
+            player.displayClientMessage(new TextComponent("This job needs a " + needed + " greed medallion or better on the crystal.").withStyle(ChatFormatting.RED), true);
+            return InteractionResult.FAIL;
+        }
+        String cardTarget = "";
+        int cardSlots = 0;
+        if (job.requiresArming) {
+            if ("cards".equalsIgnoreCase(job.payout.type)) {
+                int greedTier = player.getServer() == null ? 0 : PlayerGreedTreeData.get(player.getServer()).getGreedTier(player.getUUID());
+                String placerClass = GreedCardUpgrades.classForGreedTier(greedTier);
+                if (placerClass == null) {
+                    player.displayClientMessage(new TextComponent("Your greed rank does not unlock any greed cards yet, so the Greed Infuser has nothing to upgrade to.").withStyle(ChatFormatting.RED), true);
+                    return InteractionResult.FAIL;
+                }
+                cardTarget = placerClass;
+                cardSlots = ModConfigs.EXTRACTION_OBJECTIVE.GREED_INFUSER.slotsFor(power, job.minPower);
+            } else {
+                WoldsVaults.LOGGER.error("Job '{}' requires arming but payout type '{}' has no insert screen; the rig is placed armed with nothing to insert.", jobId, job.payout.type);
+            }
         }
         ExtractorEntity extractor = ModEntities.EXTRACTOR.create(world);
         if (extractor == null) {
@@ -433,22 +527,46 @@ public class ExtractionObjective extends Objective {
         Vec3 pedestal = this.sitePedestalCenter(target);
         extractor.initFromItem(stack, player, targetIndex, ModConfigs.EXTRACTION_OBJECTIVE.DEPLOYMENT.initialEnergyFraction);
         extractor.moveTo(pedestal.x, pedestal.y - 2.0D, pedestal.z, 0.0F, 0.0F);
+        if (job.requiresArming) {
+            extractor.arm(cardSlots, cardTarget);
+        }
         world.addWithUUID(extractor);
         target.set(ExtractionSite.ENTITY, extractor.getUUID());
-        target.set(ExtractionSite.STATE, ExtractionSite.STATE_DRILLING);
-        target.set(ExtractionSite.REQUIRED, job.baseDurationTicks);
+        target.set(ExtractionSite.STATE, job.requiresArming ? ExtractionSite.STATE_ARMED : ExtractionSite.STATE_DRILLING);
+        target.set(ExtractionSite.OCCUPIED, true);
+        target.set(ExtractionSite.REQUIRED, job.durationTicks(power, ExtractorItem.getData(stack).getInt("Speed")));
         this.markDirty(SITES);
         ExtractorItem.markDeployed(stack, vault.get(Vault.ID), extractor.getUUID());
+        if (job.requiresArming) {
+            world.playSound(null, new BlockPos(pedestal.x, pedestal.y, pedestal.z), SoundEvents.ANVIL_PLACE, SoundSource.BLOCKS, 0.6F, 1.2F);
+            player.displayClientMessage(new TextComponent(String.format("Greed Infuser placed - right-click it to insert up to %d greed cards, then press Start.", cardSlots))
+                    .withStyle(ChatFormatting.GOLD), true);
+            return InteractionResult.CONSUME;
+        }
         world.playSound(null, new BlockPos(pedestal.x, pedestal.y, pedestal.z), SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.8F);
         player.displayClientMessage(new TextComponent("Extractor deployed - defend it while it drills!").withStyle(ChatFormatting.GOLD), true);
         return InteractionResult.CONSUME;
     }
 
     public void onExtractorDestroyed(ExtractorEntity extractor) {
+        this.vacate(extractor);
         broadcast(this.vaultOf(extractor), new TextComponent("An extractor was destroyed! Its drill site holds its progress.").withStyle(ChatFormatting.RED));
     }
 
     public void onExtractorCollected(ExtractorEntity extractor) {
+        this.vacate(extractor);
+    }
+
+    /** Clears the site's occupant flag so the placed HUD stops showing a machine that is no longer there. */
+    private void vacate(ExtractorEntity extractor) {
+        for (ExtractionSite site : this.get(SITES)) {
+            if (site.has(ExtractionSite.ENTITY) && extractor.getUUID().equals(site.get(ExtractionSite.ENTITY))) {
+                site.set(ExtractionSite.OCCUPIED, false);
+                this.markDirty(SITES);
+                return;
+            }
+        }
+        WoldsVaults.LOGGER.error("Extractor {} left the vault but no extraction site was keyed to it; the placed HUD may linger.", extractor.getUUID());
     }
 
     private Vault vaultOf(ExtractorEntity extractor) {
@@ -554,11 +672,12 @@ public class ExtractionObjective extends Objective {
             return;
         }
         extractor.setDrillingAnim(true);
-        float speedFactor = job.speedReference <= 0 ? 1.0F : (float) extractor.getDrillSpeed() / (float) job.speedReference;
-        site.modify(ExtractionSite.PROGRESS, progress -> progress + speedFactor);
+        site.modify(ExtractionSite.PROGRESS, progress -> progress + 1.0F);
         extractor.setEnergy(extractor.getEnergy() - extractor.getEnergyCostPerSecond() / 20.0F);
-        extractor.drainDurability(ModConfigs.EXTRACTION_OBJECTIVE.DURABILITY.drainPerSecondMining / 20.0F);
-        extractor.setShield(extractor.getShield() + extractor.getShieldRegenPerTick());
+        extractor.drainDurability(extractor.getWearPerTick());
+        extractor.drainAttachmentDurability(ModConfigs.EXTRACTION_OBJECTIVE.DURABILITY.attachmentDrainPerSecondMining / 20.0F);
+        extractor.tickShieldRegen();
+        extractor.tickHealthRegen();
         if (site.get(ExtractionSite.PROGRESS) >= site.get(ExtractionSite.REQUIRED)) {
             this.completeSite(world, vault, site, extractor, job);
         }
@@ -574,22 +693,7 @@ public class ExtractionObjective extends Objective {
     }
 
     private void completeSite(VirtualWorld world, Vault vault, ExtractionSite site, ExtractorEntity extractor, ExtractionObjectiveConfig.JobEntry job) {
-        Item payoutItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(job.payoutItem));
-        NonNullList<ItemStack> payout = NonNullList.create();
-        if (payoutItem == null) {
-            WoldsVaults.LOGGER.error("Extraction job '{}' pays out unknown item '{}'; the site completed with no payout!", extractor.getJobId(), job.payoutItem);
-        } else {
-            int count = job.payoutMin >= job.payoutMax ? job.payoutMin
-                    : job.payoutMin + world.getRandom().nextInt(job.payoutMax - job.payoutMin + 1);
-            int rolled = count;
-            int maxStack = new ItemStack(payoutItem).getMaxStackSize();
-            while (count > 0) {
-                int size = Math.min(count, maxStack);
-                payout.add(new ItemStack(payoutItem, size));
-                count -= size;
-            }
-            WoldsVaults.LOGGER.info("Extraction site paid out {}x {} into the extractor storage.", rolled, job.payoutItem);
-        }
+        NonNullList<ItemStack> payout = ExtractionPayouts.roll(extractor.getJobId(), job, extractor, vault, extractor.blockPosition(), world.getRandom());
         extractor.completeJob(payout);
         site.set(ExtractionSite.STATE, ExtractionSite.STATE_COMPLETE);
         site.set(ExtractionSite.PROGRESS, (float) (int) site.get(ExtractionSite.REQUIRED));
@@ -706,7 +810,7 @@ public class ExtractionObjective extends Objective {
         int cellZ = Math.max(1, this.get(CELL_Z));
         RegionPos playerRegion = RegionPos.ofBlockPos(player.blockPosition(), cellX, cellZ);
         for (ExtractionSite site : sites) {
-            if (!site.isDrilling()) {
+            if (!site.isDrilling() || !site.isOccupied()) {
                 continue;
             }
             int dx = Math.abs(playerRegion.getX() - site.get(ExtractionSite.REGION_X));

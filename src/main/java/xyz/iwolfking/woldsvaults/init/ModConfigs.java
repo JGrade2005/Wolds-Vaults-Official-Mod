@@ -46,6 +46,8 @@ public class ModConfigs {
     public static SurvivalObjectiveConfig SURVIVAL_OBJECTIVE;
     public static HyperObjectiveConfig HYPER_OBJECTIVE;
     public static ExtractionObjectiveConfig EXTRACTION_OBJECTIVE;
+    public static xyz.iwolfking.woldsvaults.config.ExtractorPartsConfig EXTRACTOR_PARTS;
+    public static xyz.iwolfking.woldsvaults.config.ObjectiveDifficultyConfig OBJECTIVE_DIFFICULTY;
 
     public static AugmentRecipesConfig AUGMENT_RECIPES;
     public static ModBoxRecipesConfig MOD_BOX_RECIPES_CONFIG;
@@ -103,6 +105,8 @@ public class ModConfigs {
         SURVIVAL_OBJECTIVE = new SurvivalObjectiveConfig().readConfig();
         HYPER_OBJECTIVE = new HyperObjectiveConfig().readConfig();
         EXTRACTION_OBJECTIVE = new ExtractionObjectiveConfig().readConfig();
+        EXTRACTOR_PARTS = new xyz.iwolfking.woldsvaults.config.ExtractorPartsConfig().readConfig();
+        OBJECTIVE_DIFFICULTY = new xyz.iwolfking.woldsvaults.config.ObjectiveDifficultyConfig().readConfig();
         AUGMENT_RECIPES = new AugmentRecipesConfig().readConfig();
         MOD_BOX_RECIPES_CONFIG = new ModBoxRecipesConfig().readConfig();
         CUSTOM_RECYCLER_CONFIG = new CustomVaultRecyclerConfig().readConfig();

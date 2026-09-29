@@ -12,6 +12,7 @@ public class ExtractionSite extends DataObject<ExtractionSite> {
     public static final int STATE_UNTOUCHED = 0;
     public static final int STATE_DRILLING = 1;
     public static final int STATE_COMPLETE = 2;
+    public static final int STATE_ARMED = 3;
 
     public static final FieldRegistry FIELDS = new FieldRegistry();
     public static final FieldKey<Integer> REGION_X = FieldKey.of("region_x", Integer.class)
@@ -40,6 +41,8 @@ public class ExtractionSite extends DataObject<ExtractionSite> {
             .with(Version.v1_0, Adapters.FLOAT, DISK.all().or(CLIENT.all())).register(FIELDS);
     public static final FieldKey<Float> MAX_ENERGY = FieldKey.of("max_energy", Float.class)
             .with(Version.v1_0, Adapters.FLOAT, DISK.all().or(CLIENT.all())).register(FIELDS);
+    public static final FieldKey<Boolean> OCCUPIED = FieldKey.of("occupied", Boolean.class)
+            .with(Version.v1_0, Adapters.BOOLEAN, DISK.all().or(CLIENT.all())).register(FIELDS);
 
     public ExtractionSite() {
     }
@@ -57,6 +60,7 @@ public class ExtractionSite extends DataObject<ExtractionSite> {
         this.set(MAX_SHIELD, 0.0F);
         this.set(ENERGY, 0.0F);
         this.set(MAX_ENERGY, 0.0F);
+        this.set(OCCUPIED, false);
     }
 
     @Override
@@ -74,5 +78,15 @@ public class ExtractionSite extends DataObject<ExtractionSite> {
 
     public boolean isComplete() {
         return this.get(STATE) == STATE_COMPLETE;
+    }
+
+    /** Placed but not started: the rig waits for its inputs and a press of Start, with no progress and no waves. */
+    public boolean isArmed() {
+        return this.get(STATE) == STATE_ARMED;
+    }
+
+    /** True while an extractor entity stands on this site; drives the placed HUD. */
+    public boolean isOccupied() {
+        return this.has(OCCUPIED) && this.get(OCCUPIED);
     }
 }

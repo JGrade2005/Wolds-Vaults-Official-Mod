@@ -170,6 +170,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         decoGodAltar(ModBlocks.DECO_VELARA_ALTAR_BLOCK, VaultGod.VELARA);
     }
 
+    /** Blocks without their own art yet borrow a vanilla texture so they render until models land. */
+    private void placeholderBlockWithItem(Block block, ResourceLocation texture) {
+        ModelFile model = models().cubeAll(block.getRegistryName().getPath(), texture);
+        simpleBlock(block, model);
+        simpleBlockItem(block, model);
+    }
+
     private void slabBlockWithItem(SlabBlock block, ResourceLocation texture) {
         ResourceLocation blockTexture = ResourceLocUtils.prependToId("block/", texture);
         slabBlock(block, blockTexture, blockTexture, blockTexture, blockTexture);

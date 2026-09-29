@@ -347,6 +347,12 @@ public class ModItemModelProvider extends ItemModelProvider {
                 WoldsVaults.id("item/" + item.getRegistryName().getPath()));
     }
 
+    /** Items whose own sprite does not exist yet borrow an existing texture until art lands. */
+    private ItemModelBuilder placeholderItem(Item item, ResourceLocation texture) {
+        return withExistingParent(item.getRegistryName().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0", texture);
+    }
+
     private ItemModelBuilder shuffleSeal(Item item) {
         return withExistingParent(item.getRegistryName().getPath(),
                 ResourceLocation.parse("item/generated")).texture("layer0",

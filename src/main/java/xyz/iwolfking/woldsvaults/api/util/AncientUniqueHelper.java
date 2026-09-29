@@ -3,6 +3,8 @@ package xyz.iwolfking.woldsvaults.api.util;
 import iskallia.vault.VaultMod;
 import iskallia.vault.config.UniqueGearConfig;
 import iskallia.vault.config.gear.VaultGearTierConfig;
+import iskallia.vault.gear.GearRollHelper;
+import iskallia.vault.gear.VaultGearRarity;
 import iskallia.vault.gear.data.VaultGearData;
 import iskallia.vault.init.ModConfigs;
 import iskallia.vault.init.ModGearAttributes;
@@ -15,6 +17,8 @@ import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.prestige.RelicHunterPrestigePower;
 
 import javax.annotation.Nullable;
+import net.minecraft.world.item.Item;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AncientUniqueHelper {
     public static final String CONFIG_PREFIX = "unique_ancient_";
+    public static final int ANCIENT_COLOR = 16746803;
+    private static final String UNIQUE_ROLL_TYPE = "Unique";
     private static final int HUNTER_TIER = 7;
     private static final int MASTER_TIER = 10;
     private static final int CHAMPION_TIER = 14;
@@ -182,6 +188,94 @@ public class AncientUniqueHelper {
 
     public static Optional<String> getAncientName(ResourceLocation uniqueKey) {
         return Optional.ofNullable(ANCIENT_NAMES.get(uniqueKey));
+    }
+
+    /**
+     * Every registered unique that carries an ancient name. Drawing uniformly from this list weights each gear type
+     * by how many ancients it holds, so every ancient is equally likely regardless of type.
+     */
+    public static List<ResourceLocation> getAncientCapableUniques() {
+        List<ResourceLocation> candidates = new ArrayList<>();
+        for (ResourceLocation uniqueKey : ModConfigs.UNIQUE_GEAR.getRegistry().keySet()) {
+            if (ANCIENT_NAMES.containsKey(uniqueKey)) {
+                candidates.add(uniqueKey);
+            }
+        }
+        return candidates;
+    }
+
+    /**
+     * An unidentified piece of the unique's own gear item, locked to that unique and flagged ancient, exactly as a
+     * plain unidentified unique is built but with the ancient marker preset so identification never rolls the chance.
+     * The caller runs it through {@code LootInitialization} so it takes the vault's item level like any other loot.
+     * {@link ItemStack#EMPTY} if the unique cannot be built; failures log.
+     */
+    public static ItemStack createUnidentifiedAncient(ResourceLocation uniqueKey) {
+        ItemStack stack = createUniqueBase(uniqueKey);
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        VaultGearData data = VaultGearData.read(stack);
+        data.createOrReplaceAttributeValue(xyz.iwolfking.woldsvaults.init.ModGearAttributes.ANCIENT_UNIQUE, true);
+        data.write(stack);
+        return stack;
+    }
+
+    /** An unidentified ancient of a unique drawn uniformly from {@link #getAncientCapableUniques()}. */
+    public static ItemStack rollUnidentifiedAncient(Random random) {
+        List<ResourceLocation> candidates = getAncientCapableUniques();
+        if (candidates.isEmpty()) {
+            WoldsVaults.LOGGER.error("No loaded unique has an ancient name; cannot roll an unidentified ancient unique. Is the unique gear config loaded?");
+            return ItemStack.EMPTY;
+        }
+        return createUnidentifiedAncient(candidates.get(random.nextInt(candidates.size())));
+    }
+
+    /** Builds and identifies one named ancient at the given item level; used by the give command. Failures log. */
+    public static ItemStack createAncientUnique(ResourceLocation uniqueKey, Player player, int itemLevel) {
+        ItemStack stack = createUniqueBase(uniqueKey);
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        VaultGearData data = VaultGearData.read(stack);
+        data.setItemLevel(itemLevel);
+        data.setRarity(VaultGearRarity.UNIQUE);
+        data.createOrReplaceAttributeValue(xyz.iwolfking.woldsvaults.init.ModGearAttributes.ANCIENT_UNIQUE, true);
+        data.write(stack);
+
+        GearRollHelper.initializeGear(stack, player);
+
+        VaultGearData rolled = VaultGearData.read(stack);
+        if (!isAncient(rolled)) {
+            WoldsVaults.LOGGER.error("Ancient marker was lost while rolling {}; the item will roll as a normal unique.", uniqueKey);
+        }
+        if (!rolled.getFirstValue(ModGearAttributes.GEAR_NAME).map(name -> name.startsWith("Ancient")).orElse(false)) {
+            WoldsVaults.LOGGER.error("Ancient {} identified without its ancient name; stamping it after the roll.", uniqueKey);
+            getAncientName(uniqueKey).ifPresent(name -> rolled.createOrReplaceAttributeValue(ModGearAttributes.GEAR_NAME, name));
+        }
+        rolled.createOrReplaceAttributeValue(ModGearAttributes.IS_LOOT, true);
+        rolled.write(stack);
+        return stack;
+    }
+
+    private static ItemStack createUniqueBase(ResourceLocation uniqueKey) {
+        UniqueGearConfig.Entry entry = ModConfigs.UNIQUE_GEAR.getEntry(uniqueKey).orElse(null);
+        if (entry == null) {
+            WoldsVaults.LOGGER.error("Unique {} has an ancient name but no entry in the unique registry; skipping.", uniqueKey);
+            return ItemStack.EMPTY;
+        }
+        Item item = entry.getItem();
+        ItemStack stack = new ItemStack(item);
+        if (stack.isEmpty()) {
+            WoldsVaults.LOGGER.error("Unique {} resolved to an empty base item; skipping.", uniqueKey);
+            return ItemStack.EMPTY;
+        }
+        VaultGearData data = VaultGearData.read(stack);
+        data.createOrReplaceAttributeValue(ModGearAttributes.GEAR_ROLL_TYPE, UNIQUE_ROLL_TYPE);
+        data.createOrReplaceAttributeValue(ModGearAttributes.GEAR_UNIQUE_POOL, ModConfigs.UNIQUE_GEAR.findPoolForUnique(uniqueKey).orElse(UniqueGearConfig.DEFAULT_POOL));
+        data.createOrReplaceAttributeValue(ModGearAttributes.UNIQUE_ITEM_KEY, uniqueKey);
+        data.write(stack);
+        return stack;
     }
 
     /**

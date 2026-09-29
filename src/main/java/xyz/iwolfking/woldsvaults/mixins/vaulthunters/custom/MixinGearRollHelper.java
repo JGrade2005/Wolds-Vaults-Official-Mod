@@ -173,10 +173,14 @@ public class MixinGearRollHelper {
         }
     }
 
-    /** Decides whether an identifying unique becomes ancient, before the tier config resolves. */
+    /**
+     * Decides whether an identifying unique becomes ancient, before the tier config resolves. Gear that dropped
+     * already flagged ancient (an unidentified ancient unique) skips the chance and only takes its name.
+     */
     @Inject(method = "initializeUniqueGear(Liskallia/vault/gear/data/VaultGearData;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V", at = @At(value = "INVOKE", target = "Liskallia/vault/config/gear/VaultGearTierConfig;getConfig(Lnet/minecraft/world/item/ItemStack;)Ljava/util/Optional;"))
     private static void rollAncientUnique(VaultGearData data, ItemStack stack, Player player, CallbackInfo ci) {
-        if(!AncientUniqueHelper.rollAncient(data, player, rand)) {
+        boolean preset = AncientUniqueHelper.isAncient(data);
+        if(!preset && !AncientUniqueHelper.rollAncient(data, player, rand)) {
             return;
         }
 
@@ -186,7 +190,7 @@ public class MixinGearRollHelper {
                 .ifPresent(name -> data.createOrReplaceAttributeValue(ModGearAttributes.GEAR_NAME, name));
         data.write(stack);
 
-        if(player instanceof ServerPlayer serverPlayer) {
+        if(player instanceof ServerPlayer serverPlayer && AncientUniqueHelper.hasAncientProvenance(data)) {
             Milestones.onAncientUniqueIdentified(serverPlayer);
         }
     }

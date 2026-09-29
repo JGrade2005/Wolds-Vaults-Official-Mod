@@ -41,6 +41,11 @@ public class ModModels {
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.GRAVEYARD_LOOT_BLOCK, RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.TIME_TRIAL_TROPHY_BLOCK, RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.TRINKET_FUSION_BLOCK, RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.EXTRACTOR_ASSEMBLER_BLOCK, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.EXTRACTOR_ASSEMBLER_PART_BLOCK, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.EXTRACTOR_FORGE_BLOCK, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.EXTRACTION_FORGE_PART_BLOCK, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.MOBILE_FLUID_TANK, RenderType.cutout());
     }
 
 
