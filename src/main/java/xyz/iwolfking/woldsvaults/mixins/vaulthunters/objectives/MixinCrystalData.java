@@ -13,6 +13,7 @@ import iskallia.vault.item.crystal.CrystalEntry;
 import iskallia.vault.item.crystal.layout.CrystalLayout;
 import iskallia.vault.item.crystal.model.CrystalModel;
 import iskallia.vault.item.crystal.modifiers.CrystalModifiers;
+import iskallia.vault.item.crystal.properties.CrystalProperties;
 import iskallia.vault.item.crystal.theme.CrystalTheme;
 import net.minecraft.nbt.CompoundTag;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,6 +33,7 @@ import xyz.iwolfking.woldsvaults.medallions.GreedMedallionCrystal;
 import xyz.iwolfking.woldsvaults.medallions.GreedMedallionTier;
 import xyz.iwolfking.woldsvaults.medallions.GreedMedallionVaultState;
 import xyz.iwolfking.woldsvaults.api.core.theme.InfusedCrystalTheme;
+import xyz.iwolfking.woldsvaults.api.util.InfusedThemeHelper;
 import xyz.iwolfking.woldsvaults.models.crystal.UnhingedCrystalModel;
 import xyz.iwolfking.woldsvaults.modifiers.vault.map.modifiers.ChanceCatalystModifierSettable;
 
@@ -58,6 +60,8 @@ public abstract class MixinCrystalData extends CrystalEntry implements ISerializ
     @Shadow public static TypeSupplierAdapter<CrystalModel> MODEL;
 
     @Shadow private CrystalModifiers modifiers;
+
+    @Shadow private CrystalProperties properties;
 
     @Shadow private CrystalTheme theme;
 
@@ -148,5 +152,18 @@ public abstract class MixinCrystalData extends CrystalEntry implements ISerializ
             return;
         }
         GreedMedallionVaultState.set(vault.get(Vault.ID), tier.get());
+    }
+
+    /** Exempts greed challenge vaults from random theme infusion while their theme configures. */
+    @Inject(method = "configure", at = @At("HEAD"))
+    private void woldsvaults$beginChallengeConfigure(Vault vault, RandomSource random, String sigil, CallbackInfo ci) {
+        if (this.properties != null && this.properties.getChallengeUuid() != null && vault != null && vault.has(Vault.ID)) {
+            InfusedThemeHelper.beginChallengeConfigure(vault.get(Vault.ID));
+        }
+    }
+
+    @Inject(method = "configure", at = @At("RETURN"))
+    private void woldsvaults$endChallengeConfigure(Vault vault, RandomSource random, String sigil, CallbackInfo ci) {
+        InfusedThemeHelper.endChallengeConfigure();
     }
 }

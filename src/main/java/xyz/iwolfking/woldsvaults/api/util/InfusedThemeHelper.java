@@ -16,8 +16,26 @@ import xyz.iwolfking.woldsvaults.milestones.trials.GreedTrials;
 import java.util.UUID;
 
 public class InfusedThemeHelper {
+    private static UUID challengeVaultInConfigure;
+
+    /**
+     * Marks the vault a greed challenge crystal is configuring. The base mod links the challenge
+     * slot to the vault only after creation, so the slot cannot identify it while the theme rolls.
+     */
+    public static void beginChallengeConfigure(UUID vaultId) {
+        challengeVaultInConfigure = vaultId;
+    }
+
+    public static void endChallengeConfigure() {
+        challengeVaultInConfigure = null;
+    }
+
     public static boolean handleThemeInfusion(Vault vault, ResourceLocation themeId, RandomSource random, String sigil) {
         if (themeId == null) {
+            return false;
+        }
+
+        if (challengeVaultInConfigure != null && challengeVaultInConfigure.equals(vault.get(Vault.ID))) {
             return false;
         }
 
