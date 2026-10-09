@@ -19,6 +19,8 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.blocks.ExtractorControllerBlock;
 import xyz.iwolfking.woldsvaults.blocks.multiblock.ExtractorMultiblock;
+import xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorAssemblerTileEntity;
+import xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorForgeTileEntity;
 import xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorStationTile;
 import xyz.iwolfking.woldsvaults.entities.extraction.ExtractorEntity;
 import xyz.iwolfking.woldsvaults.init.ModEntities;
@@ -46,6 +48,19 @@ public class ExtractorStationRenderer<T extends BlockEntity & ExtractorStationTi
 
     public ExtractorStationRenderer(BlockEntityRendererProvider.Context context, ExtractorStationRig rig) {
         this.rig = rig;
+    }
+
+    /**
+     * Renderer provider for the Extractor Assembler. Registered as a method reference: a lambda in
+     * {@code ModBlocks} makes the verifier load client renderer classes on a dedicated server.
+     */
+    public static ExtractorStationRenderer<ExtractorAssemblerTileEntity> assembler(BlockEntityRendererProvider.Context context) {
+        return new ExtractorStationRenderer<>(context, ExtractorStationRig.ASSEMBLER);
+    }
+
+    /** Renderer provider for the Extractor Forge; see {@link #assembler}. */
+    public static ExtractorStationRenderer<ExtractorForgeTileEntity> forge(BlockEntityRendererProvider.Context context) {
+        return new ExtractorStationRenderer<>(context, ExtractorStationRig.FORGE);
     }
 
     @Override

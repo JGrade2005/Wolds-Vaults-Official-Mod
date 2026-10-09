@@ -669,8 +669,8 @@ public class ModBlocks {
         event.registerBlockEntityRenderer(DUNGEON_PEDESTAL_TILE_ENTITY_BLOCK_ENTITY_TYPE, DungeonPedestalRenderer::new);
         event.registerBlockEntityRenderer(FRACTURED_OBELISK_TILE_ENTITY_BLOCK_ENTITY_TYPE, FracturedObeliskRenderer::new);
         event.registerBlockEntityRenderer(MONOLITH_CONTROLLER_BLOCK_ENTITY_TYPE, MonolithControllerRenderer::new);
-        event.registerBlockEntityRenderer(EXTRACTOR_ASSEMBLER_TILE_ENTITY_TYPE, context -> new xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRenderer<>(context, xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRig.ASSEMBLER));
-        event.registerBlockEntityRenderer(EXTRACTOR_FORGE_TILE_ENTITY_TYPE, context -> new xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRenderer<>(context, xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRig.FORGE));
+        event.registerBlockEntityRenderer(EXTRACTOR_ASSEMBLER_TILE_ENTITY_TYPE, xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRenderer::assembler);
+        event.registerBlockEntityRenderer(EXTRACTOR_FORGE_TILE_ENTITY_TYPE, xyz.iwolfking.woldsvaults.client.renderers.station.ExtractorStationRenderer::forge);
         event.registerBlockEntityRenderer(BREWING_ALTAR_TILE_ENTITY_BLOCK_ENTITY_TYPE, BrewingAltarRenderer::new);
         event.registerBlockEntityRenderer(VAULT_EVENT_ACTIVATOR_TILE_ENTITY_BLOCK_ENTITY_TYPE, VaultEventActivatorRenderer::new);
         event.registerBlockEntityRenderer(DOLL_DISMANTLING_TILE_ENTITY_BLOCK_ENTITY_TYPE, DollDismantlingRenderer::new);
