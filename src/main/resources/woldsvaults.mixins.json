@@ -571,7 +571,6 @@
     "vaulthunters.gods.velara.MixinHealGroupAbilityFieldMedic",
     "vaulthunters.gods.velara.MixinLivingEntitySanitation",
     "vaulthunters.gods.wendarr.MixinGreedNodeHelperImbuement",
-    "vaulthunters.gods.wendarr.MixinVoidFluidExtensionTemporalBreaking",
     "vaulthunters.greed.MixinAttributeSnapshotCalculatorGreedNodes",
     "vaulthunters.greed.MixinGreedEffectManagerNodesDisabled",
     "vaulthunters.greed.MixinGreedNodeHelperNodesDisabled",
