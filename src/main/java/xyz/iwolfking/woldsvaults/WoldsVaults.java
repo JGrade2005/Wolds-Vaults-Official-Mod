@@ -5,12 +5,16 @@ import fuzs.puzzleslib.api.client.event.v1.ModelEvents;
 import iskallia.vault.config.EntityGroupDefinitionsConfig;
 import iskallia.vault.config.VaultMapRoomIconsConfig;
 import iskallia.vault.init.ModTextureAtlases;
+import iskallia.vault.item.tool.ToolMaterial;
+import iskallia.vault.item.tool.ToolType;
 import iskallia.vault.world.data.PlayerGreedData;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,6 +22,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -38,6 +43,7 @@ import xyz.iwolfking.vhapi.api.registry.objective.CustomObjectiveRegistryEntry;
 import xyz.iwolfking.vhapi.api.util.ConditionalModUtils;
 import xyz.iwolfking.vhapi.api.util.ResourceLocUtils;
 import xyz.iwolfking.woldsvaults.api.core.competition.PlayerRewardStorage;
+import xyz.iwolfking.woldsvaults.api.lib.ExtendedToolType;
 import xyz.iwolfking.woldsvaults.api.util.DelayedExecutionHelper;
 import xyz.iwolfking.woldsvaults.events.*;
 import xyz.iwolfking.woldsvaults.gods.combat.FuryIncome;
@@ -59,6 +65,8 @@ import xyz.iwolfking.woldsvaults.init.*;
 import xyz.iwolfking.woldsvaults.init.ModNetwork;
 import xyz.iwolfking.woldsvaults.api.lib.PlayerGreedDataExtension;
 import xyz.iwolfking.woldsvaults.modifiers.gear.ancient.AncientModifierEvents;
+import xyz.iwolfking.woldsvaults.items.trinket_pouch.PouchCapability;
+import xyz.iwolfking.woldsvaults.items.trinket_pouch.PouchRuntime;
 import xyz.iwolfking.woldsvaults.models.AdditionalModels;
 import xyz.iwolfking.woldsvaults.network.NetworkHandler;
 import xyz.iwolfking.woldsvaults.objectives.data.BrutalBossesRegistry;
@@ -81,6 +89,7 @@ public class WoldsVaults {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modEventBus.addListener(PouchCapability::register);
 
         modEventBus.register(new ModRecipeSerializers());
 
@@ -92,6 +101,9 @@ public class WoldsVaults {
         MinecraftForge.EVENT_BUS.addGenericListener(Block.class, MissingMappingsEvents::onMissingMappings);
         MinecraftForge.EVENT_BUS.addGenericListener(Item.class, MissingMappingsEvents::onMissingMappingsItem);
         MinecraftForge.EVENT_BUS.addListener(RegisterCommandEventHandler::woldsvaults_registerCommandsEvent);
+        MinecraftForge.EVENT_BUS.addGenericListener(ItemStack.class, PouchCapability::attach);
+        MinecraftForge.EVENT_BUS.addListener(PouchRuntime::tick);
+        MinecraftForge.EVENT_BUS.addListener(PouchRuntime::logout);
 
         if(ConditionalModUtils.isModPresent("occultism")) {
             OccultismRecipeSerializers.SERIALIZERS.register(modEventBus);
@@ -210,6 +222,6 @@ public class WoldsVaults {
     }
 
     public static String sId(String name) {
-        return "woldsvaults:" + name;
+        return WoldsVaults.MOD_ID + ":" + name;
     }
 }

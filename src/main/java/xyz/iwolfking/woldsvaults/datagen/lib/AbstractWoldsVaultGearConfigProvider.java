@@ -5,11 +5,13 @@ import iskallia.vault.config.entry.FloatRollRangeEntry;
 import iskallia.vault.config.gear.VaultGearTierConfig;
 import iskallia.vault.gear.attribute.config.FloatAttributeGenerator;
 import iskallia.vault.gear.attribute.custom.ability.BroodmotherWebAttribute;
+import iskallia.vault.gear.attribute.custom.effect.EffectGearAttribute;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import xyz.iwolfking.vhapi.api.datagen.AbstractVaultGearConfigProvider;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.MixinModConfigs;
+import xyz.iwolfking.woldsvaults.modifiers.vault.lib.StringValueGenerator;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -57,17 +59,12 @@ public abstract class AbstractWoldsVaultGearConfigProvider extends AbstractVault
         });
     }
 
-    public void addToAllNonSackOffhands(VaultGearTierConfig.ModifierAffixTagGroup tagGroup, Consumer<VaultGearAttributeGroupBuilder> vaultGearAttributeGroupBuilderConsumer) {
-        OFFHANDS_NO_SACK.forEach(type -> {
-            add(type, builder -> builder.key(VaultMod.id(type)).add(tagGroup, vaultGearAttributeGroupBuilderConsumer));
-            if(tagGroup.equals(VaultGearTierConfig.ModifierAffixTagGroup.CORRUPTED_IMPLICIT)) {
-                add(type + MYTHIC, builder -> builder.key(VaultMod.id(type + MYTHIC)).add(tagGroup, vaultGearAttributeGroupBuilderConsumer));
+    public void addToAllOffhandsExcept(VaultGearTierConfig.ModifierAffixTagGroup tagGroup, List<String> typesToExclude, Consumer<VaultGearAttributeGroupBuilder> vaultGearAttributeGroupBuilderConsumer) {
+        OFFHANDS.forEach(type -> {
+            if(typesToExclude.contains(type)) {
+                return;
             }
-        });
-    }
 
-    public void addToAllNonPlushieOffhands(VaultGearTierConfig.ModifierAffixTagGroup tagGroup, Consumer<VaultGearAttributeGroupBuilder> vaultGearAttributeGroupBuilderConsumer) {
-        OFFHANDS_NO_PLUSHIE.forEach(type -> {
             add(type, builder -> builder.key(VaultMod.id(type)).add(tagGroup, vaultGearAttributeGroupBuilderConsumer));
             if(tagGroup.equals(VaultGearTierConfig.ModifierAffixTagGroup.CORRUPTED_IMPLICIT)) {
                 add(type + MYTHIC, builder -> builder.key(VaultMod.id(type + MYTHIC)).add(tagGroup, vaultGearAttributeGroupBuilderConsumer));
@@ -109,15 +106,19 @@ public abstract class AbstractWoldsVaultGearConfigProvider extends AbstractVault
     }
 
     public void addToMaps(VaultGearTierConfig.ModifierAffixTagGroup tagGroup, Consumer<VaultGearAttributeGroupBuilder> vaultGearAttributeGroupBuilderConsumer) {
-        for(int i = 0; i < 6; i++) {
-            if(i == 0) {
+        addToMaps(tagGroup, List.of(0, 1, 2, 3, 4, 5), vaultGearAttributeGroupBuilderConsumer);
+    }
+
+    public void addToMaps(VaultGearTierConfig.ModifierAffixTagGroup tagGroup, List<Integer> tiers, Consumer<VaultGearAttributeGroupBuilder> vaultGearAttributeGroupBuilderConsumer) {
+        tiers.forEach(tier -> {
+            if(tier == 0) {
                 add("map", builder -> builder.key(VaultMod.id("map")).add(tagGroup, vaultGearAttributeGroupBuilderConsumer));
             }
             else {
-                String mapId = "map_" + i;
+                String mapId = "map_" + tier;
                 add(mapId, builder -> builder.key(VaultMod.id(mapId)).add(tagGroup, vaultGearAttributeGroupBuilderConsumer));
             }
-        }
+        });
     }
 
     public static VaultGearModifierTiersBuilder addBroodmotherWeb(
@@ -132,5 +133,12 @@ public abstract class AbstractWoldsVaultGearConfigProvider extends AbstractVault
         );
 
         return builder.add(new VaultGearTierConfig.ModifierTier<>(minLevel, weight, config), maxLevel);
+    }
+
+    public static VaultGearModifierTiersBuilder addString(
+            VaultGearModifierTiersBuilder builder,
+            int minLevel, int maxLevel, int weight,
+            String value) {
+        return builder.add(new VaultGearTierConfig.ModifierTier<>(minLevel, weight, new StringValueGenerator.StringValue(value)), maxLevel);
     }
 }

@@ -38,5 +38,6 @@ public class ModVaultFilterAttributes {
         new IsExtractorBlueprintAttribute(true).register(IsExtractorBlueprintAttribute::new);
         new ExtractorBlueprintIdentifiedAttribute(true).register(ExtractorBlueprintIdentifiedAttribute::new);
         new ExtractorAttachmentDurabilityAttribute(0).register(ExtractorAttachmentDurabilityAttribute::new);
+        //new CardDeckModifierAttribute("").register(CardDeckModifierAttribute::new);
     }
 }

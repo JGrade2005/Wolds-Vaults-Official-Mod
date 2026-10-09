@@ -124,6 +124,8 @@ public class ModItems {
     public static final BasicItem WEAPON_TYPE_FOCUS;
     public static final BasicItem BLAZING_FOCUS;
     public static final BasicItem SUSPENSION_FOCUS;
+    public static final BasicItem INSCRIBING_FOCUS;
+   // public static final BasicItem WEAPON_TYPE_SETTER;
 
     public static BasicItem FRENZY_CAPSTONE;
     public static BasicItem PROSPEROUS_CAPSTONE;
@@ -237,6 +239,8 @@ public class ModItems {
 
     public static CompanionRerollingItem COMPANION_REROLLER;
 
+    public static InfusedAugmentItem INFUSED_AUGMENT;
+
     public static BasicItem POGGING_SEED_BASE;
     public static BasicItem ECHOING_SEED_BASE;
 
@@ -244,6 +248,7 @@ public class ModItems {
 
     public static BasicItem UNINFUSED_TERRASTEEL_INGOT;
     public static BasicItem LEAD_DYE_BASE;
+    public static BasicItem CONCENTRATED_VOID;
 
     public static Map<DyeColor, BasicItem> COLORED_UNOBTANIUMS = new HashMap<>();
     public static BasicItem RAINBOW_UNOBTANIUM;
@@ -376,6 +381,7 @@ public class ModItems {
         registry.register(SOUL_ICHOR);
         registry.register(BLAZING_FOCUS);
         registry.register(SUSPENSION_FOCUS);
+        registry.register(INSCRIBING_FOCUS);
         registry.register(TARGETED_MOD_BOX);
         registry.register(UNIDENTIFIED_GATEWAY_PEARL);
         registry.register(TRINKET_POUCH);
@@ -424,6 +430,8 @@ public class ModItems {
         registry.register(TENOS_GOD_NEURALIZER);
         registry.register(WENDARR_GOD_NEURALIZER);
         registry.register(LEAD_DYE_BASE);
+        registry.register(CONCENTRATED_VOID);
+        registry.register(INFUSED_AUGMENT);
         COLORED_UNOBTANIUMS.forEach((s, bi) -> {
             registry.register(bi);
         });
@@ -524,6 +532,7 @@ public class ModItems {
         WEAPON_TYPE_FOCUS = new BasicItem(WoldsVaults.id("accoutre_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         BLAZING_FOCUS = new BasicItem(WoldsVaults.id("blazing_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         SUSPENSION_FOCUS = new BasicItem(WoldsVaults.id("suspension_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
+        INSCRIBING_FOCUS = new BasicItem(WoldsVaults.id("inscribing_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
 
         MERCY_ORB = new BasicItem(WoldsVaults.id("mercy_orb"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS));
 
@@ -617,11 +626,14 @@ public class ModItems {
 
         COMPANION_REROLLER = new CompanionRerollingItem(WoldsVaults.id("companion_reroller"));
 
+        INFUSED_AUGMENT = new InfusedAugmentItem(ModCreativeTabs.WOLDS_VAULTS, WoldsVaults.id("infused_augment"));
+
         POGGING_SEED_BASE = new BasicItem(WoldsVaults.id("pogging_seed_base"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         ECHOING_SEED_BASE = new BasicItem(WoldsVaults.id("echoing_seed_base"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
 
         UNINFUSED_TERRASTEEL_INGOT = new BasicItem(WoldsVaults.id("uninfused_terrasteel_ingot"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         LEAD_DYE_BASE = new BasicItem(WoldsVaults.id("lead_dye_base"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
+        CONCENTRATED_VOID = new BasicItem(WoldsVaults.id("concentrated_void"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
 
         COMBINED_TRINKET = new CombinedTrinketItem(WoldsVaults.id("combined_trinket"));
 

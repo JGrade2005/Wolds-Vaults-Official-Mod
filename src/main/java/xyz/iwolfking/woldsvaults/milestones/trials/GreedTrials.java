@@ -46,7 +46,17 @@ public final class GreedTrials {
     public static final int VICTORY_TICKS = 300;
     public static final int FAILURE_TICKS = 100;
 
+    private static boolean openingTrial;
+
     private GreedTrials() {
+    }
+
+    /**
+     * True while {@link #open} is building a trial vault. The vault is only marked in
+     * {@link GreedTrialData} after creation, so theme configuration has to check this instead.
+     */
+    public static boolean isOpeningTrial() {
+        return openingTrial;
     }
 
     /** Handles a "Take Trial" click; re-checks every requirement and refuses in chat. */
@@ -127,6 +137,7 @@ public final class GreedTrials {
     /** Creates and marks the vault and adds the sole runner; {@code entry} may be null. */
     private static void open(ServerPlayer player, CrystalData crystal, GreedTrial trial, Vec3 entry) {
         Vault vault;
+        openingTrial = true;
         try {
             vault = VaultFactory.create(Version.latest(), crystal, player);
         } catch (Exception e) {
@@ -134,6 +145,8 @@ public final class GreedTrials {
                     trial.getTargetRank(), player.getGameProfile().getName(), e);
             refuse(player, "The trial could not be prepared. Check the server log.");
             return;
+        } finally {
+            openingTrial = false;
         }
         vault.ifPresent(Vault.LISTENERS, listeners -> {
             Object logic = listeners.get(Listeners.LOGIC);

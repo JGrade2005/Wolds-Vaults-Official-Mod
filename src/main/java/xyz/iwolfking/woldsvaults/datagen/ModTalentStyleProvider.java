@@ -75,7 +75,8 @@ public class ModTalentStyleProvider extends WoldsTalentStyleProvider {
                 new TalentData("Mind_Meld", "woldsvaults:gui/skills/mind_meld"),
                 new ChoiceGroup(List.of(new TalentData("Potent_Elixir", "woldsvaults:gui/skills/potent_elixir"), new TalentData("Healthy_Elixir", "woldsvaults:gui/skills/healthy_elixir"))),
                 new EmptySpace(DEFAULT_X_SPACING),
-                new TalentData("Arcana", "the_vault:gui/skills/arcana")
+                new TalentData("Arcana", "the_vault:gui/skills/arcana"),
+                new TalentData("Hexbreaker", "woldsvaults:gui/skills/hex_breaker")
         ));
 
         //Greater Row
@@ -93,7 +94,8 @@ public class ModTalentStyleProvider extends WoldsTalentStyleProvider {
                 new TalentData("Prime_Amplification", "the_vault:gui/skills/prime_amplification"),
                 new TalentData("Dungeon_Mastery", "the_vault:gui/skills/dungeon_mastery"),
                 new TalentData("Horde_Mastery", "the_vault:gui/skills/horde_mastery"),
-                new TalentData("Assassin_Mastery", "the_vault:gui/skills/assassin_mastery")
+                new TalentData("Assassin_Mastery", "the_vault:gui/skills/assassin_mastery"),
+                new TalentData("Blood_Chakra", "woldsvaults:gui/skills/blood_chakra")
         ));
 
         //Finale Row

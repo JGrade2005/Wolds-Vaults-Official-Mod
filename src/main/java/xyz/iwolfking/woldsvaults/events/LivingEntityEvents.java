@@ -29,7 +29,6 @@ import iskallia.vault.gear.etching.EtchingHelper;
 import iskallia.vault.gear.item.VaultGearItem;
 import iskallia.vault.gear.trinket.TrinketHelper;
 import iskallia.vault.gear.trinket.effects.MultiJumpTrinket;
-import iskallia.vault.item.gear.TrinketItem;
 import iskallia.vault.item.gear.VaultAxeItem;
 import iskallia.vault.skill.base.Skill;
 import iskallia.vault.skill.talent.type.JavelinConductTalent;
@@ -47,8 +46,6 @@ import xyz.iwolfking.woldsvaults.milestones.MilestoneIds;
 import xyz.iwolfking.woldsvaults.milestones.Milestones;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -58,11 +55,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.entity.living.*;
@@ -70,8 +67,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.abilities.SneakyGetawayAbility;
@@ -90,9 +85,12 @@ import xyz.iwolfking.woldsvaults.items.TrinketPouchItem;
 import xyz.iwolfking.woldsvaults.items.gear.VaultLootSackItem;
 import xyz.iwolfking.woldsvaults.items.gear.VaultPlushieItem;
 import xyz.iwolfking.woldsvaults.items.gear.VaultTridentItem;
+import xyz.iwolfking.woldsvaults.items.trinket_pouch.PouchRuntime;
 import xyz.iwolfking.woldsvaults.objectives.data.bosses.WoldBoss;
+import xyz.iwolfking.woldsvaults.talent.special.DebuffDamageBonusTalent;
 import xyz.iwolfking.woldsvaults.talent.special.WoldsAxeSpecializationTalent;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
 
@@ -213,60 +211,10 @@ public class LivingEntityEvents {
 
     @SubscribeEvent
     public static void curioChange(CurioChangeEvent event) {
-        ItemStack fromStack = event.getFrom();
-        if (!(fromStack.getItem() instanceof TrinketPouchItem)) return;
-        if(event.getFrom().getItem().equals(event.getTo().getItem()) && !event.getTo().getOrCreateTag().contains("StoredCurios")) return;
-        if(event.getFrom().getItem() instanceof TrinketPouchItem && !event.getTo().is(Items.AIR)) {
-            return;
+        if (event.getEntityLiving() instanceof Player player
+                && (event.getFrom().getItem() instanceof TrinketPouchItem || event.getTo().getItem() instanceof TrinketPouchItem)) {
+            PouchRuntime.update(player);
         }
-        if (event.getEntityLiving().level.isClientSide) return;
-
-        LivingEntity entity = event.getEntityLiving();
-        ListTag storedList = new ListTag();
-
-        CuriosApi.getCuriosHelper().getCuriosHandler(entity).ifPresent(handler -> {
-            for (String slotId : TrinketPouchItem.getSlotTypes(event.getFrom())) {
-                handler.getStacksHandler(slotId).ifPresent(slotHandler -> {
-                    IItemHandlerModifiable slots = slotHandler.getStacks();
-                    for (int i = 0; i < slots.getSlots(); i++) {
-                        ItemStack trinket = slots.getStackInSlot(i);
-                        if (!trinket.isEmpty()) {
-                            CompoundTag tag = new CompoundTag();
-                            tag.putString("Slot", slotId);
-                            tag.putInt("Index", i);
-                            trinket.save(tag);
-                            storedList.add(tag);
-                            if(trinket.getItem() instanceof TrinketItem) {
-                                TrinketItem.getTrinket(trinket).ifPresent((trinketEffect) -> trinketEffect.onUnEquip(entity, trinket));
-                            }
-                            slots.setStackInSlot(i, ItemStack.EMPTY);
-                        }
-                    }
-                });
-            }
-
-            if (!storedList.isEmpty()) {
-                ItemStack updatedStack = fromStack.copy();
-                updatedStack.getOrCreateTag().put("StoredCurios", storedList);
-                Player player = (Player) entity;
-                ItemStack carried = player.containerMenu.getCarried();
-                if (ItemStack.isSameItemSameTags(carried, fromStack)) {
-                    player.containerMenu.setCarried(updatedStack);
-                } else {
-                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        ItemStack invStack = player.getInventory().getItem(i);
-                        if (ItemStack.isSameItemSameTags(invStack, fromStack)) {
-                            player.getInventory().setItem(i, updatedStack);
-                            break;
-                        }
-                    }
-
-                    if (!player.addItem(updatedStack)) {
-                        entity.spawnAtLocation(updatedStack);
-                    }
-                }
-            }
-        });
     }
 
     @SubscribeEvent
@@ -434,6 +382,29 @@ public class LivingEntityEvents {
                             executionDamage, base, bonus, tier, event.getAmount());
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void bonusDebuffDamage(LivingHurtEvent event) {
+        if(event.getSource().getEntity() instanceof ServerPlayer player) {
+            if(ActiveFlags.IS_AP_ATTACKING.isSet()) {
+                if(event.getEntity() instanceof LivingEntity livingEntity) {
+                    if(!MobEffectHelper.hasNegativeEffect(livingEntity)) {
+                        return;
+                    }
+
+                    Optional<DebuffDamageBonusTalent> debuffDamageTalent = TalentHelper.getTalent(player, DebuffDamageBonusTalent.class);
+                    debuffDamageTalent.ifPresent(debuffDamageBonusTalent -> event.setAmount(event.getAmount() * (1.0F + debuffDamageBonusTalent.getDamageIncrease())));
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingKnockBack(LivingKnockBackEvent event) {
+        if(WoldActiveFlags.IS_NO_KNOCKBACK_DAMAGE.isSet()) {
+            event.setCanceled(true);
         }
     }
 

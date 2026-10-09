@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import xyz.iwolfking.woldsvaults.blocks.containers.*;
 import xyz.iwolfking.woldsvaults.client.screens.FilterNecklaceContainerScreen;
+import xyz.iwolfking.woldsvaults.client.screens.PouchScreen;
 import xyz.iwolfking.woldsvaults.client.screens.ScavengerPouchScreen;
 import xyz.iwolfking.woldsvaults.client.screens.gods.GodTreeScreen;
 import xyz.iwolfking.woldsvaults.client.screens.greed.GreedMilestonesScreen;
@@ -26,5 +27,6 @@ public class ModScreens {
         MenuScreens.register(ModContainers.EXTRACTOR_ASSEMBLER_CONTAINER, ExtractorAssemblerScreen::new);
         MenuScreens.register(ModContainers.EXTRACTOR_FORGE_CONTAINER, ExtractorForgeScreen::new);
         MenuScreens.register(ModContainers.EXTRACTOR_CARD_CONTAINER, ExtractorCardScreen::new);
+        MenuScreens.register(ModContainers.TRINKET_POUCH_CONTAINER, PouchScreen::new);
     }
 }

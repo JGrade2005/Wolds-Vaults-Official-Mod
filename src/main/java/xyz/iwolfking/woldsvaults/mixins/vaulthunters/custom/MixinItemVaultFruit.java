@@ -41,7 +41,8 @@ public abstract class MixinItemVaultFruit extends Item implements IRottenFruit {
         if (WendarrFruit.isFruitSaved(player)) {
             return;
         }
-        HealthReductionHelper.reducePlayerMaxHealth(player, HealthReductionHelper.DEFAULT_MULT, WendarrFruit.healthScaling(player));
+        HealthReductionHelper.reducePlayerMaxHealth(player, HealthReductionHelper.DEFAULT_MULT, WendarrFruit.healthScaling(player),
+                MAX_HEALTH_REDUCTION_ATTRIBUTE_MODIFIER_UUID, "VaultFruitMaxHealthReduction");
     }
 
     @Inject(method = "onEaten", at = @At("HEAD"))

@@ -43,6 +43,7 @@ public class SurvivalCrystalObjective extends WoldCrystalObjective {
         return Optional.of(0x334324);
     }
 
+    //TODO: Sigil pull from harder wave groups -- need to add to Survival Objective config
     @Override
     public void configure(Vault vault, RandomSource random, String sigil) {
         int level = vault.get(Vault.LEVEL).get();

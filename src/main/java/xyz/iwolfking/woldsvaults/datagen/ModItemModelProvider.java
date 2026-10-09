@@ -168,9 +168,14 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleItem(ModItems.BLUE_VAULT_ESSENCE);
         simpleItem(ModItems.GREEN_VAULT_ESSENCE);
         simpleItem(ModItems.LEAD_DYE_BASE);
+        simpleItem(ModItems.CONCENTRATED_VOID);
+        simpleItem(ModItems.INSCRIBING_FOCUS);
+        //simpleItem(ModItems.WEAPON_TYPE_SETTER);
 
         withExistingParent("owned_crafting_table",
                 mcLoc("item/crafting_table"));
+
+        withExistingParent("infused_augment", VaultMod.id("item/augment"));
 
         spawnEgg(ModItems.BLUE_BLAZE_EGG);
         spawnEgg(ModItems.BOOGIEMAN_EGG);
@@ -253,6 +258,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         skillScrollAbility("colossus");
         skillScrollAbility("expunge");
         skillScrollAbility("wall_of_fangs");
+        skillScrollAbility("ultimate_shield");
         skillScroll("fanged_strike");
         skillScroll("execution_strike");
         skillScroll("arcane_strike");
@@ -265,6 +271,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         skillScroll("momentum_engine");
         skillScroll("lunge");
         skillScroll("stack_master");
+        skillScroll("hex_breaker");
+        skillScroll("blood_chakra");
         skillScrollVanilla("voltaic_impact");
         skillScrollVanilla("blood_rush");
         skillScrollVanilla("executioner");
@@ -317,6 +325,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         etching(VaultMod.id("ingenium"));
         etching(VaultMod.id("pyramid_scheme"));
         etching(VaultMod.id("fireball_greedball"), "treasure");
+        etching(VaultMod.id("imploding_barrier"), "implode_mana_regen");
+        etching(VaultMod.id("ravenous_fangs"), "bloodfang");
+        etching(VaultMod.id("conservation_of_momentum"));
 
         ModCompressibleBlocks.getRegisteredBlocks().forEach((k, v) -> {
             for (int i = 0; i < v.size(); i ++) {

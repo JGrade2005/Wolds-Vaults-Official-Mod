@@ -1,6 +1,7 @@
 package xyz.iwolfking.woldsvaults.mixins.vaulthunters.custom;
 
 import iskallia.vault.VaultMod;
+import iskallia.vault.config.VaultGeneralConfig;
 import iskallia.vault.core.Version;
 import iskallia.vault.core.event.CommonEvents;
 import iskallia.vault.core.event.common.CrateAwardEvent;
@@ -43,10 +44,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.api.lib.IRottenFruit;
 import xyz.iwolfking.woldsvaults.api.util.DeckModifiersHelper;
+import xyz.iwolfking.woldsvaults.api.util.GameruleHelper;
 import xyz.iwolfking.woldsvaults.api.util.LuckHelper;
 import xyz.iwolfking.woldsvaults.api.util.WoldVaultUtils;
 import xyz.iwolfking.woldsvaults.gods.trees.wendarr.WendarrFruit;
 import xyz.iwolfking.woldsvaults.init.ModConfigs;
+import xyz.iwolfking.woldsvaults.init.ModGameRules;
 import xyz.iwolfking.woldsvaults.items.alchemy.AlchemyIngredientItem;
 import xyz.iwolfking.woldsvaults.items.alchemy.CatalystItem;
 import xyz.iwolfking.woldsvaults.medallions.GreedCrateLoot;
@@ -157,6 +160,11 @@ public abstract class MixinRunner extends Listener {
         });
     }
 
+    @Inject(method = "initServer", at = @At("TAIL"))
+    private void addThemeModifiers(VirtualWorld world, Vault vault, CallbackInfo ci) {
+
+    }
+
     @Inject(method = "lambda$initServer$3", at = @At("TAIL"))
     private void handleFruitRotting(VirtualWorld world, Vault vault, FruitEatenEvent.Data data, CallbackInfo ci) {
         if(!ModConfigs.VAULT_FRUIT_CONFIG.enableFruitRotting) {
@@ -199,6 +207,10 @@ public abstract class MixinRunner extends Listener {
                     }
                 }
             }
+
+            if(GameruleHelper.isEnabled(ModGameRules.ENABLE_ALL_ITEMS_IN_VAULTS, world)) {
+                ci.cancel();
+            }
         }
     }
 
@@ -213,6 +225,10 @@ public abstract class MixinRunner extends Listener {
                         ci.cancel();
                     }
                 }
+            }
+
+            if(GameruleHelper.isEnabled(ModGameRules.ENABLE_ALL_ITEMS_IN_VAULTS, world)) {
+                ci.cancel();
             }
         }
     }

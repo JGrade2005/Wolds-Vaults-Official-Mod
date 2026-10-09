@@ -91,6 +91,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.eventbus.api.EventPriority;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.api.util.VaultModifierUtils;
 import xyz.iwolfking.woldsvaults.config.HyperObjectiveConfig;
@@ -238,6 +239,11 @@ public class HyperVaultObjective extends Objective {
     /** Vault time left when the current cycle's objective window opened, for the mastery award. */
     public static final FieldKey<Integer> MASTERY_WINDOW = FieldKey.of("mastery_window", Integer.class).with(Version.v1_31, Adapters.INT_SEGMENTED_3, DISK.all()).register(FIELDS);
     public static final FieldKey<UUID> BOSS_ID = FieldKey.of("boss_id", UUID.class).with(Version.v1_31, Adapters.UUID, DISK.all()).register(FIELDS);
+    /**
+     * Set when the current fight's boss actually dies; cleared at every arm. A fight that ends
+     * without it never advances the cycle.
+     */
+    public static final FieldKey<Boolean> BOSS_KILLED = FieldKey.of("boss_killed", Boolean.class).with(Version.v1_31, Adapters.BOOLEAN, DISK.all()).register(FIELDS);
     /**
      * The pillar tile's saved state: the fight consumes the pillar block when the boss summons,
      * so each reward phase re-places it from this snapshot for the next cycle's arming.
@@ -486,6 +492,14 @@ public class HyperVaultObjective extends Objective {
                     && this.getOr(PHASE, Phase.ROLLING) == Phase.FIGHT) {
                 this.set(BOSS_ID, boss.getUUID());
                 HyperBossGlow.mark(boss);
+            }
+        }));
+
+        CommonEvents.ENTITY_DEATH.register(this, EventPriority.LOWEST, event -> guarded("boss kill capture", () -> {
+            if (event.getEntity().level == world
+                    && event.getEntity().getUUID().equals(this.getOr(BOSS_ID, null))
+                    && this.getOr(PHASE, Phase.ROLLING) == Phase.FIGHT) {
+                this.set(BOSS_KILLED, true);
             }
         }));
 
