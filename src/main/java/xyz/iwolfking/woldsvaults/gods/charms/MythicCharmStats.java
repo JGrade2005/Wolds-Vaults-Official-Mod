@@ -22,6 +22,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.events.WoldActiveFlags;
 import xyz.iwolfking.woldsvaults.init.ModGearAttributes;
 
 import javax.annotation.Nullable;
@@ -83,6 +84,9 @@ public final class MythicCharmStats {
             return;
         }
         if (!ModConfigs.ENTITY_GROUPS.isInGroup(VaultMod.id("bosses"), event.getEntityLiving())) {
+            return;
+        }
+        if (WoldActiveFlags.IS_PROC_FANG_ATTACKING.isSet()) {
             return;
         }
         float bonus = snapshotSum(attacker, ModGearAttributes.DAMAGE_BOSS);

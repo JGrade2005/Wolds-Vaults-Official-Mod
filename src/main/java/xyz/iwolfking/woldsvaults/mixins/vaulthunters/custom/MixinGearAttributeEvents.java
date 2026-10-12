@@ -183,7 +183,7 @@ public class MixinGearAttributeEvents {
 
     /**
      * @author aida
-     * @reason add activeflag checks to cleave
+     * @reason add activeflag checks to cleave, and keep proc fangs from re-triggering it
      */
     @Inject(method = "triggerAoEAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSource;getEntity()Lnet/minecraft/world/entity/Entity;", shift = At.Shift.AFTER), cancellable = true, remap = true)
     private static void triggerAoEAttack(LivingHurtEvent event, CallbackInfo ci) {
@@ -195,6 +195,7 @@ public class MixinGearAttributeEvents {
         || ActiveFlags.IS_DOT_ATTACKING.isSet()
         || ActiveFlags.IS_TOTEM_ATTACKING.isSet()
         || WoldActiveFlags.IS_AOE2_ATTACK.isSet()
+        || WoldActiveFlags.IS_PROC_FANG_ATTACKING.isSet()
         || hasLuckyHitCleave(event)
         ) {
             ci.cancel();
@@ -215,11 +216,11 @@ public class MixinGearAttributeEvents {
 
     /**
      * @author aida
-     * @reason block echoing from re-activating chaining
+     * @reason block echoing and proc fangs from re-activating chaining
      */
     @Inject(method = "triggerChainAttack", at = @At(value = "INVOKE", target = "Liskallia/vault/event/ActiveFlags;isSet()Z", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
     private static void triggerChainAttack(LivingHurtEvent event, CallbackInfo ci) {
-        if(WoldActiveFlags.IS_ECHOING_ATTACKING.isSet() || ActiveFlags.IS_TOTEM_ATTACKING.isSet())
+        if(WoldActiveFlags.IS_ECHOING_ATTACKING.isSet() || ActiveFlags.IS_TOTEM_ATTACKING.isSet() || WoldActiveFlags.IS_PROC_FANG_ATTACKING.isSet())
             ci.cancel();
     }
 

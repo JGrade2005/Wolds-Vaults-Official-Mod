@@ -14,6 +14,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.events.WoldActiveFlags;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -112,7 +113,7 @@ public final class GlobalDamageMultiplierRegistry {
         if (!(attacker instanceof ServerPlayer player)) {
             return;
         }
-        if (isPercentageBased(source)) {
+        if (isPercentageBased(source) || WoldActiveFlags.IS_PROC_FANG_ATTACKING.isSet()) {
             return;
         }
         float product = getProduct(player);
