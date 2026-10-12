@@ -1078,7 +1078,7 @@ public final class AncientGearModifiers {
         config.implicit("the_vault:attack_speed", "BaseAttackSpeed", "the_vault:base_attack_speed", tags(),
                 tier(0, -1, 10, obj("min", -2.29D, "max", -2.2D, "step", 0.01D)));
         config.prefix("the_vault:execution_damage", "ModOnHitType", "the_vault:mod_execution_young_kitsune", tags("focusResistance"),
-                tier(0, -1, 600, obj("min", 0.1D, "max", 0.13D, "step", 0.01D)));
+                tier(0, -1, 600, obj("min", 0.05D, "max", 0.065D, "step", 0.005D)));
         config.suffix("the_vault:attack_speed_percent", "uAttackSpeed", "the_vault:mod_attack_speed_percent", tags("focusAttackSpeedPercent", "noLegendary"),
                 tier(0, -1, 10, obj("min", 0.25D, "max", 0.33D, "step", 0.01D)));
     }

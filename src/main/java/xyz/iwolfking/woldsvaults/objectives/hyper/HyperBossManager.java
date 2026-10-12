@@ -293,7 +293,6 @@ public class HyperBossManager extends ObjectiveManager<HyperVaultObjective> {
         RuneBossFights fights = objective.get(HyperVaultObjective.FIGHTS);
         if (!fights.hasPendingFight()) {
             if (objective.getOr(HyperVaultObjective.BOSS_KILLED, false)) {
-                xyz.iwolfking.woldsvaults.events.ExecutionStrikeAudit.flush(vault, "hyperboss killed");
                 escalation.onBossKilled();
             } else {
                 WoldsVaults.LOGGER.error("Hyperboss fight ended without a recorded boss death; re-arming the pillar instead of advancing the cycle.");
