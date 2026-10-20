@@ -53,7 +53,7 @@ public class MixinTieredLootTableGenerator implements DuckMapTier {
         return 1.1f * (float) Math.log(originalValue + 1.0f);
     }
 
-    /** Adds strongbox per-tier and Tenos base rolls, then applies the medallion's "+X% Chest Rolls" last. */
+    /** Adds strongbox per-tier base rolls, then applies the medallion's "+X% Chest Rolls" last. */
     @ModifyExpressionValue(
             method = "generate",
             at = @At(value = "INVOKE", target = "Liskallia/vault/core/world/roll/IntRoll;get(Liskallia/vault/core/random/RandomSource;)I")
@@ -62,13 +62,12 @@ public class MixinTieredLootTableGenerator implements DuckMapTier {
         int adjusted = this.woldsvaults$mapTier >= 0 ? roll + StrongboxTierScaling.baseRollBonus(this.woldsvaults$mapTier) : roll;
         Entity source = ((TieredLootTableGenerator) (Object) this).getSource();
         if (source instanceof Player player) {
-            adjusted += TenosChestRolls.bonusRolls(player);
             adjusted = (int) Math.round(adjusted * GreedMedallionEffects.chestRollMultiplier(player));
         }
         return adjusted;
     }
 
-    /** Mapped strongboxes cap at 72-162 rolls by tier instead of 54; Tenos chest nodes lift the cap too. */
+    /** Mapped strongboxes cap at 72-162 rolls by tier instead of 54; Tenos chest nodes lift the cap of other chests. */
     @ModifyExpressionValue(
             method = "generate",
             at = @At(value = "FIELD", target = "Liskallia/vault/core/world/loot/generator/TieredLootTableGenerator;maxRolls:I", opcode = Opcodes.GETFIELD)

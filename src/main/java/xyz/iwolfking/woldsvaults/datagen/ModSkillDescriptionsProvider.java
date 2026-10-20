@@ -1813,7 +1813,7 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             description.add(JsonDescription.text("."));
         });
         builder.addDescription("tenos_expert_looter", description -> {
-            description.add(JsonDescription.text("Chests roll "));
+            description.add(JsonDescription.text("Chests can roll up to "));
             description.add(JsonDescription.text("+4 more item stacks", sky));
             description.add(JsonDescription.text("."));
         });
@@ -1842,7 +1842,7 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             description.add(JsonDescription.text(", scaling with your chests per minute averaged over the last five minutes."));
         });
         builder.addDescription("tenos_massive_chests", description -> {
-            description.add(JsonDescription.text("Chests roll "));
+            description.add(JsonDescription.text("Chests can roll up to "));
             description.add(JsonDescription.text("+20 more item stacks", sky));
             description.add(JsonDescription.text(", but your Item Rarity is "));
             description.add(JsonDescription.text("halved", sky));
