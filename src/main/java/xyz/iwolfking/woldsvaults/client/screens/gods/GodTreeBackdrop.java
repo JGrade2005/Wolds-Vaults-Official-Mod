@@ -33,4 +33,25 @@ public final class GodTreeBackdrop {
     private record Tile(ResourceLocation texture, int size, float depth, float alpha, float fan) {}
     private record Sheet(ResourceLocation texture, int width, int height) {}
     private record Sprite(float x, float y, int u, int v, int w, int h, int scale, float phase) {}
+
+    private record Look(String secondHaze, int[] galaxies, int cluster, int[][] stars) {}
+
+    private static final Sheet GALAXIES = new Sheet(tex("galaxies"), 224, 32);
+    private static final Sheet CLUSTERS = new Sheet(tex("clusters"), 96, 32);
+    private static final Sheet STARS = new Sheet(tex("star_sprites"), 128, 80);
+    private static final Sheet COMETS = new Sheet(tex("comets"), 96, 16);
+    private static final Map<VaultGod, Look> LOOKS = new EnumMap<>(Map.of(
+            VaultGod.IDONA, new Look("neutral", new int[]{3, 4}, 0, new int[][]{{3, 5}, {2, 3}, {3, 7}, {2, 4}}),
+            VaultGod.VELARA, new Look("tenos", new int[]{0, 6}, 2, new int[][]{{0, 5}, {0, 7}, {1, 3}, {0, 6}}),
+            VaultGod.WENDARR, new Look("neutral", new int[]{2, 4}, 0, new int[][]{{2, 5}, {2, 7}, {0, 3}, {2, 6}}),
+            VaultGod.TENOS, new Look("velara", new int[]{1, 5}, 1, new int[][]{{1, 5}, {1, 7}, {0, 4}, {1, 6}})));
+    private static final Map<VaultGod, GodTreeBackdrop> CACHE = new EnumMap<>(VaultGod.class);
+
+    private final Tile hazeGod, hazeSecond, starsFar, nebulaBack, starsMid, nebulaGod, dust, wisps, starsNear;
+    private final List<Sprite> galaxies, clusters, brightStars;
+    private final List<Meteor> meteors = new ArrayList<>();
+    private final Random random = new Random();
+    private float lastSeconds = -1.0F, spawnIn = 2.0F;
+
+
 }
