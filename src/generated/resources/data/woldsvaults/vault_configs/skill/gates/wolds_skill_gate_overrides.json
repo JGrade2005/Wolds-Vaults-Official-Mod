@@ -164,10 +164,6 @@
             "type": "constant"
           },
           {
-            "id": "Vault Compass",
-            "type": "constant"
-          },
-          {
             "id": "Little Logistics",
             "type": "constant"
           },
@@ -280,10 +276,6 @@
             "type": "constant"
           },
           {
-            "id": "Curvy Pipes",
-            "type": "constant"
-          },
-          {
             "id": "Mod Box Tinkering",
             "type": "constant"
           },
@@ -297,6 +289,10 @@
           },
           {
             "id": "Immersive Engineering",
+            "type": "constant"
+          },
+          {
+            "id": "Augment Crafting",
             "type": "constant"
           },
           {
@@ -328,6 +324,10 @@
             "type": "constant"
           },
           {
+            "id": "Junk Management",
+            "type": "constant"
+          },
+          {
             "id": "Create Crafts and Additions",
             "type": "constant"
           },
@@ -344,10 +344,6 @@
             "type": "constant"
           },
           {
-            "id": "Vault Decks",
-            "type": "constant"
-          },
-          {
             "id": "Belts",
             "type": "constant"
           },
@@ -357,10 +353,6 @@
           },
           {
             "id": "Digital Miner",
-            "type": "constant"
-          },
-          {
-            "id": "Draconic Evolution",
             "type": "constant"
           }
         ],

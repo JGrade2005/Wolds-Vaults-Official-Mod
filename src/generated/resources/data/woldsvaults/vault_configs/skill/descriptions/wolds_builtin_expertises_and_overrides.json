@@ -119,35 +119,6 @@
         "color": "#FFD700"
       }
     ],
-    "Gambler": [
-      {
-        "text": "Just one more choice and it will solve everything... just one more!\n\n"
-      },
-      {
-        "text": "1 "
-      },
-      {
-        "text": "Add an additional "
-      },
-      {
-        "text": "choice ",
-        "color": "gold"
-      },
-      {
-        "text": "when opening "
-      },
-      {
-        "text": "Booster Packs",
-        "color": "green"
-      },
-      {
-        "text": "."
-      },
-      {
-        "text": "\n\n",
-        "color": "$text"
-      }
-    ],
     "Surprise_Favors": [
       {
         "text": "Gain a "
@@ -175,7 +146,7 @@
         "color": "$text"
       },
       {
-        "text": "+20.0%\n",
+        "text": "+10.0%\n",
         "color": "#FFD700"
       },
       {
@@ -183,7 +154,7 @@
         "color": "$text"
       },
       {
-        "text": "+40.0%\n",
+        "text": "+20.0%\n",
         "color": "#FFD700"
       },
       {
@@ -191,7 +162,7 @@
         "color": "$text"
       },
       {
-        "text": "+60.0%\n",
+        "text": "+30.0%\n",
         "color": "#FFD700"
       }
     ],
@@ -317,69 +288,6 @@
         "color": "#FFD700"
       }
     ],
-    "Companion_Loyalty": [
-      {
-        "text": "Decreases the "
-      },
-      {
-        "text": "Cooldown ",
-        "color": "#008080"
-      },
-      {
-        "text": "of your "
-      },
-      {
-        "text": "Companions",
-        "color": "#FFFF55"
-      },
-      {
-        "text": "."
-      },
-      {
-        "text": "\n\n",
-        "color": "$text"
-      },
-      {
-        "text": "1 ",
-        "color": "$text"
-      },
-      {
-        "text": "+10.0%\n",
-        "color": "#FFD700"
-      },
-      {
-        "text": "2 ",
-        "color": "$text"
-      },
-      {
-        "text": "+20.0%\n",
-        "color": "#FFD700"
-      },
-      {
-        "text": "3 ",
-        "color": "$text"
-      },
-      {
-        "text": "+30.0%\n",
-        "color": "#FFD700"
-      },
-      {
-        "text": "4 ",
-        "color": "$text"
-      },
-      {
-        "text": "+40.0%\n",
-        "color": "#FFD700"
-      },
-      {
-        "text": "5 ",
-        "color": "$text"
-      },
-      {
-        "text": "+50.0%\n",
-        "color": "#FFD700"
-      }
-    ],
     "Artisan": [
       {
         "text": "Reduce the cost of "
@@ -407,7 +315,7 @@
         "color": "$text"
       },
       {
-        "text": "+20.0%\n",
+        "text": "+0.0%\n",
         "color": "#FFD700"
       },
       {
@@ -415,7 +323,7 @@
         "color": "$text"
       },
       {
-        "text": "+40.0%\n",
+        "text": "+0.0%\n",
         "color": "#FFD700"
       },
       {
@@ -423,7 +331,7 @@
         "color": "$text"
       },
       {
-        "text": "+60.0%\n",
+        "text": "+0.0%\n",
         "color": "#FFD700"
       }
     ],
@@ -446,7 +354,7 @@
         "color": "$text"
       },
       {
-        "text": "45 seconds cooldown\n",
+        "text": "60 seconds cooldown\n",
         "color": "#FFD700"
       },
       {
@@ -454,7 +362,7 @@
         "color": "$text"
       },
       {
-        "text": "15 seconds cooldown\n",
+        "text": "30 seconds cooldown\n",
         "color": "#FFD700"
       },
       {
@@ -462,91 +370,7 @@
         "color": "$text"
       },
       {
-        "text": "5 seconds cooldown\n",
-        "color": "#FFD700"
-      }
-    ],
-    "Grave_Insurance": [
-      {
-        "text": "You make a deal with the Reaper and he looks the other way when you slip a few less coins than usual...\nDecreases the cost of your "
-      },
-      {
-        "text": "Spirit ",
-        "color": "#875FB2"
-      },
-      {
-        "text": "in the "
-      },
-      {
-        "text": "Spirit Extractor",
-        "color": "#FFFF55"
-      },
-      {
-        "text": "."
-      },
-      {
-        "text": "\n\n",
-        "color": "$text"
-      },
-      {
-        "text": "1 ",
-        "color": "$text"
-      },
-      {
-        "text": "-25.0%\n",
-        "color": "#FFD700"
-      },
-      {
-        "text": "2 ",
-        "color": "$text"
-      },
-      {
-        "text": "-50.0%\n",
-        "color": "#FFD700"
-      }
-    ],
-    "Augmentation_Luck": [
-      {
-        "text": "Improves your luck with rolling special gear modifiers like "
-      },
-      {
-        "text": "Corrupted",
-        "color": "#A31500"
-      },
-      {
-        "text": ", "
-      },
-      {
-        "text": "Frozen",
-        "color": "#0392C4"
-      },
-      {
-        "text": ", "
-      },
-      {
-        "text": "Greater",
-        "color": "#039208"
-      },
-      {
-        "text": ", and "
-      },
-      {
-        "text": "Unusual",
-        "color": "#039261"
-      },
-      {
-        "text": "."
-      },
-      {
-        "text": "\n\n",
-        "color": "$text"
-      },
-      {
-        "text": "1 ",
-        "color": "$text"
-      },
-      {
-        "text": "+1.0%\n",
+        "text": "15 seconds cooldown\n",
         "color": "#FFD700"
       }
     ],
@@ -839,45 +663,6 @@
       {
         "text": "Legendary Modifiers ",
         "color": "gold"
-      },
-      {
-        "text": "."
-      },
-      {
-        "text": "\n\n",
-        "color": "$text"
-      }
-    ],
-    "Deck_Master": [
-      {
-        "text": "Become a master at handling decks!\n\n"
-      },
-      {
-        "text": "1 "
-      },
-      {
-        "text": "Add a random "
-      },
-      {
-        "text": "Lesser ",
-        "color": "yellow"
-      },
-      {
-        "text": "deck modifier and an additional deck socket "
-      },
-      {
-        "text": "when crafting "
-      },
-      {
-        "text": "Card Decks ",
-        "color": "gold"
-      },
-      {
-        "text": "in the "
-      },
-      {
-        "text": "Deck Station ",
-        "color": "aqua"
       },
       {
         "text": "."

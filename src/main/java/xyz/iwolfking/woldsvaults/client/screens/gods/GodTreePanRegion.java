@@ -14,9 +14,11 @@ import iskallia.vault.util.MiscUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import xyz.iwolfking.woldsvaults.gods.ClientGodAlignmentData;
 import iskallia.vault.config.entry.SkillStyle;
@@ -285,6 +287,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         int containerMouseX = (int) (((float) mouseX - midpoint.x) / this.viewportScale - this.viewportTranslation.x);
         int containerMouseY = (int) (((float) mouseY - midpoint.y) / this.viewportScale - this.viewportTranslation.y);
         float tick = (float) ClientScheduler.INSTANCE.getTick() + pTicks;
+        this.renderTiledBackdrop(renderStack, containerBounds, midpoint);
         this.renderBackgroundStars(renderStack, tick);
         if (this.tree == null) {
             this.renderUnchartedSky(renderStack);
@@ -303,6 +306,21 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
             }
         }
         renderStack.popPose();
+    }
+
+    private void renderTiledBackdrop(PoseStack renderStack, Rectangle bounds, Point2D.Float midpoint) {
+        int tile = GodTreeTheme.TREE_BACKGROUND_TILE;
+        float left = (bounds.x - midpoint.x) / this.viewportScale - this.viewportTranslation.x;
+        float top = (bounds.y - midpoint.y) / this.viewportScale - this.viewportTranslation.y;
+        // snap to the tile grid so the pattern stays anchored to the tree while panning
+        int x = Mth.floor(left / tile) * tile;
+        int y = Mth.floor(top / tile) * tile;
+        int width = Mth.ceil(bounds.width / this.viewportScale) + tile * 2;
+        int height = Mth.ceil(bounds.height / this.viewportScale) + tile * 2;
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, GodTreeTheme.TREE_BACKGROUND);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        blit(renderStack, x, y, 0.0F, 0.0F, width, height, tile, tile);
     }
 
     private void renderBackgroundStars(PoseStack renderStack, float tick) {

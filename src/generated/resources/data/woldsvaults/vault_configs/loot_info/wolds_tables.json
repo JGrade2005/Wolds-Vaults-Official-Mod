@@ -299,17 +299,8 @@
     "the_vault:completion_crate_alchemy": {
       "display": "Completion Crate Alchemy",
       "lootTableKeys": {
-        "the_vault:base_crate_cursed_3_100": {
+        "the_vault:base_crate_0": {
           "level": 100
-        },
-        "the_vault:base_crate_cursed_3_50": {
-          "level": 50
-        },
-        "the_vault:base_crate_cursed_0": {
-          "level": 0
-        },
-        "the_vault:base_crate_cursed_20": {
-          "level": 20
         }
       }
     },
