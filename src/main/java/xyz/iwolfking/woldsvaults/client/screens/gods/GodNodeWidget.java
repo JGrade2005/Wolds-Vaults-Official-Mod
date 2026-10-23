@@ -96,6 +96,19 @@ public class GodNodeWidget extends AbstractWidget {
         this.selected = false;
     }
 
+    // Stable per-node bits that set each star's effect clock and facing.
+    public int effectSeed() {
+        return this.node.id().hashCode() * 0x9E3779B9;
+    }
+
+    // How strongly this star's effects show: locked stars glimmer, unlocked ones shine, and selecting brightens either.
+    public float effectOpacity() {
+        if (this.unlocked) {
+            return this.selected ? 1.0F : 0.75F;
+        }
+        return this.selected ? 0.5F : 0.25F;
+    }
+
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         double cx = this.x + this.width / 2.0D;
