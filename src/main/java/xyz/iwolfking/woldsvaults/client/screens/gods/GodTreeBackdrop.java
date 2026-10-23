@@ -46,7 +46,7 @@ public final class GodTreeBackdrop {
                           float fill, float minScale, float maxScale, long seed) {}
     private record Sheet(ResourceLocation texture, int width, int height) {}
     private record Sprite(float x, float y, int u, int v, int w, int h, int scale, float phase) {}
-    private record Look(String secondHaze, int[] galaxies, int cluster, int[][] stars) {}
+    private record Look(String secondHaze, int[] galaxies, int cluster, int[][] stars, float nebulaAlpha) {}
 
     private static final Sheet GALAXIES = new Sheet(tex("galaxies"), 224, 32);
     private static final Sheet CLUSTERS = new Sheet(tex("clusters"), 96, 32);
@@ -100,7 +100,7 @@ public final class GodTreeBackdrop {
         this.hazeGod = new Clouds(tex("clouds_haze_" + name), 128, 0.0F, 0.20F, 0, 380, 0.85F, 2.5F, 4.0F, layers.nextLong());
         this.hazeSecond = new Clouds(tex("clouds_haze_" + look.secondHaze()), 128, 0.0F, 0.14F, 0, 440, 0.8F, 2.5F, 4.0F, layers.nextLong());
         this.nebulaBack = new Clouds(tex("clouds_nebula_neutral"), 128, 0.10F, 0.50F, -1, 230, 0.65F, 1.2F, 2.0F, layers.nextLong());
-        this.nebulaGod = new Clouds(tex("clouds_nebula_" + name), 128, 0.26F, 0.72F, 0, 190, 0.75F, 1.0F, 1.7F, layers.nextLong());
+        this.nebulaGod = new Clouds(tex("clouds_nebula_" + name), 128, 0.26F, look.nebulaAlpha(), 0, 190, 0.75F, 1.0F, 1.7F, layers.nextLong());
         this.dust = new Clouds(tex("clouds_dust"), 64, 0.34F, 0.85F, 0.5F, 170, 0.55F, 1.5F, 2.5F, layers.nextLong());
         this.wisps = new Clouds(tex("clouds_wisps_" + name), 64, 0.48F, 0.32F, 1, 150, 0.5F, 1.2F, 2.2F, layers.nextLong());
         this.starsFar = new Tile(tex("stars_far"), 64, 0.03F, 1.0F);
