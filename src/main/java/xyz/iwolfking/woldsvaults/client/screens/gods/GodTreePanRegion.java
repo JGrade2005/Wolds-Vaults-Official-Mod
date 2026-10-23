@@ -193,7 +193,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
     }
 
     protected float clampViewportScale(float scale) {
-        return Math.max(0.25F, Math.min(2.0F, scale));
+        return Math.max(0.1F, Math.min(2.0F, scale));
     }
 
     /** Left-click selects or drags a star; right-click on a learned minor opens the transfer-slot picker. */
