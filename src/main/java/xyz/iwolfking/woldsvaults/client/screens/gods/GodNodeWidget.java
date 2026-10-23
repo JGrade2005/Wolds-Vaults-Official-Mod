@@ -123,7 +123,6 @@ public class GodNodeWidget extends AbstractWidget {
                              int containerMouseX, int containerMouseY, float pTicks, List<Runnable> postContainerRender) {
         boolean hovered = this.isMouseOver(containerMouseX, containerMouseY);
         this.renderFrame(renderStack, hovered, pTicks);
-        this.renderIcon(renderStack);
         if (hovered) {
             this.renderTooltip(renderStack, screenMouseX, screenMouseY, postContainerRender);
         }
@@ -160,7 +159,7 @@ public class GodNodeWidget extends AbstractWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private void renderIcon(PoseStack renderStack) {
+    public void renderIcon(PoseStack renderStack) {
         ResourceLocation icon = this.style.icon;
         if (icon == null || this.iconSize <= 0) {
             return;

@@ -316,6 +316,9 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
             widget.renderWidget(renderStack, containerBounds, mouseX, mouseY, containerMouseX, containerMouseY, pTicks, postRender);
         }
         this.renderNodeEffects(renderStack, true);    // over the stars
+        for (GodNodeWidget widget : this.nodeWidgets.values()) {
+            widget.renderIcon(renderStack);
+        }
         if (this.popup != null) {
             GodNodeWidget anchor = this.nodeWidgets.get(this.popup.anchorNodeId());
             if (anchor != null) {
