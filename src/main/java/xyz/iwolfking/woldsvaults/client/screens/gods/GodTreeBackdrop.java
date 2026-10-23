@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.client.renderer.ShaderInstance;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 
 import java.awt.Rectangle;
