@@ -50,9 +50,6 @@ public final class GodTreeTheme {
     public static final int STAR_ROW_SELECTED = 3;
 
     public static final int SPACE_BACKGROUND = 0xFF060309;
-    public static final ResourceLocation TREE_BACKGROUND =
-            WoldsVaults.id("textures/gui/gods/background1.png");
-    public static final int TREE_BACKGROUND_TILE = 16;
 
     private GodTreeTheme() {
     }
