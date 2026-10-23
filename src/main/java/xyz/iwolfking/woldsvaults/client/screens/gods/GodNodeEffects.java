@@ -130,7 +130,10 @@ public final class GodNodeEffects {
     /**
      * Draws one layer of effects for every star in the given tree-space rectangle. With {@code front} false it draws
      * what sits behind the stars (glow, arms, and motes or rays not set over the star) and paints this frame's light;
-     * with {@code front} true, the motes and rays set over the star. {@code viewportScale} is the pan region's zoom.
+     * with {@code front} true, the motes and rays set over the star. Light behind a star adds to what is under it; light
+     * over a star covers it as strongly as it shines. Each star's state darkens its light's colour
+     * ({@link GodNodeWidget#effectBrightness()}) without making it see-through. {@code viewportScale} is the pan
+     * region's zoom.
      */
     public static void render(PoseStack poseStack, VaultGod god, Collection<GodNodeWidget> widgets, boolean front,
                               float minX, float minY, float maxX, float maxY, float viewportScale) {
@@ -172,7 +175,12 @@ public final class GodNodeEffects {
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         RenderSystem.enableTexture();
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        if (front) {
+            // light over the star covers it as strongly as it shines, so a dimmed star doesn't show through its rays
+            RenderSystem.defaultBlendFunc();
+        } else {
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        }
         for (GodNodeType type : types) {
             Look look = settings.get(type);
             for (int phase = 0; phase < PHASES.length; phase++) {
@@ -192,7 +200,7 @@ public final class GodNodeEffects {
                         float half = halfCells * widget.getWidth() / CELL;
                         float cx = widget.x + widget.getWidth() / 2.0F;
                         float cy = widget.y + widget.getHeight() / 2.0F;
-                        int alpha = Math.round(widget.effectOpacity() * 255.0F);
+                        int shade = Math.round(widget.effectBrightness() * 255.0F);
                         // corners bottom-left, bottom-right, top-right, top-left; starting the texture's corners
                         // further round turns each star's light by its own quarter turns
                         float[] us = {u0, u0 + 0.5F, u0 + 0.5F, u0};
@@ -202,7 +210,7 @@ public final class GodNodeEffects {
                             float x = corner == 0 || corner == 3 ? cx - half : cx + half;
                             float y = corner < 2 ? cy + half : cy - half;
                             int uv = (corner + turn) & 3;
-                            buf.vertex(pose, x, y, 0.0F).color(255, 255, 255, alpha).uv(us[uv], vs[uv]).endVertex();
+                            buf.vertex(pose, x, y, 0.0F).color(shade, shade, shade, 255).uv(us[uv], vs[uv]).endVertex();
                         }
                     }
                 });
