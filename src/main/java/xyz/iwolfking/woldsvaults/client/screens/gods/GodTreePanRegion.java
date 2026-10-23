@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
-import net.minecraft.util;
+import net.minecraft.Util;
 import net.minecraft.world.phys.Vec2;
 import xyz.iwolfking.woldsvaults.gods.ClientGodAlignmentData;
 import iskallia.vault.config.entry.SkillStyle;
@@ -228,6 +228,9 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
             this.selectedWidget = hit;
             hit.select();
             this.dialog.setSelectedNode(hit.getNode().id());
+            if (button == 0) {
+                this.focusOn(hit);
+            }
             if (button == 1 && hit.getNode().type() == GodNodeType.MINOR && hit.isUnlocked()) {
                 this.popup = new TransferSlotPopup(this.god, hit.getNode());
             }
@@ -236,6 +239,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         if (button == 0) {
             this.grabbedPos = new Vec2((float) mouseX, (float) mouseY);
             this.dragging = true;
+            this.glide = null;
         }
         return true;
     }
@@ -261,6 +265,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (this.getBounds().contains(mouseX, mouseY)) {
+            this.glide = null;
             float newScale = this.viewportScale + (float) delta * 0.1F;
             this.viewportScale = this.clampViewportScale(newScale);
             this.saveViewportTransforms();
@@ -285,6 +290,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
 
     protected void renderForeground(PoseStack renderStack, Rectangle containerBounds, int mouseX, int mouseY,
                                     float pTicks, List<Runnable> postRender) {
+        this.updateGlide();
         RenderSystem.enableBlend();
         float tick = (float) ClientScheduler.INSTANCE.getTick() + pTicks;      // moved up from below
         GodTreeBackdrop.forGod(this.god).render(renderStack, containerBounds, this.viewportTranslation, this.viewportScale, tick);
@@ -442,5 +448,21 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         this.glide = new Glide(this.viewportScale, toScale, offset, point, Util.getMillis());
     }
 
-
+    private void updateGlide() {
+        if (this.glide == null) {
+            return;
+        }
+        Glide g = this.glide;
+        float t = Mth.clamp((Util.getMillis() - g.start()) / (float) FOCUS_MILLIS, 0.0F, 1.0F);
+        float e = 1.0F - (1.0F - t) * (1.0F - t) * (1.0F - t); // ease out: quick start, soft landing
+        // zoom evenly on a log scale, and slide the star along a straight line into the centre
+        this.viewportScale = g.fromScale() * (float) Math.pow(g.toScale() / g.fromScale(), e);
+        float offsetX = g.fromOffset().x * (1.0F - e), offsetY = g.fromOffset().y * (1.0F - e);
+        this.viewportTranslation = new Vec2(offsetX / this.viewportScale - g.point().x,
+                offsetY / this.viewportScale - g.point().y);
+        if (t >= 1.0F) {
+            this.glide = null;
+            this.saveViewportTransforms();
+        }
+    }
 }
