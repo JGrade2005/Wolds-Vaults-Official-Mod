@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
+import net.minecraft.util;
 import net.minecraft.world.phys.Vec2;
 import xyz.iwolfking.woldsvaults.gods.ClientGodAlignmentData;
 import iskallia.vault.config.entry.SkillStyle;
@@ -45,6 +46,12 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
     private static final Map<VaultGod, Float> persistedScales = new EnumMap<>(VaultGod.class);
     private static final int BACKGROUND_STARS = 420;
     private static final long STAR_SEED = 0x1D0A57A2L;
+
+    private static final float FOCUS_SCALE = 0.7F; // zoom a clicked star settles at, unless already closer
+    private static final long FOCUS_MILLIS = 450L; // how long the glide takes
+
+    private record Glide(float fromScale, float toScale, Vec2 fromOffset, Vec2 point, long start) {}
+    private Glide glide;
 
     protected final GodTreeScreen parentScreen;
     protected final GodTreeDialog dialog;
@@ -425,4 +432,15 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         minecraft.font.draw(renderStack, text.copy(), -center.x - width / 2.0F, -center.y - 4.0F, 0xFFFFFF);
         RenderSystem.enableDepthTest();
     }
+
+    private void focusOn(GodNodeWidget widget) {
+        Vec2 point = new Vec2(widget.x + widget.getWidth() / 2.0F, widget.y + widget.getHeight() / 2.0F);
+        // where the star is drawn right now, relative to the region's centre
+        Vec2 offset = new Vec2(this.viewportScale * (point.x + this.viewportTranslation.x),
+                this.viewportScale * (point.y + this.viewportTranslation.y));
+        float toScale = this.clampViewportScale(Math.max(this.viewportScale, FOCUS_SCALE));
+        this.glide = new Glide(this.viewportScale, toScale, offset, point, Util.getMillis());
+    }
+
+
 }
