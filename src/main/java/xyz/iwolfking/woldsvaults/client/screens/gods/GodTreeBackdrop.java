@@ -53,10 +53,10 @@ public final class GodTreeBackdrop {
     private static final Sheet STARS = new Sheet(tex("star_sprites"), 128, 80);
     private static final Sheet COMETS = new Sheet(tex("comets"), 96, 16);
     private static final Map<VaultGod, Look> LOOKS = new EnumMap<>(Map.of(
-            VaultGod.IDONA, new Look("neutral", new int[]{3, 4}, 0, new int[][]{{3, 5}, {2, 3}, {3, 7}, {2, 4}}),
-            VaultGod.VELARA, new Look("tenos", new int[]{0, 6}, 2, new int[][]{{0, 5}, {0, 7}, {1, 3}, {0, 6}}),
-            VaultGod.WENDARR, new Look("neutral", new int[]{2, 4}, 0, new int[][]{{2, 5}, {2, 7}, {0, 3}, {2, 6}}),
-            VaultGod.TENOS, new Look("velara", new int[]{1, 5}, 1, new int[][]{{1, 5}, {1, 7}, {0, 4}, {1, 6}})));
+            VaultGod.IDONA, new Look("neutral", new int[]{3, 4}, 0, new int[][]{{3, 5}, {2, 3}, {3, 7}, {2, 4}}, 0.45F),
+            VaultGod.VELARA, new Look("tenos", new int[]{0, 6}, 2, new int[][]{{0, 5}, {0, 7}, {1, 3}, {0, 6}}, 0.72F),
+            VaultGod.WENDARR, new Look("neutral", new int[]{2, 4}, 0, new int[][]{{2, 5}, {2, 7}, {0, 3}, {2, 6}}, 0.72F),
+            VaultGod.TENOS, new Look("velara", new int[]{1, 5}, 1, new int[][]{{1, 5}, {1, 7}, {0, 4}, {1, 6}}, 0.72F)));
     private static final Map<VaultGod, GodTreeBackdrop> CACHE = new EnumMap<>(VaultGod.class);
 
     private final Clouds hazeGod, hazeSecond, nebulaBack, nebulaGod, dust, wisps;
