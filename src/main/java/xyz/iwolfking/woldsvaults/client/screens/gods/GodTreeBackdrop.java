@@ -127,7 +127,7 @@ public final class GodTreeBackdrop {
     private static void useGradeShader() {
         ShaderInstance shader = GodTreeShaders.backdropGrade;
         if (shader == null) { // failed to load: draw ungraded rather than not at all
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            useGradeShader();
             return;
         }
         shader.safeGetUniform("Brightness").set((GRADE_BRIGHTNESS - 50) / 100.0F);
@@ -152,7 +152,7 @@ public final class GodTreeBackdrop {
         pose.scale(ZOOM, ZOOM, 1.0F);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        useGradeShader();
         clouds(pose, b, this.hazeGod, panX, panY);
         clouds(pose, b, this.hazeSecond, panX, panY);
         clouds(pose, b, this.nebulaBack, panX, panY);
@@ -200,7 +200,7 @@ public final class GodTreeBackdrop {
         float reach = c.cell() * c.maxScale() * 0.75F; // half a cloud's diagonal at its biggest, so ones centred just off screen still draw
         int col0 = Mth.floor((b.x - offX - reach) / spacing), col1 = Mth.floor((b.x + b.width - offX + reach) / spacing);
         int row0 = Mth.floor((b.y - offY - reach) / spacing), row1 = Mth.floor((b.y + b.height - offY + reach) / spacing);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        useGradeShader();
         RenderSystem.setShaderTexture(0, c.texture());
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, c.alpha());
         Matrix4f matrix = pose.last().pose();
@@ -387,7 +387,7 @@ public final class GodTreeBackdrop {
         }
 
         float sx = hx + offX, sy = hy + offY;
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        useGradeShader();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
