@@ -72,6 +72,8 @@ public final class GodTreeBackdrop {
     private static final float ZOOM = 0.5F; // GUI units per art pixel: lower shows more of the sky at once
     private static final float BRIGHTNESS = .25F; //Darkens the rendered frame from 0.0F (pitch black) to 2.0F (pure white). 1.0F is no brightness change
 
+    private static final float GRADE_BRIGHTNESS = 35, GRADE_CONTRAST = 37, GRADE_GAMMA = 1.14F, GRADE_VIBRANCE = 87;
+
     // black hole sizes and speeds are in GUI units, so it looks the same whatever ZOOM is
     private static final float BLACK_HOLES_PER_MINUTE = 60F;
     private static final float HOLE_DEPTH = 0.2F;            // pans with the sky like a mid layer
@@ -119,6 +121,19 @@ public final class GodTreeBackdrop {
         }
         this.brightStars = scatter(placement, starCells, 1);
         this.holeIn = nextWait(this.random, BLACK_HOLES_PER_MINUTE);
+    }
+
+    private static void useGradeShader() {
+        ShaderInstance shader = GodTreeShaders.backdropGrade;
+        if (shader == null) { // failed to load: draw ungraded rather than not at all
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            return;
+        }
+        shader.safeGetUniform("Brightness").set((GRADE_BRIGHTNESS - 50) / 100.0F);
+        shader.safeGetUniform("Contrast").set(GRADE_CONTRAST / 50.0F);
+        shader.safeGetUniform("Gamma").set(GRADE_GAMMA);
+        shader.safeGetUniform("Vibrance").set((GRADE_VIBRANCE - 50) / 50.0F);
+        RenderSystem.setShader(() -> shader);
     }
 
     public void render(PoseStack pose, Rectangle bounds, Vec2 translation, float scale, float tick) {
