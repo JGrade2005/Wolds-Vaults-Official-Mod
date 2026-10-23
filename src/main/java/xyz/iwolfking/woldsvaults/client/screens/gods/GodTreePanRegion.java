@@ -352,14 +352,15 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
                 if (from == null || to == null) {
                     continue;
                 }
+                this.lineQuad(buf, pose, from, to, 4.5F, 0x000000, 140);
                 boolean lit = from.isUnlocked() && to.isUnlocked();
                 boolean warm = !lit && (from.isUnlocked() || to.isUnlocked());
                 int glowColor = lit ? dim : deep;
-                int coreColor = lit ? accent : (warm ? dim : deep);
+                int coreColor = lit ? accent : dim;
                 int glowAlpha = lit ? 150 : 105;
-                int coreAlpha = lit ? 230 : (warm ? 200 : 160);
-                this.lineQuad(buf, pose, from, to, 2.6F, glowColor, glowAlpha);
-                this.lineQuad(buf, pose, from, to, lit ? 1.1F : 0.9F, coreColor, coreAlpha);
+                int coreAlpha = lit ? 255 : (warm ? 240 : 210);
+                this.lineQuad(buf, pose, from, to, 3.2F, glowColor, glowAlpha);
+                this.lineQuad(buf, pose, from, to, lit ? 1.4F : 1.2F, coreColor, coreAlpha);
             }
         });
         RenderSystem.enableTexture();
