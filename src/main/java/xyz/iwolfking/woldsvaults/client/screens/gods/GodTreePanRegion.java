@@ -311,9 +311,11 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         }
         this.renderConstellationLines(renderStack);
         this.renderConstellationLabels(renderStack);
+        this.renderNodeEffects(renderStack, false);   // behind the stars
         for (GodNodeWidget widget : this.nodeWidgets.values()) {
             widget.renderWidget(renderStack, containerBounds, mouseX, mouseY, containerMouseX, containerMouseY, pTicks, postRender);
         }
+        this.renderNodeEffects(renderStack, true);    // over the stars
         if (this.popup != null) {
             GodNodeWidget anchor = this.nodeWidgets.get(this.popup.anchorNodeId());
             if (anchor != null) {
@@ -321,6 +323,16 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
             }
         }
         renderStack.popPose();
+    }
+
+    // One layer of star effects ({@code front}: over the stars, else behind them), only for stars in view.
+    private void renderNodeEffects(PoseStack renderStack, boolean front) {
+        Rectangle bounds = this.getBounds();
+        float halfWidth = bounds.width / 2.0F / this.viewportScale;
+        float halfHeight = bounds.height / 2.0F / this.viewportScale;
+        GodNodeEffects.render(renderStack, this.god, this.nodeWidgets.values(), front,
+                -halfWidth - this.viewportTranslation.x, -halfHeight - this.viewportTranslation.y,
+                halfWidth - this.viewportTranslation.x, halfHeight - this.viewportTranslation.y, this.viewportScale);
     }
 
     private void renderBackgroundStars(PoseStack renderStack, float tick) {
