@@ -84,12 +84,12 @@ public final class GodNodeEffects {
     private record Glow(boolean enabled, double radius, double brightness, double pulse, double pulseRate) {}
 
     private record Look(Light light, Arms arms, Motes motes, Rays rays, Glow glow) {
-        /** Whether any light sits over the star, which needs the second pass. */
+        // Whether any light sits over the star, which needs the second pass.
         boolean hasFront() {
             return this.motes.enabled() && this.motes.overStar() || this.rays.enabled() && this.rays.overStar();
         }
 
-        /** Side of the square of cell pixels that holds all this light, with the star at its centre. */
+        // Side of the square of cell pixels that holds all this light, with the star at its centre.
         int size() {
             double reach = 0.0D;
             if (this.arms.enabled()) {
@@ -233,7 +233,7 @@ public final class GodNodeEffects {
         return row[phase];
     }
 
-    /** One node type at one phase: its light buffers, and the texture they are painted into. */
+    // One node type at one phase: its light buffers, and the texture they are painted into.
     private static final class Layer {
         private final ResourceLocation id;
         private final Canvas canvas;
@@ -602,7 +602,7 @@ public final class GodNodeEffects {
         return ramps;
     }
 
-    /** Black through the god's deep, dim and accent colours to white, when the ramp texture is missing. */
+    // Black through the god's deep, dim and accent colours to white, when the ramp texture is missing.
     private static int[] themeRamp(VaultGod god) {
         int[] stops = {0x000000, GodTreeTheme.accentDeep(god) & 0xFFFFFF, GodTreeTheme.accentDim(god) & 0xFFFFFF,
                 GodTreeTheme.accent(god) & 0xFFFFFF, 0xFFFFFF};

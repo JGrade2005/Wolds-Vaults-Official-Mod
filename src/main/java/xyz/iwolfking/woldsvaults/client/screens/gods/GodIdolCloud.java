@@ -42,7 +42,7 @@ public final class GodIdolCloud {
     private static final ResourceLocation SETTINGS = WoldsVaults.id("god_tree/idol_cloud.json");
     private static final ResourceLocation CLOUD = WoldsVaults.id("textures/gui/gods/idol_cloud.png");
     private static final ResourceLocation RAMPS = WoldsVaults.id("textures/gui/gods/idol_cloud_ramps.png");
-    /** The painted idol's width in its own pixels, the unit of the openings. */
+    // The painted idol's width in its own pixels, the unit of the openings.
     public static final float BASE = 256.0F;
     private static final int MAX_OPENINGS = 3;
     private static final List<Opening> DEFAULT_OPENINGS = List.of(
@@ -50,7 +50,7 @@ public final class GodIdolCloud {
 
     private static Settings settings;
 
-    /** A slot opening in the cloud: centre and radius in pixels of the 256px idol. */
+    // A slot opening in the cloud: centre and radius in pixels of the 256px idol.
     public record Opening(float x, float y, float r) {}
 
     private record Render(int resolution, float frameRate, boolean smooth, float godPhase) {}
@@ -86,12 +86,12 @@ public final class GodIdolCloud {
         }
     }
 
-    /** The slot openings, in the order of the transfer slots. */
+    // The slot openings, in the order of the transfer slots.
     public static List<Opening> openings() {
         return settings().openings();
     }
 
-    /** How much of the cloud an idol at {@code level} shows: none at first, then more with every level. */
+    // How much of the cloud an idol at {@code level} shows: none at first, then more with every level.
     public static float levelFade(int level) {
         Cloud cloud = settings().cloud();
         return Math.max(0.0F, Math.min(1.0F, cloud.levelStart() + cloud.levelStep() * level));

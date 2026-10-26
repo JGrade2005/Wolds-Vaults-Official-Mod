@@ -114,7 +114,7 @@ public final class GodOverviewPage {
         return new Layout(inner, panelWidth, panelHeight, top, idol);
     }
 
-    /** How many slots the page shows: those the curve grants, as far as the cloud has openings for them. */
+    // How many slots the page shows: those the curve grants, as far as the cloud has openings for them.
     private static int slotCount() {
         return Math.min(GodIdolCloud.openings().size(), GodLevels.maxMinorTransferSlots());
     }
@@ -220,7 +220,7 @@ public final class GodOverviewPage {
         return lines;
     }
 
-    /** One transfer slot set into the idol; returns whether it showed its tooltip. */
+    // One transfer slot set into the idol; returns whether it showed its tooltip.
     private boolean renderSlot(PoseStack poseStack, Layout layout, int column, int slot, GodIdolCloud.Opening opening,
                                VaultGod god, boolean dormant, boolean mayTooltip, int mouseX, int mouseY,
                                List<Runnable> postRender) {
@@ -302,7 +302,7 @@ public final class GodOverviewPage {
         });
     }
 
-    /** Right-click on a filled slot clears it; any other left-click on a god's column opens its constellation. */
+    // Right-click on a filled slot clears it; any other left-click on a god's column opens its constellation.
     public boolean mouseClicked(Rectangle frame, double mouseX, double mouseY, int button) {
         Layout layout = layout(frame);
         VaultGod[] order = GodTreeTheme.DISPLAY_ORDER;
