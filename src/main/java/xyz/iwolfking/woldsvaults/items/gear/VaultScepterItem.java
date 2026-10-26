@@ -6,6 +6,7 @@ import iskallia.vault.dynamodel.DynamicModel;
 import iskallia.vault.entity.entity.PetEntity;
 import iskallia.vault.gear.VaultGearClassification;
 import iskallia.vault.gear.VaultGearHelper;
+import iskallia.vault.gear.VaultGearRarity;
 import iskallia.vault.gear.VaultGearState;
 import iskallia.vault.gear.VaultGearType;
 import iskallia.vault.gear.attribute.type.VaultGearAttributeTypeMerger;
@@ -215,7 +216,7 @@ public class VaultScepterItem extends SwordItem implements VaultGearItem, Dyeabl
 
         if (gearData.hasAttribute(xyz.iwolfking.woldsvaults.init.ModGearAttributes.SCEPTER_BEAM)) {
             if (chargeTicks < 40) return;
-            executeBeamAttack(serverLevel, player, elementalTypes);
+            executeBeamAttack(serverLevel, player, elementalTypes, gearData.getRarity().equals(VaultGearRarity.valueOf("MYTHIC")) ? 1.3F : 0.65F);
             if (player.getLevel().dimension().location().getNamespace().equals("the_vault")) {
                 if(player instanceof ServerPlayer) {
                     stack.hurt(1, player.getRandom(), player);
@@ -274,7 +275,7 @@ public class VaultScepterItem extends SwordItem implements VaultGearItem, Dyeabl
         }
     }
 
-    private void executeBeamAttack(ServerLevel level, ServerPlayer player, List<ElementalType> elementalTypes) {
+    private void executeBeamAttack(ServerLevel level, ServerPlayer player, List<ElementalType> elementalTypes, float apScaling) {
         Vec3 start = player.getEyePosition();
         Vec3 look = player.getLookAngle();
 
@@ -314,7 +315,7 @@ public class VaultScepterItem extends SwordItem implements VaultGearItem, Dyeabl
             AABB targetBox = target.getBoundingBox().inflate(beamRadius);
             if (targetBox.clip(start, end).isPresent()) {
                 ElementHelper.runWithElements(elementalTypes, () -> {
-                    target.hurt(DamageSource.indirectMagic(player, player), playerAP * 0.65F);
+                    target.hurt(DamageSource.indirectMagic(player, player), playerAP * apScaling);
                 });
             }
         }
