@@ -48,8 +48,8 @@
         "overStar": false
       },
       "rays": {
-        "enabled": true,
-        "count": 9,
+        "enabled": false,
+        "count": 2,
         "startRadius": 11,
         "length": 20,
         "lengthSpread": 0,
