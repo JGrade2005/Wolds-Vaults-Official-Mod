@@ -88,6 +88,13 @@ public class ModGearAttributes {
     public static final VaultGearAttribute<Integer> CRASHWAVE = attr("crashwave", VaultGearAttributeType.intType(), (ConfigurableAttributeGenerator<Integer, ?>)ModGearAttributeGenerators.intRange(), new IntegerValueModifierReader(8833629, value -> "+Crashing into a wall while riptiding releases a <$uniqueHighlight>shockwave<reset> of radius " + value), VaultGearAttributeComparator.intComparator());
     public static final VaultGearAttribute<Float> HEALTH_BOOST = attr("health_boost", VaultGearAttributeType.floatType(), (ConfigurableAttributeGenerator<Float, ?>)ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Total Health", 8057198), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> RADIATION_WAVE = attr("radiation_wave", VaultGearAttributeType.floatType(), (ConfigurableAttributeGenerator<Float, ?>)ModGearAttributeGenerators.floatRange(), new FloatValueModifierReader("Radiation Radius", 5149489, value -> "+Irradiates enemies within <$uniqueHighlight>" + value + "<reset> blocks, slowing them the longer they linger"), VaultGearAttributeComparator.floatComparator());
+    public static final VaultGearAttribute<Boolean> RIPTIDE_PIERCE = woldsAttr("riptide_pierce", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Riptide pierces enemies", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_DAMAGE_MORE = woldsAttr("riptide_damage_more", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("More Riptide Damage", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_SHOCK_CONE = woldsAttr("riptide_shock_cone", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Riptide Shock Cone Damage", 2141770));
+    public static final VaultGearAttribute<Integer> RIPTIDE_HOVER = woldsAttr("riptide_hover", VaultGearAttributeType.intType(), ModGearAttributeGenerators.intRange(), ModGearAttributeReaders.addedIntReader("Riptide Hover Ticks", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_BOOST_DAMAGE_REDUCTION = woldsAttr("riptide_boost_damage_reduction", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Damage Reduction while Riptiding", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_BOLT = woldsAttr("riptide_bolt", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Riptide Lightning Damage", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_BOLT_CHILLED = woldsAttr("riptide_bolt_chilled", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Riptide Lightning Damage vs Chilled", 2141770));
     public static final VaultGearAttribute<Boolean> RADIATION_IMMUNITY = woldsAttr("radiation_immunity", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Radiation Immunity", 5539999), VaultGearAttributeComparator.booleanComparator());
 
 
@@ -255,6 +262,13 @@ public class ModGearAttributes {
                       registry.register(ICE_ELEMENT);
                       registry.register(POISON_ELEMENT);
                       registry.register(LIGHTNING_ELEMENT);
+                      registry.register(RIPTIDE_PIERCE);
+                      registry.register(RIPTIDE_DAMAGE_MORE);
+                      registry.register(RIPTIDE_SHOCK_CONE);
+                      registry.register(RIPTIDE_HOVER);
+                      registry.register(RIPTIDE_BOOST_DAMAGE_REDUCTION);
+                      registry.register(RIPTIDE_BOLT);
+                      registry.register(RIPTIDE_BOLT_CHILLED);
        }
   
     public static void registerVanillaAssociations() {

@@ -635,7 +635,11 @@
     "vaulthunters.objectives.MixinElixirCrystalObjective",
     "vaulthunters.objectives.MixinScavengerBingoObjectiveTargets",
     "vaulthunters.objectives.MixinScavengerObjectiveTargets",
-    "vaulthunters.objectives.MixinVaultRuneBossCrystalObjective"
+    "vaulthunters.objectives.MixinVaultRuneBossCrystalObjective",
+    "MixinLivingEntityRiptide",
+    "MixinPlayerRiptideContact",
+    "MixinServerItemCooldownsRiptide",
+    "vaulthunters.custom.MixinAttributeSnapshotCalculatorSets"
   ],
   "client": [
     "AccessorParticleEngine",

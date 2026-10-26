@@ -118,11 +118,6 @@ public abstract class MixinThrownTrident extends AbstractArrow {
                 }
             }
 
-            if(entity1 instanceof Player player) {
-                AttributeSnapshot snapshot = AttributeSnapshotHelper.getInstance().getSnapshot(player);
-                f = VaultTridentItem.getTridentScaledDamage(snapshot, (LivingEntity) entity, f);
-            }
-
 
             DamageSource damagesource = DamageSource.trident(this, entity1 == null ? this : entity1);
             this.dealtDamage = true;

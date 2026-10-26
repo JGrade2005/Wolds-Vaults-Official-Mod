@@ -13,12 +13,14 @@ import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.vhapi.VHAPI;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.models.armor.layers.HeatwaveArmorLayers;
+import xyz.iwolfking.woldsvaults.models.armor.layers.TidebreakerArmorLayers;
 import xyz.iwolfking.woldsvaults.models.armor.layers.PastaArmorLayers;
 import xyz.iwolfking.woldsvaults.models.armor.layers.PlagueArmorLayers;
 
 @Mod.EventBusSubscriber(modid = WoldsVaults.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class AdditionalModels {
     public static final HandHeldModel LEVIATHAN_AXE;
+    public static final ArmorModel TIDEBREAKER;
     public static final PlainItemModel BLOODSEEKING_MAGNET;
     public static final PlainItemModel OTHERWORLDLY_MAGNET;
     public static final PlainItemModel HEART_MAGNET;
@@ -108,6 +110,14 @@ public class AdditionalModels {
         PLAGUE = new ArmorModel(VaultMod.id("gear/armor/plague"), "Plague")
                 .properties(new DynamicModelProperties().allowTransmogrification().discoverOnRoll())
                 .usingLayers(new PlagueArmorLayers())
+                .addSlot(EquipmentSlot.FEET);
+
+        TIDEBREAKER = new ArmorModel(VaultMod.id("gear/armor/tidebreaker"), "Tidebreaker")
+                .properties(new DynamicModelProperties())
+                .usingLayers(new TidebreakerArmorLayers())
+                .addSlot(EquipmentSlot.HEAD)
+                .addSlot(EquipmentSlot.CHEST)
+                .addSlot(EquipmentSlot.LEGS)
                 .addSlot(EquipmentSlot.FEET);
 
         PASTA = new ArmorModel(VaultMod.id("gear/armor/pasta"), "Pasta Strainer")

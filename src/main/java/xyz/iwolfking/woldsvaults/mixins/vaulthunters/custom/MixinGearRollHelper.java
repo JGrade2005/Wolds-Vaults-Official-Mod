@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
+import xyz.iwolfking.woldsvaults.api.util.UniqueRollTables;
 import xyz.iwolfking.woldsvaults.api.util.PrestigePowerHelper;
 import xyz.iwolfking.woldsvaults.api.util.WoldGearModifierHelper;
 import xyz.iwolfking.woldsvaults.expertises.CraftsmanExpertise;
@@ -171,6 +172,17 @@ public class MixinGearRollHelper {
                 VaultGearModifierHelper.setGearCorrupted(stack);
             }
         }
+    }
+
+    /** Marks the unique being rolled so its modifier lookups can use unique-scoped and ancient rows. */
+    @Inject(method = "initializeUniqueGear(Liskallia/vault/gear/data/VaultGearData;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V", at = @At("HEAD"))
+    private static void beginUniqueRoll(VaultGearData data, ItemStack stack, Player player, CallbackInfo ci) {
+        UniqueRollTables.beginUniqueRoll(data);
+    }
+
+    @Inject(method = "initializeUniqueGear(Liskallia/vault/gear/data/VaultGearData;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V", at = @At("RETURN"))
+    private static void endUniqueRoll(VaultGearData data, ItemStack stack, Player player, CallbackInfo ci) {
+        UniqueRollTables.endUniqueRoll();
     }
 
     /**
