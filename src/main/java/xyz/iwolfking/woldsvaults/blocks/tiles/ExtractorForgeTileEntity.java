@@ -14,59 +14,58 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.blocks.containers.ExtractorForgeContainer;
+import xyz.iwolfking.woldsvaults.extraction.costs.CostLedger;
 import xyz.iwolfking.woldsvaults.extraction.parts.PartData;
 import xyz.iwolfking.woldsvaults.init.ModBlocks;
-import xyz.iwolfking.woldsvaults.init.ModFluids;
 import xyz.iwolfking.woldsvaults.init.ModItems;
 import xyz.iwolfking.woldsvaults.items.ExtractorBlueprintItem;
-import xyz.iwolfking.woldsvaults.items.ExtractorItem;
 import xyz.iwolfking.woldsvaults.items.ExtractorPartItem;
 
+import javax.annotation.Nullable;
+
 /**
- * Slot 0 blueprint, 1 fabricated part, 2 extractor to repair, 3–8 material inputs. Costs are not
- * configured yet: fabrication and repair run free and say so in the log until the cost system lands.
+ * Slot 0 blueprint, 1 fabricated part, 2–8 deposit slots. The blueprint carries its own cost ledger: deposits,
+ * pipes and fluid pipes pay into it (nothing is refunded and progress stays on the blueprint), and Fabricate
+ * turns the blueprint into its part once every line is paid. Repair moved to the Extractor Assembler.
  */
 public class ExtractorForgeTileEntity extends BaseInventoryTileEntity implements MenuProvider, ExtractorStationTile {
     public static final int BLUEPRINT_SLOT = 0;
     public static final int OUTPUT_SLOT = 1;
-    public static final int REPAIR_SLOT = 2;
-    public static final int MATERIAL_SLOT_START = 3;
-    public static final int MATERIAL_SLOTS = 6;
-    public static final int SLOT_COUNT = MATERIAL_SLOT_START + MATERIAL_SLOTS;
-    public static final int TANK_CAPACITY = 16000;
+    public static final int DEPOSIT_SLOT_START = 2;
+    public static final int DEPOSIT_SLOTS = 7;
+    public static final int SLOT_COUNT = DEPOSIT_SLOT_START + DEPOSIT_SLOTS;
     public static final int WORK_CYCLE_TICKS = 80;
+    public static final int PAY_INTERVAL_TICKS = 5;
 
     private final BaseItemStackHandler inventory;
     private int workingTicks;
-    private final FluidTank tank = new FluidTank(TANK_CAPACITY, stack -> stack.getFluid() == ModFluids.PRISMATIC_GLUE.get()) {
-        @Override
-        protected void onContentsChanged() {
-            ExtractorForgeTileEntity.this.markDirtyAndDispatch();
-        }
-    };
-    private final LazyOptional<IFluidHandler> tankCapability = LazyOptional.of(() -> this.tank);
-    private boolean warnedFreeCosts;
+    private final LazyOptional<IItemHandler> itemCapability;
+    private final LazyOptional<IFluidHandler> fluidCapability;
 
     public ExtractorForgeTileEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.EXTRACTOR_FORGE_TILE_ENTITY_TYPE, pos, state);
         this.inventory = createInventoryHandler(this::markDirtyAndDispatch);
+        IItemHandler ledgerItems = CostLedger.itemHandler(this::ledger, this::markDirtyAndDispatch);
+        this.itemCapability = LazyOptional.of(() -> new AutomationHandler(ledgerItems));
+        this.fluidCapability = LazyOptional.of(() -> CostLedger.fluidHandler(this::ledger, this::markDirtyAndDispatch));
     }
 
-    public static BaseItemStackHandler createInventoryHandler(Runnable onContentsChanged) {
+    public static BaseItemStackHandler createInventoryHandler(@Nullable Runnable onContentsChanged) {
         BaseItemStackHandler inventory = new BaseItemStackHandler(SLOT_COUNT, onContentsChanged);
         inventory.setOutputSlots(OUTPUT_SLOT);
         inventory.addSlotLimit(BLUEPRINT_SLOT, 1);
-        inventory.addSlotLimit(REPAIR_SLOT, 1);
-        inventory.setSlotValidator((slot, stack) -> slotAccepts(slot, stack));
+        inventory.setSlotValidator(ExtractorForgeTileEntity::slotAccepts);
         return inventory;
     }
 
@@ -74,10 +73,7 @@ public class ExtractorForgeTileEntity extends BaseInventoryTileEntity implements
         if (slot == BLUEPRINT_SLOT) {
             return stack.getItem() instanceof ExtractorBlueprintItem;
         }
-        if (slot == REPAIR_SLOT) {
-            return stack.getItem() instanceof ExtractorItem;
-        }
-        return slot >= MATERIAL_SLOT_START;
+        return slot >= DEPOSIT_SLOT_START;
     }
 
     @Override
@@ -85,30 +81,56 @@ public class ExtractorForgeTileEntity extends BaseInventoryTileEntity implements
         return this.inventory;
     }
 
-    public FluidTank getTank() {
-        return this.tank;
+    /** The cost ledger of the identified blueprint in the blueprint slot, or null. */
+    @Nullable
+    public CompoundTag ledger() {
+        ItemStack blueprint = this.inventory.getStackInSlot(BLUEPRINT_SLOT);
+        if (!(blueprint.getItem() instanceof ExtractorBlueprintItem) || !ExtractorBlueprintItem.isIdentified(blueprint)) {
+            return null;
+        }
+        return ExtractorBlueprintItem.ledger(blueprint);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        this.tank.readFromNBT(tag.getCompound("Tank"));
         this.workingTicks = tag.getInt("Working");
+        FluidStack legacy = FluidStack.loadFluidStackFromNBT(tag.getCompound("Tank"));
+        if (!legacy.isEmpty()) {
+            WoldsVaults.LOGGER.error("Extraction Forge at {} held {} mB of {} in its old tank; the forge no longer has a tank and the fluid was discarded.",
+                    this.getBlockPos(), legacy.getAmount(), legacy.getDisplayName().getString());
+        }
     }
 
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.put("Tank", this.tank.writeToNBT(new CompoundTag()));
         tag.putInt("Working", this.workingTicks);
     }
 
-    public static void tick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state, ExtractorForgeTileEntity tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, ExtractorForgeTileEntity tile) {
         if (tile.workingTicks > 0) {
             tile.workingTicks--;
             if (tile.workingTicks == 0) {
                 tile.markDirtyAndDispatch();
             }
+        }
+        if (level.getGameTime() % PAY_INTERVAL_TICKS == 0) {
+            tile.payFromDeposits();
+        }
+    }
+
+    private void payFromDeposits() {
+        CompoundTag ledger = this.ledger();
+        if (ledger == null) {
+            return;
+        }
+        boolean paid = false;
+        for (int slot = DEPOSIT_SLOT_START; slot < SLOT_COUNT; slot++) {
+            paid |= CostLedger.payFromSlot(ledger, this.inventory, slot);
+        }
+        if (paid) {
+            this.markDirtyAndDispatch();
         }
     }
 
@@ -122,15 +144,13 @@ public class ExtractorForgeTileEntity extends BaseInventoryTileEntity implements
         return ItemStack.EMPTY;
     }
 
-    private void startWorking() {
-        this.workingTicks = WORK_CYCLE_TICKS;
-        this.markDirtyAndDispatch();
-    }
-
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
         if (!this.isRemoved() && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, this.tankCapability);
+            return this.fluidCapability.cast();
+        }
+        if (!this.isRemoved() && cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return this.itemCapability.cast();
         }
         return super.getCapability(cap, side);
     }
@@ -138,7 +158,8 @@ public class ExtractorForgeTileEntity extends BaseInventoryTileEntity implements
     @Override
     public void setRemoved() {
         super.setRemoved();
-        this.tankCapability.invalidate();
+        this.itemCapability.invalidate();
+        this.fluidCapability.invalidate();
     }
 
     @Override
@@ -151,78 +172,86 @@ public class ExtractorForgeTileEntity extends BaseInventoryTileEntity implements
         return ExtractorForgeContainer.create(windowId, playerInventory, this::isUsableByPlayer, this.inventory, this.getBlockPos());
     }
 
-    /** Placeholder for the cost system: always affordable, logged once per forge so it is never mistaken for a real check. */
-    private boolean coverCost(String operation) {
-        if (!this.warnedFreeCosts) {
-            WoldsVaults.LOGGER.error("Extractor Forge at {} ran '{}' with NO material cost: the cost configuration does not exist yet.", this.getBlockPos(), operation);
-            this.warnedFreeCosts = true;
+    /** Null when Fabricate may fire, else the reason it may not. */
+    @Nullable
+    public String fabricateRefusal() {
+        ItemStack blueprint = this.inventory.getStackInSlot(BLUEPRINT_SLOT);
+        if (!(blueprint.getItem() instanceof ExtractorBlueprintItem)) {
+            return "Place an identified blueprint in the blueprint slot.";
         }
-        return true;
+        if (ExtractorBlueprintItem.getPart(blueprint) == null) {
+            return "Identify the blueprint first.";
+        }
+        if (!this.inventory.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
+            return "Take the fabricated part out first.";
+        }
+        if (!CostLedger.isComplete(this.ledger())) {
+            return "The fabrication cost is not fully paid.";
+        }
+        return null;
     }
 
     public void fabricate(Player player) {
         if (this.level == null || this.level.isClientSide()) {
             return;
         }
+        String refusal = this.fabricateRefusal();
+        if (refusal != null) {
+            tell(player, refusal);
+            return;
+        }
         ItemStack blueprint = this.inventory.getStackInSlot(BLUEPRINT_SLOT);
-        if (!(blueprint.getItem() instanceof ExtractorBlueprintItem item)) {
-            tell(player, "Place an identified blueprint in the blueprint slot.");
-            return;
-        }
+        ExtractorBlueprintItem item = (ExtractorBlueprintItem) blueprint.getItem();
         PartData part = ExtractorBlueprintItem.getPart(blueprint);
-        if (part == null) {
-            tell(player, "Identify the blueprint first.");
-            return;
-        }
-        if (!this.inventory.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
-            tell(player, "Take the fabricated part out first.");
-            return;
-        }
-        if (!this.coverCost("fabricate " + part.name)) {
-            tell(player, "Missing materials.");
-            return;
-        }
         ExtractorPartItem partItem = ModItems.EXTRACTOR_PARTS.get(item.getPartType());
         this.inventory.setStackInSlot(OUTPUT_SLOT, ExtractorPartItem.create(partItem, part));
         this.inventory.setStackInSlot(BLUEPRINT_SLOT, ItemStack.EMPTY);
-        this.startWorking();
+        this.workingTicks = WORK_CYCLE_TICKS;
+        this.markDirtyAndDispatch();
+        WoldsVaults.LOGGER.info("{} fabricated {} ({}) at {}.", player.getName().getString(), part.name, part.describeOrigin(), this.getBlockPos());
         tell(player, "Fabricated " + part.name + ".");
-    }
-
-    public void repair(Player player) {
-        if (this.level == null || this.level.isClientSide()) {
-            return;
-        }
-        ItemStack extractor = this.inventory.getStackInSlot(REPAIR_SLOT);
-        if (!(extractor.getItem() instanceof ExtractorItem)) {
-            tell(player, "Place an extractor in the repair slot.");
-            return;
-        }
-        if (ExtractorItem.isDeployed(extractor)) {
-            tell(player, "That extractor is deployed; it cannot be repaired right now.");
-            return;
-        }
-        CompoundTag data = ExtractorItem.getData(extractor);
-        int max = data.getInt("MaxDurability");
-        int current = data.getInt("Durability");
-        if (current >= max) {
-            tell(player, "That extractor is already at full durability.");
-            return;
-        }
-        if (!this.coverCost("repair " + (max - current) + " durability")) {
-            tell(player, "Missing repair materials.");
-            return;
-        }
-        ExtractorItem.setDurability(extractor, max);
-        this.startWorking();
-        tell(player, "Repaired " + (max - current) + " durability.");
     }
 
     private static void tell(Player player, String message) {
         player.displayClientMessage(new TextComponent(message).withStyle(ChatFormatting.YELLOW), false);
     }
 
-    public FluidStack getFluid() {
-        return this.tank.getFluid();
+    /** What pipes see: slot 0 is the finished part (extract only); every other slot pays into the blueprint's ledger. */
+    private class AutomationHandler implements IItemHandler {
+        private final IItemHandler ledger;
+
+        AutomationHandler(IItemHandler ledger) {
+            this.ledger = ledger;
+        }
+
+        @Override
+        public int getSlots() {
+            return 1 + this.ledger.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return slot == 0 ? ExtractorForgeTileEntity.this.inventory.getStackInSlot(OUTPUT_SLOT) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return slot == 0 ? stack : this.ledger.insertItem(slot - 1, stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return slot == 0 ? ExtractorForgeTileEntity.this.inventory.extractItem(OUTPUT_SLOT, amount, simulate) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return slot == 0 ? 64 : this.ledger.getSlotLimit(slot - 1);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return slot != 0 && this.ledger.isItemValid(slot - 1, stack);
+        }
     }
 }

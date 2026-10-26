@@ -126,7 +126,7 @@ public class ExtractorCardScreen extends AbstractContainerScreen<ExtractorCardMe
             fill(pose, x, y, x + 18, y + 18, hovered ? SLOT_RING_HOVER : SLOT_RING);
             fill(pose, x + 1, y + 1, x + 17, y + 17, SLOT_FILL);
         }
-        int dividerY = this.topPos + this.menu.getPlayerTop() - 7;
+        int dividerY = this.topPos + this.menu.getPlayerTop() - 14;
         fill(pose, this.leftPos + 6, dividerY, this.leftPos + this.imageWidth - 6, dividerY + 1, FRAME);
 
         boolean ready = this.menu.filledSlots() > 0;
@@ -154,7 +154,7 @@ public class ExtractorCardScreen extends AbstractContainerScreen<ExtractorCardMe
             String status = String.format("%d / %d card slots filled", this.menu.filledSlots(), this.menu.getCardSlots());
             this.drawFit(pose, status, this.cardBottom() + 4, TEXT);
         }
-        this.font.draw(pose, "Inventory", ExtractorCardMenu.LEFT, this.menu.getPlayerTop() - 17, TEXT_DIM);
+        this.font.draw(pose, "Inventory", ExtractorCardMenu.LEFT, this.menu.getPlayerTop() - 11, TEXT_DIM);
     }
 
     private void drawFit(PoseStack pose, String text, int y, int color) {

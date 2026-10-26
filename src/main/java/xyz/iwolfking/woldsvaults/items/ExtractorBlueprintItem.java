@@ -1,5 +1,8 @@
 package xyz.iwolfking.woldsvaults.items;
 
+import xyz.iwolfking.woldsvaults.extraction.costs.CostLedger;
+import xyz.iwolfking.woldsvaults.extraction.costs.ExtractorCosts;
+
 import iskallia.vault.gear.GearRollHelper;
 import iskallia.vault.gear.VaultGearRarity;
 import iskallia.vault.gear.VaultGearState;
@@ -119,6 +122,25 @@ public class ExtractorBlueprintItem extends BasicItem implements IdentifiableIte
         return stack.getItem() instanceof ExtractorBlueprintItem item && item.partType == type && getPart(stack) != null;
     }
 
+    /**
+     * The blueprint's fabrication ledger, rolling a cost first for blueprints identified before costs existed
+     * (logged, since that roll should normally happen at identification). Null for unidentified blueprints.
+     */
+    @Nullable
+    public static CompoundTag ledger(ItemStack stack) {
+        PartData part = getPart(stack);
+        if (part == null) {
+            return null;
+        }
+        CompoundTag data = stack.getOrCreateTag().getCompound(TAG);
+        if (!CostLedger.hasCost(data)) {
+            WoldsVaults.LOGGER.error("Blueprint {} was identified before fabrication costs existed; rolling its cost now.", part.name);
+            CostLedger.setCost(data, ExtractorCosts.roll(part, RANDOM));
+            stack.getOrCreateTag().put(TAG, data);
+        }
+        return data;
+    }
+
     @Override
     public VaultGearState getState(@NotNull ItemStack stack) {
         CompoundTag data = getData(stack);
@@ -207,6 +229,7 @@ public class ExtractorBlueprintItem extends BasicItem implements IdentifiableIte
             return;
         }
         data.put("Part", part.write());
+        CostLedger.setCost(data, ExtractorCosts.roll(part, RANDOM));
         data.putBoolean("Identified", true);
         data.putBoolean("Rolling", false);
         data.remove("Preview");
@@ -265,6 +288,16 @@ public class ExtractorBlueprintItem extends BasicItem implements IdentifiableIte
             return;
         }
         ExtractorTooltips.appendPartBody(part, tooltip, ExtractorTooltips.hasShiftDown());
+        if (CostLedger.hasCost(data)) {
+            tooltip.add(TextComponent.EMPTY);
+            tooltip.add(new TextComponent("Fabrication cost").withStyle(ChatFormatting.GOLD));
+            for (ExtractorCosts.CostLine line : CostLedger.lines(data)) {
+                long paid = CostLedger.paid(data, line);
+                ChatFormatting color = paid >= line.amount() ? ChatFormatting.GREEN : ChatFormatting.GRAY;
+                tooltip.add(new TextComponent("  ").append(line.displayName().copy().withStyle(ChatFormatting.WHITE))
+                        .append(new TextComponent(String.format(": %,d / %,d%s", paid, line.amount(), line.fluid() ? " mB" : "")).withStyle(color)));
+            }
+        }
         tooltip.add(TextComponent.EMPTY);
         tooltip.add(ExtractorTooltips.hint("Fabricate at an Extraction Forge"));
     }

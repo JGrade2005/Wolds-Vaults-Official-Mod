@@ -99,7 +99,7 @@ public class ExtractionObjectiveConfig extends Config {
         JOBS.put("card_juice", juice);
 
         JobEntry glue = new JobEntry(200, 8, "glue_derrick", 4800);
-        glue.payout = PayoutEntry.of("fluid", 500, 1500, "sqrt", 200, "sqrt");
+        glue.payout = PayoutEntry.of("fluid", 100, 300, "sqrt", 200, "sqrt");
         glue.payout.item = "woldsvaults:prismatic_glue";
         JOBS.put("prismatic_glue", glue);
 

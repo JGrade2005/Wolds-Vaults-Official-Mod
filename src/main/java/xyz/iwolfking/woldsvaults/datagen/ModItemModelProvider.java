@@ -103,6 +103,10 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleItem(ModItems.SCAVENGER_POUCH_ITEM);
         simpleItem(ModItems.PRISMATIC_GLUE_BUCKET);
         simpleItem(ModItems.MOLTEN_TRINKET_BUCKET);
+        ModItems.EXTRACTOR_COMPONENTS.values().forEach(item -> fabricatorItem(item));
+        fabricatorItem(ModItems.BLANK_FABRICATION_PATTERN);
+        fabricatorItem(ModItems.FABRICATION_PATTERN);
+        xyz.iwolfking.woldsvaults.init.ModFluids.EXTRACTION_FLUIDS.values().forEach(fluid -> simpleItem(fluid.bucket));
         simpleItem(ModItems.MOB_BINDING_STONE);
         simpleItem(ModItems.GREED_TREE_RESET_ITEM);
         simpleItem(ModItems.EXQUISITE_BOX);
@@ -350,6 +354,12 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     private ItemModelBuilder ritualDummy(Item item) {
         return withExistingParent("item/" + item.getRegistryName().getPath(), ResourceLocation.fromNamespaceAndPath(Occultism.MODID, "ritual_dummy"));
+    }
+
+    /** Vault Fabricator components and patterns keep their sprites under {@code item/fabricator/}. */
+    private ItemModelBuilder fabricatorItem(Item item) {
+        return withExistingParent(item.getRegistryName().getPath(), ResourceLocation.parse("item/generated"))
+                .texture("layer0", modLoc("item/fabricator/" + item.getRegistryName().getPath()));
     }
 
     private ItemModelBuilder simpleItem(Item item) {

@@ -24,7 +24,7 @@ public class ExtractorCardMenu extends AbstractContainerMenu {
     public static final int COLUMNS = 9;
     public static final int LEFT = 8;
     public static final int CARD_TOP = 34;
-    public static final int FOOTER = 44;
+    public static final int FOOTER = 52;
 
     private final Container cards;
     private final int cardSlots;

@@ -23,6 +23,7 @@ import java.util.function.Function;
  */
 public class ExtractorAssemblerContainer extends AbstractContainerMenu {
     public static final int BUTTON_ASSEMBLE = 0;
+    public static final int BUTTON_REPAIR = 1;
     public static final int PLAYER_SLOTS_START = ExtractorAssemblerTileEntity.SLOT_COUNT;
     public static final int PLAYER_SLOT_COUNT = 36;
 
@@ -53,6 +54,7 @@ public class ExtractorAssemblerContainer extends AbstractContainerMenu {
             this.addSlot(new AttachmentSlot(i, 8 + i * 18, 50));
         }
         this.addSlot(new DockSlot(152, 50));
+        this.addSlot(new RepairSlot(152, 70));
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
@@ -107,10 +109,18 @@ public class ExtractorAssemblerContainer extends AbstractContainerMenu {
         return this.slots.get(ExtractorAssemblerTileEntity.OUTPUT_SLOT);
     }
 
+    public Slot repairSlot() {
+        return this.slots.get(ExtractorAssemblerTileEntity.REPAIR_SLOT);
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == BUTTON_ASSEMBLE && !player.level.isClientSide() && player.level.getBlockEntity(this.pos) instanceof ExtractorAssemblerTileEntity target) {
             target.assemble(player);
+            return true;
+        }
+        if (id == BUTTON_REPAIR && !player.level.isClientSide() && player.level.getBlockEntity(this.pos) instanceof ExtractorAssemblerTileEntity target) {
+            target.repair(player);
             return true;
         }
         return false;
@@ -139,7 +149,7 @@ public class ExtractorAssemblerContainer extends AbstractContainerMenu {
             return slot instanceof AttachmentSlot && this.isDocked() ? ItemStack.EMPTY : copy;
         }
         boolean moved = false;
-        for (int target = 0; target <= ExtractorAssemblerTileEntity.OUTPUT_SLOT && !moved; target++) {
+        for (int target = 0; target < PLAYER_SLOTS_START && !moved; target++) {
             Slot targetSlot = this.slots.get(target);
             if (targetSlot.isActive() && !targetSlot.hasItem() && targetSlot.mayPlace(stack)) {
                 moved = this.moveItemStackTo(stack, target, target + 1, false);
@@ -296,6 +306,18 @@ public class ExtractorAssemblerContainer extends AbstractContainerMenu {
     }
 
     /** The output slot doubles as the dock: a finished extractor lands here and an assembled one may be placed here. */
+    /** Pays the docked extractor's repair cost; only usable while an extractor is docked. */
+    class RepairSlot extends SlotItemHandler {
+        RepairSlot(int x, int y) {
+            super(ExtractorAssemblerContainer.this.inventory, ExtractorAssemblerTileEntity.REPAIR_SLOT, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return ExtractorAssemblerContainer.this.isDocked();
+        }
+    }
+
     class DockSlot extends SlotItemHandler {
         DockSlot(int x, int y) {
             super(ExtractorAssemblerContainer.this.inventory, ExtractorAssemblerTileEntity.OUTPUT_SLOT, x, y);

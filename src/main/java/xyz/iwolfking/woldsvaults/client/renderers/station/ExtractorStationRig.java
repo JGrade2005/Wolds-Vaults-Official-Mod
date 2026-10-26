@@ -102,7 +102,7 @@ public final class ExtractorStationRig {
             .part("platter", 0, 28, -22, false, true)
             .part("workpiece", 4, 32, -18, false, true)
             .part("uv_bar", -6, 49, -24, false, true)
-            .part("window", -12, 28, -28, true, false)
+            .part("window", -4, 28, -28, true, false)
             .bone("arm_l_base", null, -9, 46, -22)
             .bone("arm_l_upper", "arm_l_base", -6, 46, -22)
             .bone("arm_l_fore", "arm_l_upper", 8, 47, -22)

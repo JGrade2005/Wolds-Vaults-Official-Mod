@@ -18,7 +18,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 import xyz.iwolfking.woldsvaults.blocks.tiles.ExtractorAssemblerTileEntity;
+import net.minecraft.nbt.CompoundTag;
 import xyz.iwolfking.woldsvaults.entities.extraction.client.ExtractorPreviewRenderer;
+import xyz.iwolfking.woldsvaults.extraction.costs.CostLedger;
+import xyz.iwolfking.woldsvaults.extraction.costs.ExtractorCosts;
 import xyz.iwolfking.woldsvaults.extraction.jobs.ExtractorJobPreview;
 import xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType;
 import xyz.iwolfking.woldsvaults.extraction.parts.ExtractorStat;
@@ -193,6 +196,7 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
         this.buttonX = this.bx0 + this.bw - 4 - BUTTON_WIDTH;
         this.buttonY = this.bandTop + BAND_HEIGHT - BUTTON_HEIGHT - 4;
         this.placeSlot(this.menu.dockSlot(), this.assemblyX + 4, this.bandTop + 18);
+        this.placeSlot(this.menu.repairSlot(), this.assemblyX + 4, this.bandTop + 60);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 Slot slot = this.menu.slots.get(ExtractorAssemblerContainer.PLAYER_SLOTS_START + row * 9 + col);
@@ -450,8 +454,11 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
     }
 
     private void renderSlotBoxes(PoseStack pose, int mouseX, int mouseY) {
-        for (int index = 0; index <= ExtractorAssemblerTileEntity.OUTPUT_SLOT; index++) {
+        for (int index = 0; index <= ExtractorAssemblerTileEntity.REPAIR_SLOT; index++) {
             Slot slot = this.menu.slots.get(index);
+            if (index == ExtractorAssemblerTileEntity.REPAIR_SLOT && !this.menu.isDocked() && !slot.hasItem()) {
+                continue;
+            }
             boolean dock = index == ExtractorAssemblerTileEntity.OUTPUT_SLOT;
             int x0 = slot.x - 1 - (dock ? 3 : 0);
             int y0 = slot.y - 1 - (dock ? 3 : 0);
@@ -637,12 +644,32 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
         if (docked) {
             this.drawFit(pose, "Extractor docked", textX, y0 + 18, room, 0.85F, GOOD, false);
             this.drawFit(pose, "Attachments " + this.previewAttachments.size() + " / " + hardpoints, textX, y0 + 27, room, 0.85F, 0xFFFFFFFF, false);
+            CompoundTag data = ExtractorItem.getData(tile.getDocked());
+            int durability = data.getInt("Durability");
+            int maxDurability = data.getInt("MaxDurability");
+            this.drawFit(pose, "Durability " + shortDurability(durability) + " / " + shortDurability(maxDurability), textX, y0 + 36, room, 0.85F,
+                    durability >= maxDurability ? GOOD : GOLD, false);
+            Slot repairSlot = this.menu.repairSlot();
+            this.drawScaled(pose, "Repair", repairSlot.x + 8 - this.font.width("Repair") * 0.75F / 2.0F, repairSlot.y + 19, 0.75F, INK_DIM);
+            CompoundTag ledger = data.getCompound(ExtractorAssemblerTileEntity.REPAIR_TAG);
+            if (durability < maxDurability && CostLedger.hasCost(ledger)) {
+                int paidLines = 0;
+                List<ExtractorCosts.CostLine> lines = CostLedger.lines(ledger);
+                for (ExtractorCosts.CostLine line : lines) {
+                    if (CostLedger.paid(ledger, line) >= line.amount()) {
+                        paidLines++;
+                    }
+                }
+                this.drawFit(pose, "Repair paid " + paidLines + " / " + lines.size() + " lines", textX, y0 + 62, room, 0.85F,
+                        paidLines == lines.size() ? GOOD : 0xFFFFFFFF, false);
+                this.drawFit(pose, "Hover the button for the list", textX, y0 + 71, room, 0.75F, TEXT_DIM, false);
+            }
         } else {
             this.drawFit(pose, "Parts " + parts + " / " + ExtractorAssemblerTileEntity.PART_SLOTS, textX, y0 + 18, room, 0.85F, parts == ExtractorAssemblerTileEntity.PART_SLOTS ? GOOD : 0xFFFFFFFF, false);
             this.drawFit(pose, "Blueprints " + blueprints, textX, y0 + 27, room, 0.85F, blueprints > 0 ? BAD : 0xFFFFFFFF, false);
             this.drawFit(pose, "Hardpoints " + hardpoints + " available", textX, y0 + 36, room, 0.85F, 0xFFFFFFFF, false);
         }
-        List<String> refusals = tile == null ? List.of("No assembler found.") : tile.assemblyRefusals();
+        List<String> refusals = tile == null ? List.of("No assembler found.") : this.buttonRefusals(tile);
         boolean valid = refusals.isEmpty();
         int bx1 = this.buttonX + BUTTON_WIDTH;
         int by1 = this.buttonY + BUTTON_HEIGHT;
@@ -652,8 +679,17 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
         if (valid) {
             this.frame(pose, this.buttonX + 1, this.buttonY + 1, bx1 - 1, by1 - 1, hovered ? 0xFFFFD27A : GOLD);
         }
-        String label = "Assemble";
+        String label = docked ? "Repair" : "Assemble";
         this.font.draw(pose, label, this.buttonX + (BUTTON_WIDTH - this.font.width(label)) / 2.0F, this.buttonY + 9, valid ? (hovered ? 0xFFFFE9B0 : GOLD) : TEXT_DEAD);
+    }
+
+    /** The main button assembles, or repairs while an extractor is docked. */
+    private List<String> buttonRefusals(ExtractorAssemblerTileEntity tile) {
+        if (tile.isDocked()) {
+            String refusal = tile.repairRefusal();
+            return refusal == null ? List.of() : List.of(refusal);
+        }
+        return tile.assemblyRefusals();
     }
 
     private boolean isOverButton(double mouseX, double mouseY) {
@@ -701,6 +737,20 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
     @Override
     protected void renderTooltip(PoseStack pose, int mouseX, int mouseY) {
         ExtractorAssemblerTileEntity tile = this.menu.getTile();
+        if (this.isOverButton(mouseX, mouseY) && tile != null && tile.isDocked()) {
+            List<Component> lines = new ArrayList<>();
+            String refusal = tile.repairRefusal();
+            lines.add(refusal == null ? new TextComponent("Repair Extractor").withStyle(ChatFormatting.GOLD) : new TextComponent(refusal).withStyle(ChatFormatting.RED));
+            CompoundTag ledger = ExtractorItem.getData(tile.getDocked()).getCompound(ExtractorAssemblerTileEntity.REPAIR_TAG);
+            for (ExtractorCosts.CostLine line : CostLedger.lines(ledger)) {
+                long paid = Math.min(CostLedger.paid(ledger, line), line.amount());
+                lines.add(new TextComponent("  ").append(line.displayName().copy().withStyle(ChatFormatting.WHITE))
+                        .append(new TextComponent(String.format(": %,d / %,d%s", paid, line.amount(), line.fluid() ? " mB" : ""))
+                                .withStyle(paid >= line.amount() ? ChatFormatting.GREEN : ChatFormatting.GRAY)));
+            }
+            this.renderComponentTooltip(pose, lines, mouseX, mouseY);
+            return;
+        }
         if (this.isOverButton(mouseX, mouseY) && tile != null) {
             List<String> refusals = tile.assemblyRefusals();
             List<Component> lines = new ArrayList<>();
@@ -717,6 +767,11 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
             return;
         }
         Slot hovered = this.hoveredSlot;
+        if (hovered != null && hovered.index == ExtractorAssemblerTileEntity.REPAIR_SLOT && !hovered.hasItem()) {
+            this.renderComponentTooltip(pose, List.of(new TextComponent("Repair materials").withStyle(ChatFormatting.WHITE),
+                    ExtractorTooltips.hint("Items and filled buckets here pay the docked extractor's repair cost.")), mouseX, mouseY);
+            return;
+        }
         if (hovered != null && hovered.index <= ExtractorAssemblerTileEntity.OUTPUT_SLOT && tile != null) {
             List<Component> lines = this.slotTooltip(tile, hovered);
             if (lines != null) {
@@ -784,7 +839,9 @@ public class ExtractorAssemblerScreen extends AbstractContainerScreen<ExtractorA
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && this.isOverButton(mouseX, mouseY) && this.minecraft != null && this.minecraft.gameMode != null) {
             ExtractorAssemblerTileEntity tile = this.menu.getTile();
-            if (tile != null && tile.assemblyRefusals().isEmpty()) {
+            if (tile != null && tile.isDocked()) {
+                this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, ExtractorAssemblerContainer.BUTTON_REPAIR);
+            } else if (tile != null && tile.assemblyRefusals().isEmpty()) {
                 this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, ExtractorAssemblerContainer.BUTTON_ASSEMBLE);
                 this.previewDirty = true;
             }

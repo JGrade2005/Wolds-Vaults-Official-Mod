@@ -257,6 +257,16 @@ public class ModItems {
     public static TimeTrialTrophyItem TIME_TRIAL_TROPHY;
 
     public static BucketItem PRISMATIC_GLUE_BUCKET = (BucketItem) new BucketItem(ModFluids.PRISMATIC_GLUE, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).tab(ModCreativeTabs.WOLDS_VAULTS)).setRegistryName(WoldsVaults.id("prismatic_glue_bucket"));
+    public static xyz.iwolfking.woldsvaults.items.FabricationPatternItem BLANK_FABRICATION_PATTERN;
+    public static xyz.iwolfking.woldsvaults.items.FabricationPatternItem FABRICATION_PATTERN;
+    /** The Vault Fabricator's products, keyed like {@code extractor_costs.json} COMPONENTS. */
+    public static final java.util.LinkedHashMap<String, BasicItem> EXTRACTOR_COMPONENTS = new java.util.LinkedHashMap<>();
+    public static final String[][] EXTRACTOR_COMPONENT_IDS = {
+            {"blast_chamber", "blast_chamber"}, {"vpu", "vault_processing_unit"}, {"field_emitter", "field_emitter"},
+            {"heat_exchanger", "heat_exchanger"}, {"servo_actuator", "servo_actuator"}, {"spine", "structural_spine"},
+            {"containment_ring", "containment_ring"}, {"phase_lattice", "phase_lattice"}, {"cryo_exchanger", "cryogenic_exchanger"},
+            {"qpu", "quantum_processing_unit"}};
+
     public static BucketItem MOLTEN_TRINKET_BUCKET = (BucketItem) new BucketItem(ModFluids.MOLTEN_TRINKET, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).tab(ModCreativeTabs.WOLDS_VAULTS)).setRegistryName(WoldsVaults.id("molten_trinket_bucket"));
 
     @SubscribeEvent
@@ -344,6 +354,10 @@ public class ModItems {
         registry.register(POWER_CELL);
         EXTRACTOR_BLUEPRINTS.values().forEach(registry::register);
         EXTRACTOR_PARTS.values().forEach(registry::register);
+        registry.register(BLANK_FABRICATION_PATTERN);
+        registry.register(FABRICATION_PATTERN);
+        EXTRACTOR_COMPONENTS.values().forEach(registry::register);
+        ModFluids.EXTRACTION_FLUIDS.values().forEach(fluid -> registry.register(fluid.bucket));
         registry.register(EXTRAORDINARY_POG_PRISM);
         registry.register(HEART_OF_CHAOS);
         registry.register(GEM_REAGENT_GORGINITE);
@@ -564,6 +578,13 @@ public class ModItems {
                     new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1), type));
             EXTRACTOR_PARTS.put(type, new xyz.iwolfking.woldsvaults.items.ExtractorPartItem(WoldsVaults.id("extractor_" + type.getId()),
                     new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1), type));
+        }
+        BLANK_FABRICATION_PATTERN = new xyz.iwolfking.woldsvaults.items.FabricationPatternItem(WoldsVaults.id("blank_fabrication_pattern"),
+                new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16), false);
+        FABRICATION_PATTERN = new xyz.iwolfking.woldsvaults.items.FabricationPatternItem(WoldsVaults.id("fabrication_pattern"),
+                new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16), true);
+        for (String[] component : EXTRACTOR_COMPONENT_IDS) {
+            EXTRACTOR_COMPONENTS.put(component[0], new BasicItem(WoldsVaults.id(component[1]), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS)));
         }
         HEART_OF_CHAOS = new BasicItem(WoldsVaults.id("heart_of_chaos"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         AUGMENT_PIECE = new BasicItem(WoldsVaults.id("augment_piece"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));

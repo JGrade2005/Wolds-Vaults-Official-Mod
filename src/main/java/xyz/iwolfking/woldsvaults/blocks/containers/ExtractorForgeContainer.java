@@ -19,7 +19,8 @@ import java.util.function.Function;
 
 public class ExtractorForgeContainer extends AbstractContainerMenu {
     public static final int BUTTON_FABRICATE = 0;
-    public static final int BUTTON_REPAIR = 1;
+    public static final int IMAGE_HEIGHT = 240;
+    public static final int DEPOSIT_Y = 126;
     private static final int PLAYER_SLOTS_START = ExtractorForgeTileEntity.SLOT_COUNT;
 
     private final Function<Player, Boolean> isUsableByPlayer;
@@ -34,19 +35,18 @@ public class ExtractorForgeContainer extends AbstractContainerMenu {
         super(type, id);
         this.isUsableByPlayer = isUsableByPlayer;
         this.pos = pos == null ? BlockPos.ZERO : pos;
-        this.addSlot(new ValidatedSlot(inventory, ExtractorForgeTileEntity.BLUEPRINT_SLOT, 26, 24));
-        this.addSlot(new OutputSlot(inventory, ExtractorForgeTileEntity.OUTPUT_SLOT, 80, 24));
-        this.addSlot(new ValidatedSlot(inventory, ExtractorForgeTileEntity.REPAIR_SLOT, 134, 24));
-        for (int i = 0; i < ExtractorForgeTileEntity.MATERIAL_SLOTS; i++) {
-            this.addSlot(new ValidatedSlot(inventory, ExtractorForgeTileEntity.MATERIAL_SLOT_START + i, 8 + i * 18, 54));
+        this.addSlot(new ValidatedSlot(inventory, ExtractorForgeTileEntity.BLUEPRINT_SLOT, 8, 18));
+        this.addSlot(new OutputSlot(inventory, ExtractorForgeTileEntity.OUTPUT_SLOT, 152, 18));
+        for (int i = 0; i < ExtractorForgeTileEntity.DEPOSIT_SLOTS; i++) {
+            this.addSlot(new ValidatedSlot(inventory, ExtractorForgeTileEntity.DEPOSIT_SLOT_START + i, 26 + i * 18, DEPOSIT_Y));
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, IMAGE_HEIGHT - 82 + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, IMAGE_HEIGHT - 24));
         }
     }
 
@@ -79,10 +79,6 @@ public class ExtractorForgeContainer extends AbstractContainerMenu {
             tile.fabricate(player);
             return true;
         }
-        if (id == BUTTON_REPAIR) {
-            tile.repair(player);
-            return true;
-        }
         return false;
     }
 
@@ -102,10 +98,8 @@ public class ExtractorForgeContainer extends AbstractContainerMenu {
             boolean moved = false;
             if (ExtractorForgeTileEntity.slotAccepts(ExtractorForgeTileEntity.BLUEPRINT_SLOT, stack)) {
                 moved = this.moveItemStackTo(stack, ExtractorForgeTileEntity.BLUEPRINT_SLOT, ExtractorForgeTileEntity.BLUEPRINT_SLOT + 1, false);
-            } else if (ExtractorForgeTileEntity.slotAccepts(ExtractorForgeTileEntity.REPAIR_SLOT, stack)) {
-                moved = this.moveItemStackTo(stack, ExtractorForgeTileEntity.REPAIR_SLOT, ExtractorForgeTileEntity.REPAIR_SLOT + 1, false);
             } else {
-                moved = this.moveItemStackTo(stack, ExtractorForgeTileEntity.MATERIAL_SLOT_START, PLAYER_SLOTS_START, false);
+                moved = this.moveItemStackTo(stack, ExtractorForgeTileEntity.DEPOSIT_SLOT_START, PLAYER_SLOTS_START, false);
             }
             if (!moved) {
                 return ItemStack.EMPTY;

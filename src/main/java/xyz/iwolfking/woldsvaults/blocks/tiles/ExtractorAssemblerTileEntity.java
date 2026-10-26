@@ -1,5 +1,9 @@
 package xyz.iwolfking.woldsvaults.blocks.tiles;
 
+import net.minecraft.nbt.CompoundTag;
+import xyz.iwolfking.woldsvaults.extraction.costs.CostLedger;
+import xyz.iwolfking.woldsvaults.extraction.costs.ExtractorCosts;
+
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
 import com.blakebr0.cucumber.tileentity.BaseInventoryTileEntity;
 import net.minecraft.ChatFormatting;
@@ -45,8 +49,11 @@ public class ExtractorAssemblerTileEntity extends BaseInventoryTileEntity implem
     public static final int ATTACHMENT_SLOT_START = PART_SLOTS;
     public static final int ATTACHMENT_SLOTS = 3;
     public static final int OUTPUT_SLOT = ATTACHMENT_SLOT_START + ATTACHMENT_SLOTS;
-    public static final int SLOT_COUNT = OUTPUT_SLOT + 1;
+    public static final int REPAIR_SLOT = OUTPUT_SLOT + 1;
+    public static final int SLOT_COUNT = REPAIR_SLOT + 1;
     public static final int WORK_CYCLE_TICKS = 120;
+    public static final int PAY_INTERVAL_TICKS = 5;
+    public static final String REPAIR_TAG = "Repair";
 
     private final BaseItemStackHandler inventory;
     private int workingTicks;
@@ -67,6 +74,87 @@ public class ExtractorAssemblerTileEntity extends BaseInventoryTileEntity implem
                 tile.markDirtyAndDispatch();
             }
         }
+        if (!level.isClientSide() && level.getGameTime() % PAY_INTERVAL_TICKS == 0) {
+            tile.tickRepair();
+        }
+    }
+
+    /**
+     * The docked extractor's repair ledger. A damaged extractor gets a cost for exactly the durability it is
+     * missing, recomputed whenever its durability differs from the one the cost was written for; payments already
+     * made stay on the extractor and count toward the new cost. Null when nothing damaged is docked.
+     */
+    @Nullable
+    public CompoundTag repairLedger() {
+        ItemStack docked = this.getDocked();
+        if (docked.isEmpty()) {
+            return null;
+        }
+        CompoundTag data = ExtractorItem.getData(docked);
+        int max = data.getInt("MaxDurability");
+        int current = data.getInt("Durability");
+        if (max <= 0 || current >= max) {
+            return null;
+        }
+        if (!data.contains(REPAIR_TAG)) {
+            data.put(REPAIR_TAG, new CompoundTag());
+        }
+        CompoundTag repair = data.getCompound(REPAIR_TAG);
+        if (!CostLedger.hasCost(repair) || repair.getInt("ForDurability") != current) {
+            CompoundTag paid = repair.getCompound(CostLedger.PAID).copy();
+            List<PartData> parts = ExtractorItem.getBuildParts(docked);
+            CostLedger.setCost(repair, ExtractorCosts.repairCost(parts, (double) (max - current) / max));
+            repair.put(CostLedger.PAID, paid);
+            repair.putInt("ForDurability", current);
+        }
+        return repair;
+    }
+
+    private void tickRepair() {
+        CompoundTag ledger = this.repairLedger();
+        if (ledger != null && CostLedger.payFromSlot(ledger, this.inventory, REPAIR_SLOT)) {
+            this.markDirtyAndDispatch();
+        }
+    }
+
+    /** Null when the docked extractor may be repaired, else why not. */
+    @Nullable
+    public String repairRefusal() {
+        ItemStack docked = this.getDocked();
+        if (docked.isEmpty()) {
+            return "Dock an assembled extractor to repair it.";
+        }
+        CompoundTag data = ExtractorItem.getData(docked);
+        if (data.getInt("Durability") >= data.getInt("MaxDurability")) {
+            return "The docked extractor is at full durability.";
+        }
+        CompoundTag ledger = data.getCompound(REPAIR_TAG);
+        if (!CostLedger.isComplete(ledger)) {
+            return "The repair cost is not fully paid; put materials in the repair slot.";
+        }
+        return null;
+    }
+
+    public void repair(Player player) {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        this.repairLedger();
+        String refusal = this.repairRefusal();
+        if (refusal != null) {
+            tell(player, refusal);
+            return;
+        }
+        ItemStack docked = this.getDocked();
+        CompoundTag data = ExtractorItem.getData(docked);
+        int max = data.getInt("MaxDurability");
+        int before = data.getInt("Durability");
+        data.remove(REPAIR_TAG);
+        ExtractorItem.setDurability(docked, max);
+        this.workingTicks = WORK_CYCLE_TICKS;
+        this.markDirtyAndDispatch();
+        WoldsVaults.LOGGER.info("{} repaired an extractor from {} to {} durability at {}.", player.getName().getString(), before, max, this.getBlockPos());
+        tell(player, "Repaired " + (max - before) + " durability.");
     }
 
     private void onContentsChanged() {
@@ -93,6 +181,16 @@ public class ExtractorAssemblerTileEntity extends BaseInventoryTileEntity implem
     @Override
     public void load(net.minecraft.nbt.CompoundTag tag) {
         super.load(tag);
+        if (this.inventory.getSlots() < SLOT_COUNT) {
+            List<ItemStack> saved = new ArrayList<>();
+            for (int slot = 0; slot < this.inventory.getSlots(); slot++) {
+                saved.add(this.inventory.getStackInSlot(slot));
+            }
+            this.inventory.setSize(SLOT_COUNT);
+            for (int slot = 0; slot < saved.size(); slot++) {
+                this.inventory.setStackInSlot(slot, saved.get(slot));
+            }
+        }
         this.workingTicks = tag.getInt("Working");
         this.invalidateGhosts();
     }
@@ -106,6 +204,7 @@ public class ExtractorAssemblerTileEntity extends BaseInventoryTileEntity implem
     public static BaseItemStackHandler createInventoryHandler(@Nullable Runnable onContentsChanged) {
         BaseItemStackHandler inventory = new BaseItemStackHandler(SLOT_COUNT, onContentsChanged);
         inventory.setDefaultSlotLimit(1);
+        inventory.addSlotLimit(REPAIR_SLOT, 64);
         inventory.setSlotValidator((slot, stack) -> slotAccepts(slot, stack));
         return inventory;
     }
@@ -119,7 +218,7 @@ public class ExtractorAssemblerTileEntity extends BaseInventoryTileEntity implem
         if (slot < OUTPUT_SLOT) {
             return ExtractorPartItem.isPart(stack, ExtractorPartType.ATTACHMENT);
         }
-        return false;
+        return slot == REPAIR_SLOT;
     }
 
     public static boolean isDockable(ItemStack stack) {

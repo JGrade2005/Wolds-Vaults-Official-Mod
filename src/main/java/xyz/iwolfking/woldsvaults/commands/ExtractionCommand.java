@@ -77,7 +77,12 @@ public class ExtractionCommand {
                                                 .then(Commands.argument("series", StringArgumentType.word()).suggests(PRESETS_FOR_PART)
                                                         .executes(context -> givePart(context, StringArgumentType.getString(context, "series"))))))))
                 .then(Commands.literal("identify").executes(context -> identifyHeld(context.getSource())))
-                .then(Commands.literal("forge").executes(context -> forgeHeld(context.getSource()))));
+                .then(Commands.literal("forge").executes(context -> forgeHeld(context.getSource())))
+                .then(Commands.literal("pattern")
+                        .then(Commands.argument("component", StringArgumentType.word()).suggests(COMPONENTS)
+                                .executes(context -> givePattern(context.getSource(), StringArgumentType.getString(context, "component")))))
+                .then(Commands.literal("paycost").executes(context -> payHeld(context.getSource())))
+                .then(Commands.literal("cost").executes(context -> showHeldCost(context.getSource()))));
     }
 
     private static final SuggestionProvider<CommandSourceStack> PART_TYPES = (context, builder) ->
@@ -114,6 +119,54 @@ public class ExtractionCommand {
     };
 
     /** Dev shortcut for the Extractor Forge: identifies the held blueprint if needed and turns it into its part, no costs. */
+    private static final SuggestionProvider<CommandSourceStack> COMPONENTS = (context, builder) ->
+            SharedSuggestionProvider.suggest(ModConfigs.EXTRACTOR_COSTS.COMPONENTS.keySet(), builder);
+
+    private static int givePattern(CommandSourceStack source, String component) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (ModConfigs.EXTRACTOR_COSTS.componentFor(component) == null) {
+            source.sendFailure(new TextComponent("Unknown component '" + component + "'. Known: " + String.join(", ", ModConfigs.EXTRACTOR_COSTS.COMPONENTS.keySet())));
+            return 0;
+        }
+        player.getInventory().placeItemBackInInventory(xyz.iwolfking.woldsvaults.items.FabricationPatternItem.encode(component));
+        source.sendSuccess(new TextComponent("Gave a Fabrication Pattern for " + component + "."), false);
+        return 1;
+    }
+
+    /** Dev: marks every line of the held identified blueprint's fabrication cost as paid. */
+    private static int payHeld(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ItemStack held = player.getMainHandItem();
+        net.minecraft.nbt.CompoundTag ledger = held.getItem() instanceof ExtractorBlueprintItem ? ExtractorBlueprintItem.ledger(held) : null;
+        if (ledger == null) {
+            source.sendFailure(new TextComponent("Hold an identified extractor blueprint in your main hand."));
+            return 0;
+        }
+        net.minecraft.nbt.CompoundTag paid = new net.minecraft.nbt.CompoundTag();
+        for (xyz.iwolfking.woldsvaults.extraction.costs.ExtractorCosts.CostLine line : xyz.iwolfking.woldsvaults.extraction.costs.CostLedger.lines(ledger)) {
+            paid.putLong(line.key(), line.amount());
+        }
+        ledger.put(xyz.iwolfking.woldsvaults.extraction.costs.CostLedger.PAID, paid);
+        source.sendSuccess(new TextComponent("Paid the held blueprint's fabrication cost (dev)."), false);
+        return 1;
+    }
+
+    /** Prints the held blueprint's fabrication cost lines and how much of each is paid. */
+    private static int showHeldCost(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ItemStack held = player.getMainHandItem();
+        net.minecraft.nbt.CompoundTag ledger = held.getItem() instanceof ExtractorBlueprintItem ? ExtractorBlueprintItem.ledger(held) : null;
+        if (ledger == null) {
+            source.sendFailure(new TextComponent("Hold an identified extractor blueprint in your main hand."));
+            return 0;
+        }
+        for (xyz.iwolfking.woldsvaults.extraction.costs.ExtractorCosts.CostLine line : xyz.iwolfking.woldsvaults.extraction.costs.CostLedger.lines(ledger)) {
+            long paid = xyz.iwolfking.woldsvaults.extraction.costs.CostLedger.paid(ledger, line);
+            source.sendSuccess(new TextComponent(String.format("%s: %,d / %,d%s", line.displayName().getString(), paid, line.amount(), line.fluid() ? " mB" : "")), false);
+        }
+        return 1;
+    }
+
     private static int forgeHeld(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         ItemStack held = player.getMainHandItem();

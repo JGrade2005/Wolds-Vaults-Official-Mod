@@ -54,6 +54,8 @@ public class ModBlockLootTables implements Consumer<BiConsumer<ResourceLocation,
     protected void addTables() {
         dropSelf(ModBlocks.EXTRACTOR_ASSEMBLER_BLOCK);
         dropSelf(ModBlocks.EXTRACTOR_FORGE_BLOCK);
+        dropSelf(ModBlocks.VAULT_FABRICATOR_BLOCK);
+        xyz.iwolfking.woldsvaults.init.ModFluids.EXTRACTION_FLUIDS.values().forEach(fluid -> add(fluid.block, noDrop()));
         add(ModBlocks.EXTRACTOR_ASSEMBLER_PART_BLOCK, noDrop());
         add(ModBlocks.EXTRACTION_FORGE_PART_BLOCK, noDrop());
         add(ModBlocks.MOBILE_FLUID_TANK, noDrop());
@@ -75,6 +77,7 @@ public class ModBlockLootTables implements Consumer<BiConsumer<ResourceLocation,
         dropSelf(ModBlocks.SURVIVAL_MOB_BARRIER);
         dropSelf(ModBlocks.VAULT_INFUSER_BLOCK);
         dropSelf(ModBlocks.CHROMATIC_STEEL_INFUSER_BLOCK);
+        dropSelf(ModBlocks.OMEGA_INFUSER_BLOCK);
         dropSelf(ModBlocks.DOLL_DISMANTLING_BLOCK);
         dropSelf(ModBlocks.VAULT_SALVAGER_BLOCK);
         dropSelf(ModBlocks.CONFIGURABLE_FLOATING_TEXT_BLOCK);

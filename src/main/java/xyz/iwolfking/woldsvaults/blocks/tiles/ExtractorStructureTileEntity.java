@@ -1,5 +1,9 @@
 package xyz.iwolfking.woldsvaults.blocks.tiles;
 
+import net.minecraft.core.Direction;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -44,6 +48,19 @@ public class ExtractorStructureTileEntity extends BlockEntity {
         if (this.controllerPos != null) {
             tag.put("Controller", NbtUtils.writeBlockPos(this.controllerPos));
         }
+    }
+
+    /**
+     * Every cell of the Extraction Forge forwards pipe capabilities to the controller, so the forge can be fed from
+     * any face. Assembler cells forward too, but the assembler itself exposes nothing.
+     */
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        if (this.level != null && this.controllerPos != null && !this.isRemoved()
+                && this.level.getBlockEntity(this.controllerPos) instanceof ExtractorForgeTileEntity forge) {
+            return forge.getCapability(cap, side);
+        }
+        return super.getCapability(cap, side);
     }
 
     @Override
