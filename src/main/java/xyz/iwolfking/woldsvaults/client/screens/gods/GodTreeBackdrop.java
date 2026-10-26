@@ -127,7 +127,7 @@ public final class GodTreeBackdrop {
     private static void useGradeShader() {
         ShaderInstance shader = GodTreeShaders.backdropGrade;
         if (shader == null) { // failed to load: draw ungraded rather than not at all
-            useGradeShader();
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             return;
         }
         shader.safeGetUniform("Brightness").set((GRADE_BRIGHTNESS - 50) / 100.0F);
@@ -387,7 +387,7 @@ public final class GodTreeBackdrop {
         }
 
         float sx = hx + offX, sy = hy + offY;
-        useGradeShader();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader); // the grade shader is position_tex and would read the colours as uvs
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
@@ -452,12 +452,12 @@ public final class GodTreeBackdrop {
         buf.vertex(matrix, x, y, 0.0F).color(r, g, bl, a).endVertex();
     }
 
-    /** A steady 0..1 value for a sky square, so its ragged edge and fade delay don't flicker between frames. */
+    // A steady 0..1 value for a sky square, so its ragged edge and fade delay don't flicker between frames.
     private static float fraction(long key, long salt) {
         return (mix(key * 31 + salt) >>> 40) / (float) (1L << 24);
     }
 
-    /** Seconds until the next event of something that happens perMinute times a minute on average. */
+    // Seconds until the next event of something that happens perMinute times a minute on average.
     private static float nextWait(Random random, float perMinute) {
         return (float) (-Math.log(1 - random.nextDouble()) * 60.0 / perMinute);
     }
