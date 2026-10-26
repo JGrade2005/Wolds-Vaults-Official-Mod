@@ -15,10 +15,14 @@ import java.io.IOException;
 public final class GodTreeShaders {
     //position_tex plus a brightness/contrast/gamma/vibrance grade, for the backdrop's textured layers.
     public static ShaderInstance backdropGrade;
+    //the animated cloud round the transfer slots on the God's Mastery idols, see GodIdolCloud.
+    public static ShaderInstance idolCloud;
 
     @SubscribeEvent
     public static void onRegisterShaders(RegisterShadersEvent event) throws IOException {
         event.registerShader(new ShaderInstance(event.getResourceManager(), WoldsVaults.id("backdrop_grade"),
                 DefaultVertexFormat.POSITION_TEX), shader -> backdropGrade = shader);
+        event.registerShader(new ShaderInstance(event.getResourceManager(), WoldsVaults.id("idol_cloud"),
+                DefaultVertexFormat.POSITION_TEX), shader -> idolCloud = shader);
     }
 }
