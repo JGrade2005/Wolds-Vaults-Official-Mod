@@ -48,6 +48,7 @@ public class ModConfigs {
     public static ExtractionObjectiveConfig EXTRACTION_OBJECTIVE;
     public static xyz.iwolfking.woldsvaults.config.ExtractorPartsConfig EXTRACTOR_PARTS;
     public static xyz.iwolfking.woldsvaults.config.ObjectiveDifficultyConfig OBJECTIVE_DIFFICULTY;
+    public static xyz.iwolfking.woldsvaults.config.GearSetConfig GEAR_SETS;
 
     public static AugmentRecipesConfig AUGMENT_RECIPES;
     public static ModBoxRecipesConfig MOD_BOX_RECIPES_CONFIG;
@@ -109,6 +110,7 @@ public class ModConfigs {
         EXTRACTION_OBJECTIVE = new ExtractionObjectiveConfig().readConfig();
         EXTRACTOR_PARTS = new xyz.iwolfking.woldsvaults.config.ExtractorPartsConfig().readConfig();
         OBJECTIVE_DIFFICULTY = new xyz.iwolfking.woldsvaults.config.ObjectiveDifficultyConfig().readConfig();
+        GEAR_SETS = new xyz.iwolfking.woldsvaults.config.GearSetConfig().readConfig();
         AUGMENT_RECIPES = new AugmentRecipesConfig().readConfig();
         MOD_BOX_RECIPES_CONFIG = new ModBoxRecipesConfig().readConfig();
         CUSTOM_RECYCLER_CONFIG = new CustomVaultRecyclerConfig().readConfig();

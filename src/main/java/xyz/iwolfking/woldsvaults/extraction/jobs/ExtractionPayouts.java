@@ -1,5 +1,6 @@
 package xyz.iwolfking.woldsvaults.extraction.jobs;
 
+import xyz.iwolfking.woldsvaults.api.gear.sets.GearSetHelper;
 import iskallia.vault.config.UniqueGearConfig;
 import iskallia.vault.core.vault.Vault;
 import iskallia.vault.gear.data.VaultGearData;
@@ -214,9 +215,10 @@ public final class ExtractionPayouts {
                                    Vault vault, BlockPos pos, Random random) {
         Map<String, Double> weights = rarityWeights(spec, extraPower, itemRarity);
         List<ResourceLocation> keys = new ArrayList<>(ModConfigs.UNIQUE_GEAR.getRegistry().keySet());
+        keys.removeIf(GearSetHelper::isSetPiece);
         for (int i = 0; i < count; i++) {
             if ("ancient".equals(pickWeighted(weights, random, "unique"))) {
-                ItemStack ancient = AncientUniqueHelper.rollUnidentifiedAncient(random);
+                ItemStack ancient = AncientUniqueHelper.rollUnidentifiedAncient(random, false);
                 if (!ancient.isEmpty()) {
                     payout.add(LootInitialization.initializeVaultLoot(ancient, vault, pos));
                 }

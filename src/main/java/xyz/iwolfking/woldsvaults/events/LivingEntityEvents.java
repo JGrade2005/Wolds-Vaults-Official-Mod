@@ -81,6 +81,7 @@ import xyz.iwolfking.woldsvaults.effect.trinkets.EffectOnHitTakenEffect;
 import xyz.iwolfking.woldsvaults.init.ModEffects;
 import xyz.iwolfking.woldsvaults.init.ModEtchingGearAttributes;
 import xyz.iwolfking.woldsvaults.init.ModGearAttributes;
+import xyz.iwolfking.woldsvaults.modifiers.gear.riptide.RiptideDash;
 import xyz.iwolfking.woldsvaults.items.TrinketPouchItem;
 import xyz.iwolfking.woldsvaults.items.gear.VaultLootSackItem;
 import xyz.iwolfking.woldsvaults.items.gear.VaultPlushieItem;
@@ -684,13 +685,14 @@ public class LivingEntityEvents {
             VaultGearData data = VaultGearData.read(stack);
             double d = 2 * data.get(iskallia.vault.init.ModGearAttributes.ATTACK_DAMAGE, VaultGearAttributeTypeMerger.doubleSum());
 
-            AttributeSnapshot snapshot = AttributeSnapshotHelper.getInstance().getSnapshot(player);
             if(!ActiveFlags.IS_CHAINING_ATTACKING.isSet()) {
                 ActiveFlags.IS_CHAINING_ATTACKING.runIfNotSet(() -> VaultTridentItem.triggerChannelingRiptide(stack, player.getLevel(), player));
-                event.setAmount((float) VaultTridentItem.getTridentScaledDamage(snapshot, event.getEntityLiving(), d));
+                if (RiptideDash.isContact(event.getEntityLiving())) {
+                    AttributeSnapshot snapshot = AttributeSnapshotHelper.getInstance().getSnapshot(player);
+                    d *= 1.0 + snapshot.getAttributeValue(ModGearAttributes.RIPTIDE_DAMAGE_MORE, VaultGearAttributeTypeMerger.floatSum());
+                }
             }
-            else
-                event.setAmount((float) d);
+            event.setAmount((float) d);
         }
     }
 

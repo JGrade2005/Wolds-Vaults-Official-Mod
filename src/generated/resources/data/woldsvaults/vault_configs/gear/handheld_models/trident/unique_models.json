@@ -11,6 +11,12 @@
       "displayName": "Fork of the Glutton",
       "discoverOnRoll": true,
       "allowTransmogrification": true
+    },
+    {
+      "id": "woldsvaults:gear/trident/tideripper",
+      "displayName": "Tideripper",
+      "discoverOnRoll": true,
+      "allowTransmogrification": true
     }
   ]
 }

@@ -23,6 +23,7 @@ public class ModEffects {
     public static final MobEffect ECHOING = new EchoingPotionEffect(MobEffectCategory.HARMFUL, 0x691997, WoldsVaults.id("echoing"));
     public static final MobEffect SAFER_SPACE = new SaferSpacePotionEffect(MobEffectCategory.BENEFICIAL,0xae6bd1, WoldsVaults.id("safer_space"));
     public static final MobEffect LEVITATEII = new LevitateIIPotionEffect(MobEffectCategory.BENEFICIAL,0xceffff, WoldsVaults.id("levitateii"));
+    public static final MobEffect TIDAL_HOVER = new TidalHoverEffect(MobEffectCategory.BENEFICIAL, 0x1c8f3a, WoldsVaults.id("tidal_hover"));
     public static final MobEffect REROLLED_TIMEOUT = new RerolledPotionEffect(MobEffectCategory.BENEFICIAL,0xceffff, WoldsVaults.id("rerolled"));
     public static final MobEffect EMPOWER = new EmpowerEffect();
     public static final MobEffect QUICKENING = new QuickeningEffect();
@@ -46,6 +47,7 @@ public class ModEffects {
                                         , ECHOING
                                         , SAFER_SPACE
                                         , LEVITATEII
+                                        , TIDAL_HOVER
                                         , REROLLED_TIMEOUT
                                         , EMPOWER
                                         , QUICKENING

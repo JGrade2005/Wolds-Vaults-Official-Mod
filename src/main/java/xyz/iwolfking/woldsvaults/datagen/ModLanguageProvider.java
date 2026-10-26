@@ -638,6 +638,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add("effect.woldsvaults.growing", "Growing");
         add("effect.woldsvaults.safer_space", "Safer Space");
         add("effect.woldsvaults.levitateii", "Levitate II");
+        add("effect.woldsvaults.tidal_hover", "Tidal Hover");
         add("effect.woldsvaults.rerolled", "Reroll Cooldown");
         add("effect.the_vault.glacial_shatter", "Glacial Shatter");
         add(ModEffects.EMPOWER, "Empower");

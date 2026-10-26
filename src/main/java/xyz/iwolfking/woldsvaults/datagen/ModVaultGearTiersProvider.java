@@ -21,6 +21,7 @@ import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.api.data.gear.lib.UnusualModifierLib;
 import xyz.iwolfking.woldsvaults.datagen.lib.AbstractWoldsVaultGearConfigProvider;
 import xyz.iwolfking.woldsvaults.init.ModGearAttributes;
+import xyz.iwolfking.woldsvaults.api.util.UniqueRollTables;
 import java.util.List;
 
 public class ModVaultGearTiersProvider extends AbstractWoldsVaultGearConfigProvider {
@@ -269,6 +270,20 @@ public class ModVaultGearTiersProvider extends AbstractWoldsVaultGearConfigProvi
                         .addModifier(ModGearAttributes.TRIDENT_CHANNELING, "BaseChanneling", "trident_channeling", List.of(), vaultGearModifierTiersBuilder -> {
                             vaultGearModifierTiersBuilder.add(0, -1, 10, true);
                         });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.MOVEMENT_SPEED, "BaseBonusPool", "base_movement", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(20, 64, 100, 0.02F, 0.06F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(40, 84, 100, 0.07F, 0.1F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(65, -1, 100, 0.11F, 0.14F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(85, -1, 100, 0.15F, 0.2F, 0.01F);
+                        });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.BLOCK, "BaseBonusPool", "base_block_chance", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(20, -1, 100, 0.04F, 0.08F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(70, -1, 100, 0.09F, 0.12F, 0.01F);
+                        });
+                vaultGearAttributeGroupBuilder.addModifier(scoped(ModGearAttributes.TRIDENT_RIPTIDE, "BaseTridentLoyalty", "tidebreaker_tideripper", "trident_riptide",
+                        vaultGearModifierTiersBuilder -> vaultGearModifierTiersBuilder.add(0, -1, 10, 6, 6, 1)));
             }).build();
             builder.key(VaultMod.id("unique")).add(VaultGearTierConfig.ModifierAffixTagGroup.PREFIX, vaultGearAttributeGroupBuilder -> {
                 vaultGearAttributeGroupBuilder
@@ -441,6 +456,33 @@ public class ModVaultGearTiersProvider extends AbstractWoldsVaultGearConfigProvi
                             vaultGearModifierTiersBuilder.add(75, -1, 10, "Weakness V", ResourceLocation.withDefaultNamespace("empty"), 300, 4.0f, MobEffects.WEAKNESS.getColor(), false, 0.05F, MobEffects.WEAKNESS.getRegistryName(), 300, 0);
                         });
                 vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.MOVEMENT_SPEED, "ModMovementSpeed", "set_movement_speed", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(0, 64, 10, 0.05F, 0.1F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(40, -1, 10, 0.11F, 0.15F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(80, -1, 10, 0.16F, 0.2F, 0.01F);
+                        });
+                vaultGearAttributeGroupBuilder.addModifier(scoped(ModGearAttributes.TRIDENT_WINDUP, "ModTridentWindup", "tidebreaker_tideripper", "windup_time_zeus",
+                        vaultGearModifierTiersBuilder -> vaultGearModifierTiersBuilder.add(0, -1, 10, 0.6F, 0.8F, 0.01F)));
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.MANA_ADDITIVE, "ModHealthMana", "mod_max_mana", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(20, 94, 100, 20, 30, 1);
+                            vaultGearModifierTiersBuilder.add(40, 92, 100, 31, 40, 1);
+                            vaultGearModifierTiersBuilder.add(70, -1, 100, 41, 50, 1);
+                            vaultGearModifierTiersBuilder.add(95, -1, 100, 51, 60, 1);
+                        });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.ABILITY_LEVEL, "ModAPLvl", "unique_rampage_level", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(25, -1, 30, new AbilityLevelAttribute.Config("Rampage", 2));
+                        });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.ABILITY_LEVEL, "ModAPLvl", "unique_dash_level", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(25, -1, 30, new AbilityLevelAttribute.Config("Dash", 2));
+                        });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.ABILITY_LEVEL, "ModAPLvl", "unique_ice_bolt_level", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(25, -1, 30, new AbilityLevelAttribute.Config("Ice_Bolt", 2));
+                        });
+                vaultGearAttributeGroupBuilder
                         .addModifier(iskallia.vault.init.ModGearAttributes.ABILITY_LEVEL, "ModPoisonNovaLevel", "mod_poison_nova_level", List.of(), vaultGearModifierTiersBuilder -> {
                             vaultGearModifierTiersBuilder.add(0, -1, 10, new AbilityLevelAttribute.Config("Nova_Dot", 1));
                             vaultGearModifierTiersBuilder.add(0, -1, 10, new AbilityLevelAttribute.Config("Nova_Dot", 2));
@@ -474,6 +516,24 @@ public class ModVaultGearTiersProvider extends AbstractWoldsVaultGearConfigProvi
                             vaultGearModifierTiersBuilder.add(85, -1, 10, 0.09F, 0.12F, 0.01F);
                         });
                 vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.EFFECT_DURATION, "ModEffectDuration", "set_effect_duration", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(0, 64, 10, 0.05F, 0.1F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(40, -1, 10, 0.1F, 0.18F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(80, -1, 10, 0.18F, 0.25F, 0.01F);
+                        });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.HEALING_EFFECTIVENESS, "ModHealingEfficiency", "set_healing_efficiency", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(0, 64, 10, 0.1F, 0.2F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(40, -1, 10, 0.2F, 0.32F, 0.01F);
+                            vaultGearModifierTiersBuilder.add(80, -1, 10, 0.32F, 0.42F, 0.01F);
+                        });
+                vaultGearAttributeGroupBuilder
+                        .addModifier(iskallia.vault.init.ModGearAttributes.EFFECT_CLOUD, "ModEffectCloud", "set_chilling_cloud_tideripper", List.of(), vaultGearModifierTiersBuilder -> {
+                            vaultGearModifierTiersBuilder.add(0, -1, 10, "Chilling III", ResourceLocation.withDefaultNamespace("empty"), 200, 4.0f, 3138042, false, 0.05F, ModEffects.CHILLED.getRegistryName(), 140, 0);
+                        });
+                vaultGearAttributeGroupBuilder.addModifier(scoped(ModGearAttributes.TRIDENT_RIPTIDE, "ModRiptide", "tidebreaker_heart", "trident_riptide",
+                        vaultGearModifierTiersBuilder -> vaultGearModifierTiersBuilder.add(0, -1, 10, 1, 1, 1)));
+                vaultGearAttributeGroupBuilder
                         .addModifier(iskallia.vault.init.ModGearAttributes.ABILITY_LEVEL, "ModDiffuseLevel", "mod_diffuse_level", List.of(), vaultGearModifierTiersBuilder -> {
                             vaultGearModifierTiersBuilder.add(0, -1, 10, new AbilityLevelAttribute.Config("Expunge_Base", 1));
                             vaultGearModifierTiersBuilder.add(0, -1, 10, new AbilityLevelAttribute.Config("Expunge_Base", 2));
@@ -488,5 +548,16 @@ public class ModVaultGearTiersProvider extends AbstractWoldsVaultGearConfigProvi
             }).build();
         });
 
+    }
+
+    /** A unique-table row scoped to one woldsvaults unique, which {@code UniqueRollTables} resolves before the plain identifier. */
+    private static VaultGearTierConfig.ModifierTierGroup scoped(iskallia.vault.gear.attribute.VaultGearAttribute<?> attribute, String modifierGroup, String uniquePath, String identifierPath,
+                                                                 java.util.function.Consumer<AbstractVaultGearConfigProvider.VaultGearModifierTiersBuilder> tiers) {
+        VaultGearTierConfig.ModifierTierGroup group = new VaultGearTierConfig.ModifierTierGroup(attribute.getRegistryName(), modifierGroup,
+                UniqueRollTables.scoped(WoldsVaults.id(uniquePath), VaultMod.id(identifierPath)));
+        AbstractVaultGearConfigProvider.VaultGearModifierTiersBuilder builder = new AbstractVaultGearConfigProvider.VaultGearModifierTiersBuilder();
+        tiers.accept(builder);
+        group.addAll(builder.build());
+        return group;
     }
 }

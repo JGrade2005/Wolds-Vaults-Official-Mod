@@ -19,7 +19,6 @@ import xyz.iwolfking.woldsvaults.prestige.RelicHunterPrestigePower;
 import javax.annotation.Nullable;
 import net.minecraft.world.item.Item;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AncientUniqueHelper {
-    public static final String CONFIG_PREFIX = "unique_ancient_";
     public static final int ANCIENT_COLOR = 16746803;
     private static final String UNIQUE_ROLL_TYPE = "Unique";
     private static final int HUNTER_TIER = 7;
@@ -38,7 +36,6 @@ public class AncientUniqueHelper {
     private static final float MASTER_CHANCE = 0.0065F;
     private static final float CHAMPION_CHANCE = 0.008F;
     private static final Map<ResourceLocation, String> ANCIENT_NAMES = new LinkedHashMap<>();
-    private static final Map<ResourceLocation, ResourceLocation> ANCIENT_CONFIG_KEYS = new LinkedHashMap<>();
     private static final Map<ResourceLocation, Boolean> CONFIG_USABLE = new ConcurrentHashMap<>();
 
     static {
@@ -104,6 +101,12 @@ public class AncientUniqueHelper {
         woldsUnique("chonknet", "Ancient Chonknet");
         woldsUnique("treasure_magnet", "Ancient Treasure Hunter's Magnet");
         woldsUnique("bloodseeking_magnet", "Ancient Bloodfetcher");
+        woldsUnique("tidebreaker_reign", "Ancient Tidebreaker's Reign");
+        woldsUnique("tidebreaker_heart", "Ancient Tidebreaker's Heart");
+        woldsUnique("tidebreaker_leggings", "Ancient Tidebreaker's Leggings");
+        woldsUnique("tidebreaker_greaves", "Ancient Tidebreaker's Greaves");
+        woldsUnique("tidebreaker_tideripper", "Ancient Tideripper");
+        woldsUnique("tidebreaker_hurricane", "Ancient Hurricane");
     }
 
     private AncientUniqueHelper() {
@@ -119,11 +122,6 @@ public class AncientUniqueHelper {
 
     private static void ancient(ResourceLocation uniqueKey, String ancientName) {
         ANCIENT_NAMES.put(uniqueKey, ancientName);
-        ANCIENT_CONFIG_KEYS.put(uniqueKey, VaultMod.id(CONFIG_PREFIX + uniqueKey.getPath()));
-    }
-
-    public static Iterable<ResourceLocation> ancientConfigKeys() {
-        return Collections.unmodifiableCollection(ANCIENT_CONFIG_KEYS.values());
     }
 
     public static boolean isAncient(VaultGearData data) {
@@ -135,8 +133,8 @@ public class AncientUniqueHelper {
     }
 
     /**
-     * Resolves the per-unique ancient tier config; empty when the item is not ancient or the config is missing or
-     * unusable.
+     * Resolves the shared ancient tier table for an ancient item; empty when the item is not ancient, the unique has
+     * no ancient name, or the table is missing or cannot roll any of the unique's identifiers.
      */
     public static Optional<VaultGearTierConfig> getAncientConfig(VaultGearData data) {
         if (!isAncient(data)) {
@@ -146,39 +144,32 @@ public class AncientUniqueHelper {
         if (uniqueKey == null) {
             return Optional.empty();
         }
-        ResourceLocation configKey = ANCIENT_CONFIG_KEYS.get(uniqueKey);
-        if (configKey == null) {
-            WoldsVaults.LOGGER.warn("Ancient unique {} has no ancient tier config; falling back to the normal unique config.", uniqueKey);
+        if (!ANCIENT_NAMES.containsKey(uniqueKey)) {
+            WoldsVaults.LOGGER.warn("Ancient unique {} has no ancient name; falling back to the normal unique config.", uniqueKey);
             return Optional.empty();
         }
-        VaultGearTierConfig config = ModConfigs.VAULT_GEAR_CONFIG.get(configKey);
+        VaultGearTierConfig config = ModConfigs.VAULT_GEAR_CONFIG.get(UniqueRollTables.ANCIENT_TABLE);
         if (config == null) {
-            WoldsVaults.LOGGER.warn("Ancient tier config {} is not registered; falling back to the normal unique config.", configKey);
+            WoldsVaults.LOGGER.warn("Ancient tier table {} is not registered; falling back to the normal unique config.", UniqueRollTables.ANCIENT_TABLE);
             return Optional.empty();
         }
-        if (!isConfigUsable(configKey, config, uniqueKey)) {
+        if (!isConfigUsable(config, uniqueKey)) {
             return Optional.empty();
         }
         return Optional.of(config);
     }
 
-    /**
-     * Whether the ancient tier config resolves at least one of the unique's modifier identifiers; memoised per
-     * config key.
-     */
-    private static boolean isConfigUsable(ResourceLocation configKey, VaultGearTierConfig config, ResourceLocation uniqueKey) {
-        Boolean cached = CONFIG_USABLE.get(configKey);
+    /** Whether the ancient table resolves at least one of the unique's modifier identifiers; memoised per unique. */
+    private static boolean isConfigUsable(VaultGearTierConfig config, ResourceLocation uniqueKey) {
+        Boolean cached = CONFIG_USABLE.get(uniqueKey);
         if (cached != null) {
             return cached;
         }
-        UniqueGearConfig.Entry entry = ModConfigs.UNIQUE_GEAR.getEntry(uniqueKey).orElse(null);
-        boolean usable = entry == null || entry.getModifierIdentifiers().values().stream()
-                .flatMap(List::stream)
-                .anyMatch(identifier -> config.getTierGroup(identifier) != null);
+        boolean usable = UniqueRollTables.resolvesAny(config, uniqueKey);
         if (!usable) {
-            WoldsVaults.LOGGER.error("Ancient tier config {} resolves none of {}'s modifier identifiers - the vault_configs overlay did not load. Falling back to the normal unique config.", configKey, uniqueKey);
+            WoldsVaults.LOGGER.error("Ancient tier table {} resolves none of {}'s modifier identifiers - the vault_configs overlay did not load. Falling back to the normal unique config.", UniqueRollTables.ANCIENT_TABLE, uniqueKey);
         }
-        CONFIG_USABLE.put(configKey, usable);
+        CONFIG_USABLE.put(uniqueKey, usable);
         return usable;
     }
 
@@ -221,9 +212,17 @@ public class AncientUniqueHelper {
         return stack;
     }
 
-    /** An unidentified ancient of a unique drawn uniformly from {@link #getAncientCapableUniques()}. */
+    /** An unidentified ancient of a unique drawn uniformly from {@link #getAncientCapableUniques()}, set pieces included. */
     public static ItemStack rollUnidentifiedAncient(Random random) {
+        return rollUnidentifiedAncient(random, true);
+    }
+
+    /** As {@link #rollUnidentifiedAncient(Random)}, optionally leaving set pieces out of the draw. */
+    public static ItemStack rollUnidentifiedAncient(Random random, boolean includeSetPieces) {
         List<ResourceLocation> candidates = getAncientCapableUniques();
+        if (!includeSetPieces) {
+            candidates.removeIf(xyz.iwolfking.woldsvaults.api.gear.sets.GearSetHelper::isSetPiece);
+        }
         if (candidates.isEmpty()) {
             WoldsVaults.LOGGER.error("No loaded unique has an ancient name; cannot roll an unidentified ancient unique. Is the unique gear config loaded?");
             return ItemStack.EMPTY;
@@ -325,7 +324,7 @@ public class AncientUniqueHelper {
     /** Rolls whether an identifying unique becomes ancient; false unless {@code player} is a {@link ServerPlayer}. */
     public static boolean rollAncient(VaultGearData data, @Nullable Player player, Random random) {
         ResourceLocation uniqueKey = data.getFirstValue(ModGearAttributes.UNIQUE_ITEM_KEY).orElse(null);
-        if (uniqueKey == null || !ANCIENT_CONFIG_KEYS.containsKey(uniqueKey)) {
+        if (uniqueKey == null || !ANCIENT_NAMES.containsKey(uniqueKey)) {
             return false;
         }
         if (!(player instanceof ServerPlayer serverPlayer)) {
