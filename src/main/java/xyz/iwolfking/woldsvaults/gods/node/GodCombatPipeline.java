@@ -9,6 +9,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.events.PostMultiplierFlatAdds;
 import xyz.iwolfking.woldsvaults.gods.GodNodeGate;
 import xyz.iwolfking.woldsvaults.gods.combat.FinalDamageStage;
 import xyz.iwolfking.woldsvaults.gods.combat.GlobalDamageMultiplierRegistry;
@@ -35,6 +36,7 @@ public final class GodCombatPipeline {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void runPipeline(LivingHurtEvent event) {
+        PostMultiplierFlatAdds.apply(event);
         if (event.isCanceled()) {
             return;
         }

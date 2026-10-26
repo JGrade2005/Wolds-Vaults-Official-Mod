@@ -243,6 +243,7 @@
     "vaulthunters.custom.BlockChanceHelper",
     "vaulthunters.custom.CardDeckItemMixin",
     "vaulthunters.custom.MixinAbstractRampageAbility",
+    "vaulthunters.custom.MixinRampageAbility",
     "vaulthunters.custom.MixinActiveFlagsCheck",
     "vaulthunters.custom.MixinAlchemyArchive",
     "vaulthunters.custom.MixinAngelExpertise",
