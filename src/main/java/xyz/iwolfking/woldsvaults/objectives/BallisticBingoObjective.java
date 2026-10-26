@@ -43,6 +43,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.api.util.ObjectiveHelper;
 import xyz.iwolfking.woldsvaults.api.util.VaultModifierUtils;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.BingoObjectiveAccessor;
@@ -51,6 +52,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.objectives.hyper.HyperModifierPolicy;
 
 public class BallisticBingoObjective extends BingoObjective {
     public static final SupplierKey<Objective> KEY;
@@ -469,6 +472,11 @@ public class BallisticBingoObjective extends BingoObjective {
 
             while(modIter.hasNext()) {
                 VaultModifier<?> mod = modIter.next();
+                if (!vault.get(Vault.OBJECTIVES).getAll(HyperVaultObjective.class).isEmpty()
+                        && HyperModifierPolicy.isBannedCastOnKill(mod.getId())) {
+                    WoldLogger.debug("Dropped the {} bingo task reward - cast-on-kill effects are banned in Hyper.", mod.getId());
+                    continue;
+                }
                 TextComponent suffix = (TextComponent) mod.getChatDisplayNameComponent(1);
                 text.append("The task completion").append((new TextComponent(" added ")).withStyle(ChatFormatting.GRAY)).append(suffix).append((new TextComponent(".")).withStyle(ChatFormatting.GRAY));
                 if(modIter.hasNext()) {

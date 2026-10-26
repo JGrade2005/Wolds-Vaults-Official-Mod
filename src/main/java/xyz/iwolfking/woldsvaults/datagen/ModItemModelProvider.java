@@ -18,6 +18,7 @@ import xyz.iwolfking.vhapi.api.registry.CustomCatalystModelRegistry;
 import xyz.iwolfking.vhapi.api.registry.CustomInscriptionModelRegistry;
 import xyz.iwolfking.vhapi.api.util.ResourceLocUtils;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.init.ModCompressibleBlocks;
 import xyz.iwolfking.woldsvaults.init.ModItems;
 import xyz.iwolfking.woldsvaults.integration.arsnouveau.init.ArsSpawnEggItems;
@@ -37,6 +38,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         simpleItem(ModItems.CORE_OF_THE_VAULT_GODS);
+        simpleItem(ModItems.INFUSION_PREVENTION);
         simpleItem(ModItems.GODS_MASTERY);
         simpleItem(ModItems.GREEDY_TICKET);
         simpleItem(ModItems.WEAPON_TYPE_FOCUS);
@@ -168,9 +170,13 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleItem(ModItems.BLUE_VAULT_ESSENCE);
         simpleItem(ModItems.GREEN_VAULT_ESSENCE);
         simpleItem(ModItems.LEAD_DYE_BASE);
+        simpleItem(ModItems.CONCENTRATED_VOID);
+        simpleItem(ModItems.INSCRIBING_FOCUS);
 
         withExistingParent("owned_crafting_table",
                 mcLoc("item/crafting_table"));
+
+        withExistingParent("infused_augment", VaultMod.id("item/augment"));
 
         spawnEgg(ModItems.BLUE_BLAZE_EGG);
         spawnEgg(ModItems.BOOGIEMAN_EGG);
@@ -253,6 +259,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         skillScrollAbility("colossus");
         skillScrollAbility("expunge");
         skillScrollAbility("wall_of_fangs");
+        skillScrollAbility("ultimate_shield");
         skillScroll("fanged_strike");
         skillScroll("execution_strike");
         skillScroll("arcane_strike");
@@ -265,6 +272,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         skillScroll("momentum_engine");
         skillScroll("lunge");
         skillScroll("stack_master");
+        skillScroll("hex_breaker");
+        skillScroll("blood_chakra");
         skillScrollVanilla("voltaic_impact");
         skillScrollVanilla("blood_rush");
         skillScrollVanilla("executioner");
@@ -317,6 +326,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         etching(VaultMod.id("ingenium"));
         etching(VaultMod.id("pyramid_scheme"));
         etching(VaultMod.id("fireball_greedball"), "treasure");
+        etching(VaultMod.id("imploding_barrier"), "implode_mana_regen");
+        etching(VaultMod.id("ravenous_fangs"), "bloodfang");
+        etching(VaultMod.id("conservation_of_momentum"));
 
         ModCompressibleBlocks.getRegisteredBlocks().forEach((k, v) -> {
             for (int i = 0; i < v.size(); i ++) {
@@ -333,7 +345,7 @@ public class ModItemModelProvider extends ItemModelProvider {
                 }
             }
         } catch (IllegalAccessException e) {
-            WoldsVaults.LOGGER.error("Failed to access ritual dummy fields via reflection", e);
+            WoldLogger.error("Failed to access ritual dummy fields via reflection", e);
         }
     }
 

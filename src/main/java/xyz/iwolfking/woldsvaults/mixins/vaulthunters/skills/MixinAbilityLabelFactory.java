@@ -109,5 +109,21 @@ public abstract class MixinAbilityLabelFactory {
                 "timerStretch",
                 context -> label("\n Vault Second Length: ",binding(context.config(), "timerStretch"),"duration")
         );
+        FACTORY_MAP.put(
+                "percentageDamageAbsorbed",
+                context -> label("\n Percentage Damage Absorbed: ",binding(context.config(), "percentageDamageAbsorbed"),"absorb")
+        );
+        FACTORY_MAP.put(
+                "manaPerDamageScalar",
+                context -> label("\n Mana / Damage: ",binding(context.config(), "manaPerDamageScalar"),"manaPerDamage")
+        );
+        FACTORY_MAP.put(
+                "baseManaDrainPerTick",
+                context -> label("\n Base Mana / Tick: ",binding(context.config(), "baseManaDrainPerTick"),"manaCost")
+        );
+        FACTORY_MAP.put(
+                "manaDrainRampPerSecond",
+                context -> label("\n Mana Ramp Per Second: ",binding(context.config(), "manaDrainRampPerSecond"),"manaCost")
+        );
     }
 }

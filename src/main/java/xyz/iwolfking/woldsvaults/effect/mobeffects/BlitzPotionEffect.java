@@ -12,7 +12,7 @@ public class BlitzPotionEffect extends MobEffect {
         super(MobEffectCategory.BENEFICIAL, 0x55FFFF);
         this.addAttributeModifier(
                 Attributes.ATTACK_SPEED,
-                "ac1ef94f-48b2-49f0-992e-f836772a2cb4",
+                "3d0c4c12-ea10-41bf-a074-22b587592ff5",
                 0.05D,
                 AttributeModifier.Operation.MULTIPLY_TOTAL
         );

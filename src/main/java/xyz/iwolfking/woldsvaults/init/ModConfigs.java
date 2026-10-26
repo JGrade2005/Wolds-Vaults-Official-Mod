@@ -81,6 +81,8 @@ public class ModConfigs {
     public static final Map<VaultGod, GodTreeConfig> GOD_TREES = new EnumMap<>(VaultGod.class);
     public static final Map<VaultGod, GodTreeGuiStylesConfig> GOD_TREE_GUI_STYLES = new EnumMap<>(VaultGod.class);
     public static final Map<VaultGod, GodNodeEffectsConfig> GOD_NODE_EFFECTS = new EnumMap<>(VaultGod.class);
+    public static ThemeModifiersConfig THEME_MODIFIERS = new ThemeModifiersConfig();
+    public static ThemePaletteRegistryConfig THEME_PALETTE_REGISTRY = new ThemePaletteRegistryConfig();
 
     public static void register() {
         GEM_BOX = new GenericLootableConfig("gem_box").readConfig();
@@ -122,6 +124,8 @@ public class ModConfigs {
         IMPLICIT_DECK_MODIFIERS = new ImplicitDeckModifiersConfig().readConfig();
         registerGreedProgression();
         registerGodTrees();
+        THEME_MODIFIERS = new ThemeModifiersConfig().readConfig();
+        THEME_PALETTE_REGISTRY = new ThemePaletteRegistryConfig().readConfig();
     }
 
     /**

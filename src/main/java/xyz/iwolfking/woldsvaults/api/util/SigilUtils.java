@@ -8,6 +8,7 @@ import iskallia.vault.init.ModConfigs;
 import net.minecraft.resources.ResourceLocation;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.medallions.GreedMedallionEffects;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -47,7 +48,7 @@ public class SigilUtils {
         Optional<SigilDefinitionsConfig.SigilDefinition> definition = ModConfigs.SIGIL_DEFINITIONS.get(sigil.toLowerCase());
 
         if(definition.isEmpty()) {
-            WoldsVaults.LOGGER.warn("Sigil '{}' has no entry in sigils/definitions.json, counting its difficulty as 0", sigil);
+            WoldLogger.warn("Sigil '{}' has no entry in sigils/definitions.json, counting its difficulty as 0", sigil);
             return 1.0F;
         }
 

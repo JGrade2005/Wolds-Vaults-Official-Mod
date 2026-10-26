@@ -4,15 +4,20 @@ import com.cursedcauldron.wildbackport.common.registry.WBMobEffects;
 import com.github.alexthe666.alexsmobs.effect.AMEffectRegistry;
 import com.github.alexthe666.alexsmobs.entity.AMEntityRegistry;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import iskallia.vault.VaultMod;
 import iskallia.vault.block.PlaceholderBlock;
 import iskallia.vault.block.base.GodAltarBlock;
 import iskallia.vault.config.CustomEntitySpawnerConfig;
+import iskallia.vault.core.vault.RoomCache;
 import iskallia.vault.core.vault.influence.VaultGod;
 import iskallia.vault.core.vault.modifier.modifier.*;
 import iskallia.vault.core.vault.modifier.spi.EntityAttributeModifier;
 import iskallia.vault.core.vault.modifier.spi.VaultModifier;
+import iskallia.vault.core.vault.stat.VaultChestType;
 import iskallia.vault.core.world.data.entity.*;
 import iskallia.vault.core.world.data.tile.*;
 import iskallia.vault.core.world.processor.tile.TileProcessor;
@@ -22,16 +27,20 @@ import iskallia.vault.init.ModEntities;
 import iskallia.vault.util.calc.PlayerStat;
 import iskallia.vault.world.VaultDifficulty;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.loot.ChestLoot;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import xyz.iwolfking.vhapi.api.datagen.AbstractVaultModifierProvider;
 import xyz.iwolfking.vhapi.api.datagen.lib.BasicListBuilder;
+import xyz.iwolfking.vhapi.api.datagen.lib.WeightedLevelEntryListBuilder;
 import xyz.iwolfking.vhapi.api.datagen.lib.WeightedListBuilder;
 import xyz.iwolfking.vhapi.api.datagen.lib.modifiers.ModifierBuilder;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.api.core.vault_events.lib.EventTag;
+import xyz.iwolfking.woldsvaults.modifiers.vault.map.modifiers.lib.EntityAttributeModifierSettable;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -56,6 +65,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
     public void addFiles(Map<String, Consumer<ModifierBuilder>> map) {
         map.put("wolds_builtin_modifiers", modifierBuilder -> {
             empty(modifierBuilder, WoldsVaults.id("rotting"), "Rotting", "#EBFF8D", "This vault is starting to rot, it might go rotten with more fruit consumption!", null, VaultMod.id("gui/modifiers/rotten"));
+            empty(modifierBuilder, WoldsVaults.id("infused"), "Infused", "#e6fffe", "This vault is overflowing with powerful energy, special modifiers added!", null, VaultMod.id("gui/modifiers/more_catalyst"));
             difficultyLock(modifierBuilder, VaultMod.id("piece_of_cake"), VaultDifficulty.PIECE_OF_CAKE, true, "Piece of Cake", "#EBFF8D", "This vault's difficulty is locked to Piece of Cake.", null, WoldsVaults.id("gui/modifiers/piece_of_cake"));
             difficultyLock(modifierBuilder, VaultMod.id("easy"), VaultDifficulty.EASY, true, "Easy", "#EBFF8D", "This vault's difficulty is locked to Easy.", null, WoldsVaults.id("gui/modifiers/easy"));
             difficultyLock(modifierBuilder, VaultMod.id("normal"), VaultDifficulty.NORMAL, true, "Normal", "#EBFF8D", "This vault's difficulty is locked to Normal.", null, WoldsVaults.id("gui/modifiers/normal"));
@@ -118,6 +128,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             playerAttribute(modifierBuilder, VaultMod.id("drought"), EntityAttributeModifier.ModifierType.MANA_REGEN_ADDITIVE_PERCENTILE, -0.25F, "Drought", "#849dc8", "-25% Mana Regeneration", "-%d%% Mana Regeneration", VaultMod.id("gui/modifiers/draining"));
             playerAttribute(modifierBuilder, VaultMod.id("bingo_drained"), EntityAttributeModifier.ModifierType.MANA_REGEN_ADDITIVE_PERCENTILE, -0.15F, "Draining", "#849dc8", "-15% Mana Regeneration", "-%d%% Mana Regeneration", VaultMod.id("gui/modifiers/draining"));
             playerAttribute(modifierBuilder, VaultMod.id("healthy"), EntityAttributeModifier.ModifierType.MAX_HEALTH_ADDITIVE, 4F, "Healthy", "#FF5555", "+2 Hearts", "+%d Hit Points", VaultMod.id("gui/modifiers/regeneration"));
+            playerAttribute(modifierBuilder, WoldsVaults.id("scurvy"), EntityAttributeModifier.ModifierType.MAX_HEALTH_MULTIPLICATIVE_PERCENTILE, -0.25F, "Scurvy", "#FC7C5C", "-25% Max Health", "-%d Max Health", VaultMod.id("gui/modifiers/injured"));
 
             playerDurability(modifierBuilder, VaultMod.id("acidic"), 1.4F, "Acidic", "#7B7E7F", "+40% Durability Damage", "+%d%% Durability Damage", VaultMod.id("gui/modifiers/acidic"));
             playerDurability(modifierBuilder, VaultMod.id("corrosive"), 2.0F, "Corrosive", "#7B7E7F", "+100% Durability Damage", "+%d%% Durability Damage", VaultMod.id("gui/modifiers/corrosive"));
@@ -130,6 +141,8 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             playerEffect(modifierBuilder, WoldsVaults.id("unlucky_aura"), MobEffects.UNLUCK.getRegistryName(), 2, "Jinxed", "#5032a8", "You aren't feeling very lucky...", "+%d Unluck", VaultMod.id("gui/modifiers/impossible"));
             playerEffect(modifierBuilder, WoldsVaults.id("doomed_aura"), MobEffects.UNLUCK.getRegistryName(), 6, "Doomed", "#5032a8", "It seems almost all the luck has been sucked out...", "+%d Unluck", VaultMod.id("gui/modifiers/impossible"));
             playerEffect(modifierBuilder, WoldsVaults.id("super_lucky"), MobEffects.LUCK.getRegistryName(), 4, "Four-Leaf Clover", "#b3ff20", "You're feeling super lucky!", "+%d Luck", VaultMod.id("gui/modifiers/lucky"));
+            playerEffect(modifierBuilder, WoldsVaults.id("exposed"), xyz.iwolfking.woldsvaults.init.ModEffects.SHREDDED.getRegistryName(), 4, "Exposed", "#a8324c", "Your armor feels exposed... armor reduced by half", null, VaultMod.id("gui/modifiers/impossible"));
+            playerEffect(modifierBuilder, WoldsVaults.id("exposed_mini"), xyz.iwolfking.woldsvaults.init.ModEffects.SHREDDED.getRegistryName(), 2, "Exposed", "#a8324c", "Your armor feels exposed... armor reduced by half", null, VaultMod.id("gui/modifiers/impossible"));
 
             poolReferenceWeight(modifierBuilder, WoldsVaults.id("challenge_fortune_small"), resourceLocationBasicListBuilder -> resourceLocationBasicListBuilder.add(VaultMod.id("vault/rooms/challenge_rooms")), 3.0, "Challenge Vein", "#FF4500", "3x Challenge Room Chance", null, VaultMod.id("gui/modifiers/challenge_fortune"));
             poolReferenceWeight(modifierBuilder, WoldsVaults.id("omega_fortune_small"), resourceLocationBasicListBuilder -> resourceLocationBasicListBuilder.add(VaultMod.id("vault/rooms/omega_rooms")), 4.0, "Omega Vein", "#6AFF00", "4x Omega Room Chance", null, VaultMod.id("gui/modifiers/omega_fortune"));
@@ -190,7 +203,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
                 hunterBuilder.entry(PartialBlockState.of(ModBlocks.COIN_PILE), 64, "coins", 16750592);
             } , "Coin Pile Hunter", "#FF9800", "Highlights Coin Piles in this Vault", null, VaultMod.id("gui/modifiers/wealthy"));
             hunter(modifierBuilder, VaultMod.id("ornate_hunter"), hunterBuilder -> {
-                hunterBuilder.entry(PartialBlockState.of(ModBlocks.ORNATE_CHEST), 64, "coins", 16721408);
+                hunterBuilder.entry(PartialBlockState.of(ModBlocks.ORNATE_CHEST), 64, "ornate", 16721408);
             } , "Ornate Hunter", "#FF2600", "Highlights Ornate Chests in this Vault", null, VaultMod.id("gui/modifiers/ornate"));
             hunter(modifierBuilder, VaultMod.id("gilded_hunter"), hunterBuilder -> {
                 hunterBuilder.entry(PartialBlockState.of(ModBlocks.GILDED_CHEST), 64, "gilded", 16776960);
@@ -410,7 +423,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
                 }, "Armed Mobs (Spore Grenade)", "#33691E", "4% chance to spawn Spore Grenade on mob death", "Chance to spawn Spore Grenade on mob death", VaultMod.id("gui/modifiers/lightning_grenade"));
 
             } catch (Exception ignored) {
-                WoldsVaults.LOGGER.error("Error trying to create a Mob Death Bomb modifier, ignoring all modifiers of this type.");
+                WoldLogger.error("Error trying to create a Mob Death Bomb modifier, ignoring all modifiers of this type.");
             }
 
             infernalChance(modifierBuilder, VaultMod.id("raging"), EMPTY_ENTITY_PREDICATE, 0.03F,  3, "Raging", "#a996ca", "3% chance for mobs to spawn with Infernal modifiers", "Chance for mobs to spawn with Infernal modifiers", VaultMod.id("gui/modifiers/infernal"));
@@ -680,12 +693,113 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             empty(modifierBuilder, WoldsVaults.id("radar"), "Radar", "#ff4545",
                     "Mob radar is online — Ghost Walk, Spirit Walk and Shadow Cloak cannot hide you", null,
                     WoldsVaults.id("gui/modifiers/radar"));
+            empty(modifierBuilder, WoldsVaults.id("dulled"), "Dulled", "#ff4545",
+                    "This vault cannot randomly have its Theme infused.", null,
+                    WoldsVaults.id("gui/modifiers/dulled"));
             modifierBuilder.type(WoldsVaults.id("modifier_type/hyper_escalation").toString(), (typeBuilder) -> typeBuilder.modifier(WoldsVaults.id("hyper").toString(), (modifierEntryBuilder) -> {
                 modifierEntryBuilder.property("statFactor", 0.0F);
                 modifierEntryBuilder.property("speedPerStack", 0.0F);
                 createModifierDisplay(modifierEntryBuilder, "HYPER", "#ffaa00",
                         "Mob health and damage multiply per hyperboss kill", null, VaultMod.id("gui/modifiers/overpower"));
             }));
+
+            chestLoot(modifierBuilder, WoldsVaults.id("cosmic_chests"), 0.1F, levelLootTableBasicListBuilder -> {
+                levelLootTableBasicListBuilder.add(new ChestLootModifier.LevelLootTable(0, WoldsVaults.id("cosmic_chests")));
+            }, vaultChestTypeBasicListBuilder -> {
+                vaultChestTypeBasicListBuilder.add(VaultChestType.WOODEN).add(VaultChestType.GILDED).add(VaultChestType.ORNATE).add(VaultChestType.LIVING);
+            }, "Cosmic Chests", "#5a9196", "Wooden, Gilded, Living, and Ornate chests have a 10% chance to contain Cosmic loot.", "Wooden, Gilded, Living, and Ornate chests have a %d%% chance to generate Cosmic loot.", VaultMod.id("gui/modifiers/bonus_coin"));
+            grouped(modifierBuilder, WoldsVaults.id("cosmic"), resourceLocationIntegerMap -> {
+                resourceLocationIntegerMap.put(WoldsVaults.id("cosmic_chests"), 1);
+                resourceLocationIntegerMap.put(VaultMod.id("springy"), 2);
+                resourceLocationIntegerMap.put(VaultMod.id("slowfalling"), 1);
+            },"Cosmic", "#3ffbf4", "This vault is anti-grav! It seems some cosmic dust is littered around...", null, WoldsVaults.id("gui/modifiers/impossible"));
+
+            mobManaStealOnHit(modifierBuilder, WoldsVaults.id("mana_plunder"), 0.5F, 0.1F, true, "Mana Plunderers", "#4dffd2", "Mobs have a 50% chance to drain 10% of your mana on-hit", "Mobs have a 1/2 chance to drain 10 percent of your mana on-hit", VaultMod.id("gui/modifiers/impossible"));
+            mobAdditionalMagicDamageOnHit(modifierBuilder, WoldsVaults.id("arcane_foes"), 1.0F, 4.0F, false, "Arcane Foes", "#4dffd2", "Mobs deal 2 hearts of magic damage on-hit", "Mobs deal %d hearts of magic damage on-hit", VaultMod.id("gui/modifiers/impossible"));
+            mobAdditionalVoidDamageOnHit(modifierBuilder, WoldsVaults.id("void_touch"), 0.25F, 0.1F, true, "Void Touch", "#474243", "Mobs have a 25 percent chance to deal 1/10 of their damage as Void damage", null, VaultMod.id("gui/modifiers/impossible"));
+            grouped(modifierBuilder, WoldsVaults.id("scorching_heat"), resourceLocationIntegerMap -> {
+                resourceLocationIntegerMap.put(VaultMod.id("enervated"), 1);
+                resourceLocationIntegerMap.put(VaultMod.id("hunger_mini"), 1);
+                resourceLocationIntegerMap.put(VaultMod.id("piercing"), 1);
+                resourceLocationIntegerMap.put(WoldsVaults.id("exposed_mini"), 1);
+            },"Scorching Heat", "#c28e27", "Healing is heavily reduced, you get hungry faster, and your armor isn't as effective!", null, WoldsVaults.id("gui/modifiers/impossible"));
+
+            //1/1% versions of all modifiers, to be used for Vault Maps and replace SettableVaultModifiers
+            artifactChance(modifierBuilder, WoldsVaults.id("artifact_chance"), 0.01F, "Artifact Chance", "#EBFF8D", "+1% Artifact Chance", "+%d%% Artifact Chance", VaultMod.id("gui/modifiers/more_artifact1"));
+            catalystChance(modifierBuilder, WoldsVaults.id("catalyst_chance"), 0.01F, "Catalyst Fragment Chance", "#FC00E3", "+1% Catalyst Fragment Chance", "+%d%% Catalyst Fragment Chance", VaultMod.id("gui/modifiers/more_catalyst"));
+            trapChestChance(modifierBuilder, WoldsVaults.id("trap_chance"), 0.01F, "Trap Chance", "#D35B00", "+1% Trap Chance", "+%d%% Trap Chance", VaultMod.id("gui/modifiers/trapped"));
+            soulShardChance(modifierBuilder, WoldsVaults.id("soul_shard_chance"), 0.01F, "Soul Shard Chance", "#6410A1", "+1% Soul Shard Chance", "+%d%% Soul Shard Chance", VaultMod.id("gui/modifiers/soul_shard_increase_pink"));
+
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_mana_increase"), PlayerAttributeModifier.ModifierType.MANA_REGEN_ADDITIVE_PERCENTILE, 0.01F, "Increased Mana Regeneration", "#849DC8", "+1% Mana Regeneration", "+%d%% Mana Regeneration", VaultMod.id("gui/modifiers/draining"));
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_mana_decrease"), PlayerAttributeModifier.ModifierType.MANA_REGEN_ADDITIVE_PERCENTILE, -0.01F, "Decreased Mana Regeneration", "#5572A1", "-1% Mana Regeneration", "-%d%% Mana Regeneration", VaultMod.id("gui/modifiers/draining"));
+
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_health_increase"), PlayerAttributeModifier.ModifierType.MAX_HEALTH_ADDITIVE, 1, "Increased Health", "#FF5555", "+1 Health", "+%d Health", VaultMod.id("gui/modifiers/regeneration"));
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_health_decrease"), PlayerAttributeModifier.ModifierType.MAX_HEALTH_ADDITIVE, -1, "Decreased Health", "#A83232", "-1 Health", "-%d Health", VaultMod.id("gui/modifiers/regeneration"));
+
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_damage_increase"), PlayerAttributeModifier.ModifierType.ATTACK_DAMAGE_ADDITIVE_PERCENTILE, 0.01F, "Increased Damage", "#FFAA00", "+1% Increased Damage", "+%d%% Increased Damage", VaultMod.id("gui/modifiers/god_token_idona"));
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_damage_decrease"), PlayerAttributeModifier.ModifierType.ATTACK_DAMAGE_ADDITIVE_PERCENTILE, -0.01F, "Decreased Damage", "#A87000", "-1% Decreased Damage", "-%d%% Decreased Damage", VaultMod.id("gui/modifiers/god_token_idona"));
+
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_knockback_resistance_increase"), PlayerAttributeModifier.ModifierType.KNOCKBACK_RESISTANCE_ADDITIVE, 0.01F, "Increased Knockback Resistance", "#55FFFF", "+1% Increased Knockback Resistance", "+%d%% Increased Knockback Resistance", VaultMod.id("gui/modifiers/overpower"));
+            playerAttribute(modifierBuilder, WoldsVaults.id("player_knockback_resistance_decrease"), PlayerAttributeModifier.ModifierType.KNOCKBACK_RESISTANCE_ADDITIVE, -0.01F, "Decreased Knockback Resistance", "#2B9999", "-1% Decreased Knockback Resistance", "-%d%% Decreased Knockback Resistance", VaultMod.id("gui/modifiers/overpower"));
+
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_health_increase"), EntityAttributeModifier.ModifierType.MAX_HEALTH_ADDITIVE_PERCENTILE, 0.01F, "Increased Mob Health", "#DC693C", "+1% Increased Mob Health", "+%d%% Increased Mob Health", VaultMod.id("gui/modifiers/chunky"));
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_health_decrease"), EntityAttributeModifier.ModifierType.MAX_HEALTH_ADDITIVE_PERCENTILE, -0.01F, "Decreased Mob Health", "#D4E157", "+1% Decreased Mob Health", "+%d%% Decreased Mob Health", VaultMod.id("gui/modifiers/chunky"));
+
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_damage_increase"), EntityAttributeModifier.ModifierType.ATTACK_DAMAGE_ADDITIVE_PERCENTILE, 0.01F, "Increased Mob Damage", "#DA6D5A", "+1% Increased Mob Damage", "+%d%% Increased Mob Damage", VaultMod.id("gui/modifiers/furious_mobs"));
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_damage_decrease"), EntityAttributeModifier.ModifierType.ATTACK_DAMAGE_ADDITIVE_PERCENTILE, -0.01F, "Decreased Mob Damage", "#8F4538", "+1% Decreased Mob Damage", "+%d%% Decreased Mob Damage", VaultMod.id("gui/modifiers/furious_mobs"));
+
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_speed_increase"), EntityAttributeModifier.ModifierType.SPEED_ADDITIVE_PERCENTILE, 0.01F, "Increased Mob Speed", "#F66868", "+1% Increased Mob Speed", "+%d%% Increased Mob Speed", VaultMod.id("gui/modifiers/rapid_mobs"));
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_speed_decrease"), EntityAttributeModifier.ModifierType.SPEED_ADDITIVE_PERCENTILE, -0.01F, "Decreased Mob Speed", "#E6FFFE", "+1% Decreased Mob Speed", "+%d%% Decreased Mob Speed", VaultMod.id("gui/modifiers/glued_mobs"));
+
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_crit_increase"), EntityAttributeModifier.ModifierType.CRIT_CHANCE_ADDITIVE, 0.01F, "Increased Mob Critical Chance", "#FF2222", "+1% Increased Mob Critical Chance", "+%d%% Increased Mob Critical Chance", VaultMod.id("gui/modifiers/destructive"));
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_crit_decrease"), EntityAttributeModifier.ModifierType.CRIT_CHANCE_ADDITIVE, -0.01F, "Decreased Mob Critical Chance", "#771111", "+1% Decreased Mob Critical Chance", "+%d%% Decreased Mob Critical Chance", VaultMod.id("gui/modifiers/destructive"));
+
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_kbr_increase"), EntityAttributeModifier.ModifierType.KNOCKBACK_RESISTANCE_ADDITIVE, 0.01F, "Increased Mob Knockback Resistance", "#A855A8", "+1% Increased Mob Knockback Resistance", "+%d%% Increased Mob Knockback Resistance", VaultMod.id("gui/modifiers/chaotic"));
+            mobAttribute(modifierBuilder, WoldsVaults.id("mob_kbr_decrease"), EntityAttributeModifier.ModifierType.KNOCKBACK_RESISTANCE_ADDITIVE, -0.01F, "Decreased Mob Knockback Resistance", "#552B55", "+1% Decreased Mob Knockback Resistance", "+%d%% Decreased Mob Knockback Resistance", VaultMod.id("gui/modifiers/chaotic"));
+
+            itemQuantity(modifierBuilder, WoldsVaults.id("item_quantity"), 0.01F, "Item Quantity", "#FFCC73", "+1% Item Quantity", "+%d%% Item Quantity", VaultMod.id("gui/modifiers/item_quant_2"));
+            itemRarity(modifierBuilder, WoldsVaults.id("item_rarity"), 0.01F, "Item Rarity", "#B3FF20", "+1% Item Rarity", "+%d%% Item Rarity", VaultMod.id("gui/modifiers/lucky"));
+            championChance(modifierBuilder, WoldsVaults.id("champion_chance"), 0.01F, "Champion Chance", "#5ECE0C", "+1% Champion Chance", "+%d%% Champion Chance", VaultMod.id("gui/modifiers/champion_domain"));
+
+            lootWeight(modifierBuilder, WoldsVaults.id("ore_increase"), PlaceholderBlock.Type.ORE, 0.01F, "More Ores", "#FF85FF", "+1% More Ores", "+%d%% More Ores", VaultMod.id("gui/modifiers/plentiful"));
+            lootWeight(modifierBuilder, WoldsVaults.id("ore_decrease"), PlaceholderBlock.Type.ORE, -0.01F, "Less Ores", "#995099", "-1% More Ores", "-%d%% More Ores", VaultMod.id("gui/modifiers/plentiful"));
+
+            vaultTime(modifierBuilder, WoldsVaults.id("more_time"), 20, "More Time", "#2F86AE", "+1 Second of Vault Time", "+%d Second(s) of Vault Time", VaultMod.id("gui/modifiers/extended"));
+            vaultTime(modifierBuilder, WoldsVaults.id("less_time"), -20, "Less Time", "#C43A3A", "-1 Second of Vault Time", "-%d Second(s) of Vault Time", VaultMod.id("gui/modifiers/extended"));
+
+            grouped(modifierBuilder, WoldsVaults.id("combined_quant_and_rarity"), resourceLocationIntegerMap -> {
+                resourceLocationIntegerMap.put(WoldsVaults.id("item_quantity"), 1);
+                resourceLocationIntegerMap.put(WoldsVaults.id("item_rarity"), 1);
+            }, "Item Quantity and Rarity", "#3FFBF4", "+1% Item Quantity and Rarity", "+%d%% Item Quantity and Rarity", VaultMod.id("gui/modifiers/treasure"));
+
+            grouped(modifierBuilder, WoldsVaults.id("combined_mob_damage_and_health"), resourceLocationIntegerMap -> {
+                resourceLocationIntegerMap.put(WoldsVaults.id("mob_damage_increase"), 1);
+                resourceLocationIntegerMap.put(WoldsVaults.id("mob_health_increase"), 1);
+            }, "Mob Health and Damage", "#FC7C5C", "+1% Mob Health and Damage", "+%d%% Mob Health and Damage", VaultMod.id("gui/modifiers/frenzy"));
+            //the_vault:soul_cascade_X for gilded, living, ornate, and wooden, and coin piles
+            //the_vault:tiny_mob_increase for mob spawn increase
+            //the_vault:crate_quantity for crate quantity
+            //the_vault:crowded for legacy mob spawn increase
+            //ignore durability damage
+            try {
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_coin"), PartialTile.parse("the_vault:placeholder[type=coin_stacks]"), 1, true, List.of(RoomCache.RoomType.COMMON, RoomCache.RoomType.ORE), "Bonus Coins", "#ffae00", "+1 Bonus Coin Pile Spawns", "+%d%% Bonus Coin Pile Spawns", VaultMod.id("gui/modifiers/wealthy"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_gilded"), PartialTile.parse("the_vault:placeholder[type=gilded_chest]"), 1, true, List.of(RoomCache.RoomType.COMMON, RoomCache.RoomType.ORE), "Bonus Gilded", "#FFEC00", "+1 Bonus Gilded Chest Spawns", "+%d%% Bonus Gilded Chest Spawns", VaultMod.id("gui/modifiers/gilded_chests"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_living"), PartialTile.parse("the_vault:placeholder[type=living_chest]"), 1, true, List.of(RoomCache.RoomType.COMMON, RoomCache.RoomType.ORE), "Bonus Living", "#38d800", "+1 Bonus Living Chest Spawns", "+%d%% Bonus Living Chest Spawns", VaultMod.id("gui/modifiers/living_chests"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_ornate"), PartialTile.parse("the_vault:placeholder[type=ornate_chest]"), 1, true, List.of(RoomCache.RoomType.COMMON, RoomCache.RoomType.ORE), "Bonus Ornate", "#c90d73", "+1 Bonus Ornate Chest Spawns", "+%d%% Bonus Ornate Chest Spawns", VaultMod.id("gui/modifiers/ornate_chests"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_wooden"), PartialTile.parse("the_vault:placeholder[type=wooden_chest]"), 1, true, List.of(RoomCache.RoomType.COMMON, RoomCache.RoomType.ORE), "Bonus Wooden", "#fbcc3f", "+1 Bonus Wooden Chest Spawns", "+%d%% Bonus Wooden Chest Spawns", VaultMod.id("gui/modifiers/wooden"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_wild"), PartialTile.parse("the_vault:wild_spawner"), 1, true, "Wild Spawners", "#E83F24", "+1 Dweller Spawner Spawns", "+%d%% Dweller Spawner Spawns", VaultMod.id("gui/modifiers/crowded"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_bedrock"), PartialTile.parse("the_vault:vault_bedrock"), 1, false, "Collapsing", "#E83F24", "+1 Vault Bedrock Spawns", "+%d%% Vault Bedrock Spawns", VaultMod.id("gui/modifiers/chaotic"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_lava"), PartialTile.parse("minecraft:lava"), 1, false, "Lava Pools", "#E83F24", "+1 Lava Pool Spawns", "+%d%% Lava Pool Spawns", VaultMod.id("gui/modifiers/volcanic"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_void"), PartialTile.parse("the_vault:void_liquid"), 1, false, "Void Pools", "#E83F24", "+1 Void Pool Spawns", "+%d%% Void Pool Spawns", VaultMod.id("gui/modifiers/impossible"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_fungal"), PartialTile.parse("the_vault:custom_entity_spawner{spawnerGroupName: \"fungal\"}"), 1, false, "Fungal Spawns", "ff0000", "+1 Fungal Spawners", "+%d%% Fungal Spawners", VaultMod.id("gui/modifiers/fungal"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_safari"), PartialTile.parse("the_vault:custom_entity_spawner{spawnerGroupName: \"safari\"}"), 1, false, "Safari Spawns", "ff0000", "+1 Safari Spawners", "+%d%% Safari Spawners", VaultMod.id("gui/modifiers/safari"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_frosty"), PartialTile.parse("the_vault:custom_entity_spawner{spawnerGroupName: \"frosty\"}"), 1, false, "Frosty Spawns", "ff0000", "+1 Frosty Spawners", "+%d%% Frosty Spawners", VaultMod.id("gui/modifiers/winter"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_electric"), PartialTile.parse("the_vault:custom_entity_spawner{spawnerGroupName: \"electric\"}"), 1, false, "Storm Spawns", "ff0000", "+1 Storm Spawners", "+%d%% Storm Spawners", VaultMod.id("gui/modifiers/electric"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_tnt"), PartialTile.parse("the_vault:custom_entity_spawner{spawnerGroupName: \"tnt\"}"), 1, false, "Explosive Spawns", "ff0000", "+1 TNT Spawns", "+%d%% TNT Spawns", VaultMod.id("gui/modifiers/explosive"));
+                decoratorAdd(modifierBuilder, WoldsVaults.id("bonus_shulker"), PartialTile.parse("the_vault:custom_entity_spawner{spawnerGroupName: \"shulkerbullet\"}"), 1, false, "Shulker Bullet Spawns", "ff0000", "+1 Shulker Bullet Spawns", "+%d%% Shulker Bullet Spawns", VaultMod.id("gui/modifiers/impossible"));
+            } catch (CommandSyntaxException e) {
+                throw new RuntimeException(e);
+            }
 
         });
     }
@@ -752,6 +866,102 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             modifierEntryBuilder.property("eventTags", eventTags);
             createModifierDisplay(modifierEntryBuilder, name, color, description, formattedDescription, icon);
         }));
+    }
+
+    public static void chestLoot(ModifierBuilder builder, ResourceLocation modifierId, float chance, Consumer<BasicListBuilder<ChestLootModifier.LevelLootTable>> chestLootTablesConsumer, Consumer<BasicListBuilder<VaultChestType>> vaultChestTypesConsumer, String name, String color, String description, String formattedDescription, ResourceLocation icon) {
+        builder.type(VaultMod.id("modifier_type/chest_loot").toString(), (typeBuilder) -> typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
+            modifierEntryBuilder.property("chance", chance);
+
+            JsonArray chestLootTables = new JsonArray();
+            BasicListBuilder<ChestLootModifier.LevelLootTable> listBuilder = new BasicListBuilder<>();
+            chestLootTablesConsumer.accept(listBuilder);
+            listBuilder.build().forEach(levelLootTable -> {
+                JsonObject table = new JsonObject();
+                table.addProperty("level", levelLootTable.getLevel());
+                table.addProperty("lootTable", levelLootTable.getLootTable().toString());
+                chestLootTables.add(table);
+            });
+            modifierEntryBuilder.property("lootTable", chestLootTables);
+
+            JsonArray whitelist = new JsonArray();
+            BasicListBuilder<VaultChestType> whitelistBuilder = new BasicListBuilder<>();
+            vaultChestTypesConsumer.accept(whitelistBuilder);
+            whitelistBuilder.build().forEach(vaultChestType -> {
+                whitelist.add(vaultChestType.name());
+            });
+            modifierEntryBuilder.property("whitelist", whitelist);
+
+            createModifierDisplay(modifierEntryBuilder, name, color, description, formattedDescription, icon);
+        }));
+    }
+
+    public static void mobAdditionalMagicDamageOnHit(
+            ModifierBuilder builder,
+            ResourceLocation modifierId,
+            float onHitApplyChance,
+            float amount,
+            boolean isPercentageOfAttack,
+            String name,
+            String color,
+            String description,
+            String formattedDescription,
+            ResourceLocation icon
+    ) {
+        builder.type(VaultMod.id("modifier_type/mob_additional_magic_damage_on_hit").toString(), (typeBuilder) -> {
+            typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
+                modifierEntryBuilder.property("onHitApplyChance", onHitApplyChance);
+                modifierEntryBuilder.property("amount", amount);
+                modifierEntryBuilder.property("isPercentageOfAttack", isPercentageOfAttack);
+
+                createModifierDisplay(modifierEntryBuilder, name, color, description, formattedDescription, icon);
+            });
+        });
+    }
+
+    public static void mobAdditionalVoidDamageOnHit(
+            ModifierBuilder builder,
+            ResourceLocation modifierId,
+            float onHitApplyChance,
+            float amount,
+            boolean isPercentageOfAttack,
+            String name,
+            String color,
+            String description,
+            String formattedDescription,
+            ResourceLocation icon
+    ) {
+        builder.type(VaultMod.id("modifier_type/mob_additional_void_damage_on_hit").toString(), (typeBuilder) -> {
+            typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
+                modifierEntryBuilder.property("onHitApplyChance", onHitApplyChance);
+                modifierEntryBuilder.property("amount", amount);
+                modifierEntryBuilder.property("isPercentageOfAttack", isPercentageOfAttack);
+
+                createModifierDisplay(modifierEntryBuilder, name, color, description, formattedDescription, icon);
+            });
+        });
+    }
+
+    public static void mobManaStealOnHit(
+            ModifierBuilder builder,
+            ResourceLocation modifierId,
+            float onHitApplyChance,
+            float amount,
+            boolean drainsPercentage,
+            String name,
+            String color,
+            String description,
+            String formattedDescription,
+            ResourceLocation icon
+    ) {
+        builder.type(VaultMod.id("modifier_type/mob_mana_steal_on_hit").toString(), (typeBuilder) -> {
+            typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
+                modifierEntryBuilder.property("onHitApplyChance", onHitApplyChance);
+                modifierEntryBuilder.property("amount", amount);
+                modifierEntryBuilder.property("drainsPercentage", drainsPercentage);
+
+                createModifierDisplay(modifierEntryBuilder, name, color, description, formattedDescription, icon);
+            });
+        });
     }
 
     public static void resourceLocation(ModifierBuilder builder, ResourceLocation modifierTypeId, ResourceLocation modifierId, ResourceLocation id, String name, String color, String description, String formattedDescription, ResourceLocation icon) {

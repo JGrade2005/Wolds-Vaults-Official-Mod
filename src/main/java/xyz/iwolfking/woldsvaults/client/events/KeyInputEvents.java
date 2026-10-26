@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -24,10 +25,19 @@ import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.network.NetworkHandler;
 import xyz.iwolfking.woldsvaults.gods.network.ServerboundToggleCharmTemporalMessage;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.integration.bettercombat.BetterCombatToggleHelper;
 import xyz.iwolfking.woldsvaults.client.init.ModKeybinds;
 import xyz.iwolfking.woldsvaults.client.screens.SpeedCapConfigScreen;
 import xyz.iwolfking.woldsvaults.effect.trinkets.SpeedLimitTrinketEffect;
+import xyz.iwolfking.woldsvaults.client.screens.PouchScreen;
+import xyz.iwolfking.woldsvaults.api.util.PouchHelper;
+import xyz.iwolfking.woldsvaults.init.ModNetwork;
+import xyz.iwolfking.woldsvaults.items.trinket_pouch.menu.PouchMenu;
+import xyz.iwolfking.woldsvaults.network.packets.ServerboundOpenTrinketPouchPacket;
+import top.theillusivec4.curios.common.inventory.CurioSlot;
+
+import java.util.OptionalInt;
 
 @Mod.EventBusSubscriber(modid = WoldsVaults.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class KeyInputEvents {
@@ -66,6 +76,53 @@ public class KeyInputEvents {
         if (ModKeybinds.toggleCharmBlessing.consumeClick() && Minecraft.getInstance().player != null) {
             NetworkHandler.INSTANCE.sendToServer(new ServerboundToggleCharmTemporalMessage());
         }
+        if (ModKeybinds.openTrinketPouch.consumeClick()) {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player != null && Minecraft.getInstance().screen == null) {
+                ModNetwork.sendToServer(new ServerboundOpenTrinketPouchPacket(player.containerMenu.containerId, PouchMenu.EQUIPPED));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGuiMouseClicked(ScreenEvent.MouseClickedEvent.Pre event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (event.getButton() != 1 || Screen.hasShiftDown() || minecraft.player == null
+                || !(event.getScreen() instanceof AbstractContainerScreen<?> screen)
+                || screen instanceof PouchScreen || !screen.getMenu().getCarried().isEmpty()) {
+            return;
+        }
+        Slot slot = slotAt(screen, event.getMouseX(), event.getMouseY());
+        if (slot == null || !PouchHelper.isPouch(slot.getItem())) {
+            return;
+        }
+        OptionalInt pouchSlot = openablePouchSlot(slot, minecraft.player);
+        if (pouchSlot.isEmpty()) {
+            return;
+        }
+        event.setCanceled(true);
+        ModNetwork.sendToServer(new ServerboundOpenTrinketPouchPacket(minecraft.player.containerMenu.containerId, pouchSlot.getAsInt()));
+    }
+
+    private static Slot slotAt(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
+        for (Slot slot : screen.getMenu().slots) {
+            int left = screen.getGuiLeft() + slot.x;
+            int top = screen.getGuiTop() + slot.y;
+            if (slot.isActive() && mouseX >= left - 1 && mouseX < left + 17 && mouseY >= top - 1 && mouseY < top + 17) {
+                return slot;
+            }
+        }
+        return null;
+    }
+
+    private static OptionalInt openablePouchSlot(Slot slot, LocalPlayer player) {
+        if (slot instanceof CurioSlot curioSlot && curioSlot.getIdentifier().equals("trinket_pouch") && curioSlot.getSlotIndex() == 0) {
+            return OptionalInt.of(PouchMenu.EQUIPPED);
+        }
+        if (slot.container == player.getInventory() && slot.mayPickup(player)) {
+            return OptionalInt.of(slot.getSlotIndex());
+        }
+        return OptionalInt.empty();
     }
 
     @SubscribeEvent
@@ -78,7 +135,8 @@ public class KeyInputEvents {
         if (!ModKeybinds.configureTrinket.isActiveAndMatches(pressedKey)) {
             return;
         }
-        Slot hovered = containerScreen.getSlotUnderMouse();
+        Slot hovered = containerScreen instanceof PouchScreen pouchScreen
+                ? pouchScreen.trinketConfigurationSlot() : containerScreen.getSlotUnderMouse();
         if (hovered == null || !hovered.hasItem()) {
             return;
         }
@@ -88,7 +146,7 @@ public class KeyInputEvents {
         }
         boolean creative = containerScreen instanceof CreativeModeInventoryScreen;
         if (creative && !(hovered.container instanceof Inventory)) {
-            WoldsVaults.LOGGER.warn("Weighted Boots: hovered creative slot is not backed by the player inventory, cannot open the speed config screen.");
+            WoldLogger.warn("Weighted Boots: hovered creative slot is not backed by the player inventory, cannot open the speed config screen.");
             return;
         }
         int slotIndex = creative ? hovered.getSlotIndex() : hovered.index;
