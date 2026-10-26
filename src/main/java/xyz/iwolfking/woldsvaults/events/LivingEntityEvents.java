@@ -25,6 +25,7 @@ import iskallia.vault.entity.entity.elite.EliteWitherSkeleton;
 import iskallia.vault.entity.entity.elite.EliteZombieEntity;
 import iskallia.vault.event.ActiveFlags;
 import iskallia.vault.event.ActiveFlagsCheck;
+import iskallia.vault.gear.VaultGearRarity;
 import iskallia.vault.gear.attribute.type.VaultGearAttributeTypeMerger;
 import iskallia.vault.gear.data.GearDataCache;
 import iskallia.vault.gear.data.VaultGearData;
@@ -184,7 +185,7 @@ public class LivingEntityEvents {
 
         if (nearbyTargets.isEmpty()) return;
 
-        float sparkleDamage = playerAP * 0.1F;
+        float sparkleDamage = playerAP * (gearDataCache.getRarity().equals(VaultGearRarity.valueOf("MYTHIC")) ? 0.2F : 0.1F);
 
         Vector3f startColor = new Vector3f(0.8F, 0.2F, 1.0F);
         Vector3f endColor = new Vector3f(0.3F, 0.9F, 1.0F);
