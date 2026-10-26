@@ -101,8 +101,9 @@ public class GodNodeWidget extends AbstractWidget {
         return this.node.id().hashCode() * 0x9E3779B9;
     }
 
-    // How strongly this star's effects show: locked stars glimmer, unlocked ones shine, and selecting brightens either.
-    public float effectOpacity() {
+    // How bright this star's effects are: locked stars glimmer, unlocked ones shine, and selecting brightens either.
+    // Dimming darkens the light's colour rather than fading it, so the star never shows through its own rays.
+    public float effectBrightness() {
         if (this.unlocked) {
             return this.selected ? 1.0F : 0.75F;
         }
