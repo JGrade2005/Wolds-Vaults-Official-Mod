@@ -746,9 +746,9 @@ public class ModVaultGearTiersProvider extends AbstractWoldsVaultGearConfigProvi
             });
 
             vaultGearAttributeGroupBuilder.addModifier(ModGearAttributes.EXECUTION_DAMAGE, "ModOnHitType", "mod_corrupt_execution_damage", List.of(), vaultGearModifierTiersBuilder -> {
-                vaultGearModifierTiersBuilder.add(0, -1, 100, 0.03F, 0.05F, 0.01F);
-                vaultGearModifierTiersBuilder.add(50, -1, 100, 0.05F, 0.07F, 0.01F);
-                vaultGearModifierTiersBuilder.add(90, -1, 100, 0.07F, 0.1F, 0.01F);
+                vaultGearModifierTiersBuilder.add(0, -1, 100, 0.015F, 0.025F, 0.005F);
+                vaultGearModifierTiersBuilder.add(50, -1, 100, 0.025F, 0.035F, 0.005F);
+                vaultGearModifierTiersBuilder.add(90, -1, 100, 0.035F, 0.05F, 0.005F);
             });
             vaultGearAttributeGroupBuilder
                     .addModifier(ModGearAttributes.BURNING_HIT_CHANCE, "ModBurningHit", "mod_corrupt_burning_hit", List.of(), vaultGearModifierTiersBuilder -> {

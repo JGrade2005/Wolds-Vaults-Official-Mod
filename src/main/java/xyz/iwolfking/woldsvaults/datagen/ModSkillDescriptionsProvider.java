@@ -296,14 +296,15 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             builder.addDescription("Execution_Strike", description -> {
                 description.add(JsonDescription.text("Enhances your "));
                 description.add(JsonDescription.text("Lucky Hits ", "#6DF5A3"));
-                description.add(JsonDescription.text("causing them to deal a portion of the target's "));
-                description.add(JsonDescription.text("missing health ", "red"));
-                description.add(JsonDescription.text("as bonus "));
-                description.add(JsonDescription.text("damage ", "red"));
-                description.add(JsonDescription.text(".\n\n1 "));
-                description.add(JsonDescription.text("+15% of missing health", "#d80000"));
+                description.add(JsonDescription.text("so they "));
+                description.add(JsonDescription.text("execute ", "#d80000"));
+                description.add(JsonDescription.text("targets: a lucky hit on a target at or below your execute threshold of its "));
+                description.add(JsonDescription.text("max health ", "red"));
+                description.add(JsonDescription.text("kills it outright. Adds to the execute threshold from your gear. Bosses take half the threshold."));
+                description.add(JsonDescription.text("\n\n1 "));
+                description.add(JsonDescription.text("+4% execute threshold", "#d80000"));
                 description.add(JsonDescription.text("\n\n"));
-                TalentDescriptionsHelper.appendOverlevelDescription("Executing Strike", "add", "+1% increased missing health damage", "#d80000", description);
+                TalentDescriptionsHelper.appendOverlevelDescription("Executing Strike", "add", "+2% execute threshold", "#d80000", description);
             });
 
             builder.addDescription("Mind_Meld", description -> {

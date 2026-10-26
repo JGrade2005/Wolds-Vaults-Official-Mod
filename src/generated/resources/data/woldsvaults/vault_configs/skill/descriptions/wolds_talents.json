@@ -261,24 +261,27 @@
         "color": "#6DF5A3"
       },
       {
-        "text": "causing them to deal a portion of the target's "
+        "text": "so they "
       },
       {
-        "text": "missing health ",
+        "text": "execute ",
+        "color": "#d80000"
+      },
+      {
+        "text": "targets: a lucky hit on a target at or below your execute threshold of its "
+      },
+      {
+        "text": "max health ",
         "color": "red"
       },
       {
-        "text": "as bonus "
+        "text": "kills it outright. Adds to the execute threshold from your gear. Bosses take half the threshold."
       },
       {
-        "text": "damage ",
-        "color": "red"
+        "text": "\n\n1 "
       },
       {
-        "text": ".\n\n1 "
-      },
-      {
-        "text": "+15% of missing health",
+        "text": "+4% execute threshold",
         "color": "#d80000"
       },
       {
@@ -301,7 +304,7 @@
         "text": "add "
       },
       {
-        "text": "+1% increased missing health damage",
+        "text": "+2% execute threshold",
         "color": "#d80000"
       }
     ],

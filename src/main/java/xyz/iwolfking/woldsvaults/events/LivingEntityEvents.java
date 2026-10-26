@@ -1,6 +1,5 @@
 package xyz.iwolfking.woldsvaults.events;
 
-import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import cofh.core.init.CoreMobEffects;
 import com.mojang.math.Vector3f;
 import iskallia.vault.block.CoinPileBlock;
@@ -10,8 +9,6 @@ import iskallia.vault.block.entity.VaultChestTileEntity;
 import iskallia.vault.core.event.CommonEvents;
 import iskallia.vault.core.vault.Vault;
 import iskallia.vault.core.vault.VaultLevel;
-import iskallia.vault.entity.VaultBoss;
-import iskallia.vault.entity.boss.TheVesselEntity;
 import iskallia.vault.entity.boss.VaultBossEntity;
 import iskallia.vault.entity.champion.ChampionLogic;
 import iskallia.vault.entity.entity.PetEntity;
@@ -104,6 +101,7 @@ import xyz.iwolfking.woldsvaults.talent.special.DebuffDamageBonusTalent;
 import xyz.iwolfking.woldsvaults.talent.special.WoldsAxeSpecializationTalent;
 
 import java.util.List;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -469,8 +467,20 @@ public class LivingEntityEvents {
         level.setBlockAndUpdate(pos, Blocks.LAVA.defaultBlockState());
     }
 
-    @SubscribeEvent
-    public static void cleavingDamage(LivingHurtEvent event) {
+    /**
+     * Stores echoes, then adds the flat bonuses (cleaving, reaving) in a fixed order ahead of every damage
+     * multiplier. Separate same-priority handlers ran in an order Forge does not define, so a flat add could land
+     * before or after damage increase depending on the session. Thorns and ability power scaling are added later,
+     * by {@link PostMultiplierFlatAdds}.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void preMultiplierHit(LivingHurtEvent event) {
+        echoingHit(event);
+        cleavingDamage(event);
+        reavingDamage(event);
+    }
+
+    private static void cleavingDamage(LivingHurtEvent event) {
         if(event.getSource().getEntity() instanceof Player player && WoldEventHelper.isNormalAttack() && !WoldActiveFlags.IS_PROC_FANG_ATTACKING.isSet()) {
             if(player.getMainHandItem().getItem() instanceof VaultAxeItem) {
                 event.setAmount(event.getAmount() + WoldsAxeSpecializationTalent.applyCleavingDamageBonus(player, event.getEntityLiving()));
@@ -478,8 +488,7 @@ public class LivingEntityEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void reavingDamage(LivingHurtEvent event) {
+    private static void reavingDamage(LivingHurtEvent event) {
         if(event.getEntityLiving().hasEffect(ModEffects.REAVING) || !WoldEventHelper.isNormalAttack()) {
             return;
         }
@@ -507,57 +516,6 @@ public class LivingEntityEvents {
                     return;
                 }
                 player.getLevel().playSound(null, event.getEntity(), ANCHOR_SLAM_SOUND, SoundSource.PLAYERS, 1.0F, 1.0F);
-            }
-        }
-    }
-
-    /** Returns {@code computed}, or a logged {@code fallback} when it is non-finite inside a hyper vault. */
-    private static float hyperFinite(LivingEntity target, float computed, float fallback, String what) {
-        if (Float.isFinite(computed) || !HyperVaultEvents.isInHyperVault(target)) {
-            return computed;
-        }
-        WoldLogger.error("HYPER NaN-guard: non-finite {} damage against {} replaced with {} (max health {}).",
-                what, target.getType().getRegistryName(), fallback, target.getMaxHealth());
-        return Float.isFinite(fallback) ? fallback : 0.0F;
-    }
-
-    @SubscribeEvent
-    public static void executionDamage(LivingHurtEvent event) {
-        if(!WoldEventHelper.isNormalAttack()) {
-            return;
-        }
-
-        if(WoldActiveFlags.IS_PROC_FANG_ATTACKING.isSet()) {
-            return;
-        }
-
-        if(event.getSource().isProjectile()) {
-            return;
-        }
-
-
-        if(event.getSource().getEntity() instanceof Player player) {
-            float executionDamage = AttributeSnapshotHelper.getInstance().getSnapshot(player).getAttributeValue(ModGearAttributes.EXECUTION_DAMAGE, VaultGearAttributeTypeMerger.floatSum());
-            if(executionDamage != 0) {
-                LivingEntity target = event.getEntityLiving();
-                float base = event.getAmount();
-                float bonus = (target.getMaxHealth() - target.getHealth()) * executionDamage;
-                float tier;
-                if(target instanceof TheVesselEntity) {
-                    tier = 0.01F;
-                }
-                else if(ChampionLogic.isChampion(target) || InfernalMobsCore.getMobModifiers(target) != null || target instanceof VaultBoss || target instanceof VaultBossEntity || target instanceof EliteDrownedEntity || target instanceof EliteWitherSkeleton || target instanceof EliteEndermanEntity || target instanceof EliteHuskEntity || target instanceof EliteSpiderEntity || target instanceof  EliteStrayEntity || target instanceof  EliteZombieEntity || target instanceof EliteWitchEntity) {
-                    tier = 0.25F;
-                }
-                else {
-                    tier = 1.0F;
-                }
-                event.setAmount(hyperFinite(target, (base + bonus) * tier, base, "execution"));
-                if(player instanceof ServerPlayer serverPlayer && ExecutionStrikeAudit.isEnabled()
-                        && HyperVaultEvents.isInHyperVault(target)) {
-                    ExecutionStrikeAudit.record(ServerVaults.get(target.level).orElse(null), serverPlayer, target,
-                            executionDamage, base, bonus, tier, event.getAmount());
-                }
             }
         }
     }
@@ -615,8 +573,7 @@ public class LivingEntityEvents {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void echoingHit(LivingHurtEvent event) {
+    private static void echoingHit(LivingHurtEvent event) {
 
         if(event.getSource().isProjectile()) {
             return;
@@ -668,6 +625,7 @@ public class LivingEntityEvents {
                     DamageSource newSource;
                     int newDuration;
                     float newDecay;
+                    EnumSet<ActiveFlags> newFlags;
 
                     EchoingEffectInstance oldInstance = (EchoingEffectInstance) target.getEffect(ModEffects.ECHOING);
                     if (WoldActiveFlags.IS_ECHOING_ATTACKING.isSet()) {
@@ -678,11 +636,13 @@ public class LivingEntityEvents {
                         newSource = oldInstance.getSource();
                         newDuration = EffectDurationHelper.adjustEffectDurationFloor(player, 1) * 10;
                         newDecay = oldInstance.getDecay() * 0.95F - 0.05F;
+                        newFlags = oldInstance.getFlags();
                     } else {
                         newDamage = event.getAmount() * (1+echoingDamage) * 0.667F;
                         newSource = event.getSource();
                         newDuration = EffectDurationHelper.adjustEffectDurationFloor(player, 1) * 10;
                         newDecay = 1.0F;
+                        newFlags = EchoingEffectInstance.captureFlags();
                     }
 
                     if(newDamage > 1.0f) {
@@ -692,6 +652,7 @@ public class LivingEntityEvents {
                         && WoldEtchingHelper.hasEtching(player, ModEtchingGearAttributes.REVERBERATION)) {
 
                             DamageSource oSource = oldInstance.getSource();
+                            EnumSet<ActiveFlags> oFlags = oldInstance.getFlags();
                             float oDamage = oldInstance.getDamage() * oldInstance.getDecay();
                             oldInstance.setDamage(oDamage);
 
@@ -702,14 +663,14 @@ public class LivingEntityEvents {
                                 WoldActiveFlags.IS_AOE2_ATTACK.maybeRunWithFlag(noCleave, () ->
                                     WoldActiveFlags.IS_UNLUCKY_ATTACK.runWithFlag(() ->
                                         WoldActiveFlags.IS_ECHOING_ATTACKING.runWithFlag(() ->
-                                            DamageUtil.shotgunAttack(target, e -> e.hurt(oSource, oDamage))
+                                            EchoingEffectInstance.runWithFlags(oFlags, () -> DamageUtil.shotgunAttack(target, e -> e.hurt(oSource, oDamage)))
                                         )
                                     )
                                 );
                             }
                         }
 
-                        target.addEffect(new EchoingEffectInstance(player, newDamage, newSource, newDuration, newDecay, noLuck, noCleave));
+                        target.addEffect(new EchoingEffectInstance(player, newDamage, newSource, newDuration, newDecay, noLuck, noCleave, newFlags));
                     }
                 }
             }
@@ -785,7 +746,7 @@ public class LivingEntityEvents {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingHurt(LivingHurtEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) {
             return;
