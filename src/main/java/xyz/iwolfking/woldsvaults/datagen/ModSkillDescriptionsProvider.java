@@ -1661,9 +1661,9 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             description.add(JsonDescription.text(" (+4 minutes). Stacks with other players."));
         });
         builder.addDescription("wendarr_temporal_breaking", description -> {
-            description.add(JsonDescription.text("Time acceleration is "));
-            description.add(JsonDescription.text("50% weaker", gold));
-            description.add(JsonDescription.text(". Does not stack."));
+            description.add(JsonDescription.text("Grants "));
+            description.add(JsonDescription.text("immunity", gold));
+            description.add(JsonDescription.text(" to time acceleration."));
         });
         godNode(builder, "wendarr_plushie_lover", "Doubles the rolled stats", gold, " of an equipped plushie.");
         builder.addDescription("wendarr_pylon_whisperer", description -> {

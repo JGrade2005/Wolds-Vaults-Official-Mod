@@ -30,6 +30,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -122,6 +123,12 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
         return WoldsVaults.id("wolds_jei_integration");
     }
 
+    /** The Extractor Assembler fills its window; a null property set tells JEI to keep its overlay off that screen. */
+    @Override
+    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiScreenHandler(xyz.iwolfking.woldsvaults.blocks.containers.ExtractorAssemblerScreen.class, screen -> null);
+    }
+
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registration.useNbtForSubtypes(ModItems.CHISELING_FOCUS);
@@ -140,6 +147,7 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModItems.VAULTAR_BOX), VAULTAR_BOX);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.VAULT_INFUSER_BLOCK), InfuserCraftingCategory.UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHROMATIC_STEEL_INFUSER_BLOCK), InfuserCraftingCategory.UID);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.OMEGA_INFUSER_BLOCK), InfuserCraftingCategory.UID);
         registration.addRecipeCatalyst(new ItemStack(ModItems.UNIDENTIFIED_GATEWAY_PEARL), GATEWAY_PEARL);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ETCHING_PEDESTAL), ETCHING_SHOP_PEDESTAL);

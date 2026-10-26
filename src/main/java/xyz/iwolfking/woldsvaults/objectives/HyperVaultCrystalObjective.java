@@ -14,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.api.util.SigilUtils;
 import xyz.iwolfking.woldsvaults.api.util.VaultModifierUtils;
 import xyz.iwolfking.woldsvaults.init.ModCustomVaultObjectiveEntries;
 
@@ -52,26 +53,7 @@ public class HyperVaultCrystalObjective extends WoldCrystalObjective {
             VaultModifierUtils.addModifier(vault, VaultMod.id("fragged"), 1);
         }
         VaultModifierUtils.addModifier(vault, WoldsVaults.id("hyper"), 1);
-        addSigilStacks(vault, sigil);
-    }
-
-    /** Hyper uses its own sigil→challenge-stack table (3/6/12/15/20), not SigilUtils' default. */
-    private static void addSigilStacks(Vault vault, @Nullable String sigil) {
-        if (sigil == null || vault.get(Vault.MODIFIERS).hasModifier(VaultMod.id("challenged"))) {
-            return;
-        }
-        int stacks = switch (sigil.toLowerCase()) {
-            case "adept" -> 3;
-            case "expert" -> 6;
-            case "master" -> 12;
-            case "veteran" -> 15;
-            case "legend" -> 20;
-            default -> 0;
-        };
-        if (stacks > 0) {
-            VaultModifierUtils.addModifier(vault, VaultMod.id("challenge_stack"), stacks);
-            VaultModifierUtils.addModifier(vault, VaultMod.id("challenged"), 1);
-        }
+        SigilUtils.addStacks(vault, sigil);
     }
 
     @Override

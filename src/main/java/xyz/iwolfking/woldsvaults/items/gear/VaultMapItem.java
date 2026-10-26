@@ -57,6 +57,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.extraction.jobs.AncientCrystalFlag;
 import xyz.iwolfking.woldsvaults.api.util.ducks.DuckMapGod;
 import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.api.util.ducks.DuckMapTier;
@@ -261,6 +262,10 @@ public class VaultMapItem extends BasicItem implements VaultGearItem, IVaultCrys
             return false;
         }
 
+        if (AncientCrystalFlag.isAncient(data)) {
+            return false;
+        }
+
         if(context.getPlayer().isEmpty()) {
             return false;
         }
@@ -382,6 +387,9 @@ public class VaultMapItem extends BasicItem implements VaultGearItem, IVaultCrys
     public boolean hasApplied(ItemStack crystalStack) {
         if(crystalStack.getItem() instanceof VaultCrystalItem) {
             CrystalData crystalData = CrystalData.read(crystalStack);
+            if (AncientCrystalFlag.isAncient(crystalData)) {
+                return true;
+            }
             CrystalModifiers modifiers = crystalData.getModifiers();
             return modifiers.getList().stream().anyMatch(stack -> stack.getModifier() instanceof SettableValueVaultModifier<?>);
         }

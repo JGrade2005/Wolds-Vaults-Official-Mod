@@ -34,6 +34,12 @@ public class ClientSetupEvents {
     @OnlyIn(Dist.CLIENT)
     private static void registerItemProperties(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            ItemProperties.register(ModItems.EXTRACTOR, WoldsVaults.id("deployed"),
+                    (pStack, pLevel, pEntity, pSeed) -> xyz.iwolfking.woldsvaults.items.ExtractorItem.isDeployed(pStack) ? 1.0F : 0.0F);
+            xyz.iwolfking.woldsvaults.client.init.ExtractorIcons.register();
+            ItemProperties.register(xyz.iwolfking.woldsvaults.init.ModBlocks.MOBILE_FLUID_TANK.asItem(), WoldsVaults.id("fill"),
+                    (pStack, pLevel, pEntity, pSeed) -> xyz.iwolfking.woldsvaults.items.MobileFluidTankItem.fillLevel(
+                            xyz.iwolfking.woldsvaults.items.MobileFluidTankItem.getFluid(pStack).getAmount()));
             ItemProperties.register(ModItems.DECO_POTION, WoldsVaults.id("potion_variant"),
                     (pStack, pLevel, pEntity, pSeed) ->  {
                         if (!(pStack.getItem() instanceof DecoPotionItem item)) return 0.0f;

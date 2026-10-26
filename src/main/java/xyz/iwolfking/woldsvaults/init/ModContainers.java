@@ -26,6 +26,10 @@ public class ModContainers {
     public static MenuType<GreedMilestonesContainer> GREED_MILESTONES_CONTAINER;
     public static MenuType<GodTreeContainer> GOD_TREE_CONTAINER;
     public static MenuType<SuppressorContainer> SUPPRESSOR_CONTAINER;
+    public static MenuType<ExtractorAssemblerContainer> EXTRACTOR_ASSEMBLER_CONTAINER;
+    public static MenuType<ExtractorForgeContainer> EXTRACTOR_FORGE_CONTAINER;
+    public static MenuType<xyz.iwolfking.woldsvaults.blocks.containers.VaultFabricatorContainer> VAULT_FABRICATOR_CONTAINER;
+    public static MenuType<ExtractorCardMenu> EXTRACTOR_CARD_CONTAINER;
     public static MenuType<PouchMenu> TRINKET_POUCH_CONTAINER;
 
     public static void register(RegistryEvent.Register<MenuType<?>> event) {
@@ -61,7 +65,15 @@ public class ModContainers {
         });
         GREED_MILESTONES_CONTAINER = IForgeMenuType.create((windowId, inventory, data) -> new GreedMilestonesContainer(windowId, inventory.player));
         GOD_TREE_CONTAINER = IForgeMenuType.create((windowId, inventory, data) -> new GodTreeContainer(windowId, inventory.player));
-        event.getRegistry().registerAll(new MenuType[]{VAULT_SALVAGER_CONTAINER.setRegistryName("vault_salvager_container"), AUGMENT_CRAFTING_TABLE_CONTAINER.setRegistryName("augment_crafting_table"), VAULT_INFUSER_CONTAINER.setRegistryName("vault_infuser"), MOD_BOX_WORKSTATION_CONTAINER.setRegistryName("mod_box_workstation"), WEAVING_STATION_CONTAINER.setRegistryName("weaving_station_container"), FILTER_NECKLACE_CONTAINER.setRegistryName("filter_necklace_container"), SCAVENGER_POUCH_CONTAINER.setRegistryName("scavenger_pouch_container"), TRINKET_FUSION_CONTAINER.setRegistryName("trinket_fusion_container"), GREED_MILESTONES_CONTAINER.setRegistryName("greed_milestones_container"), GOD_TREE_CONTAINER.setRegistryName("god_tree_container"), TRINKET_POUCH_CONTAINER.setRegistryName("trinket_pouch"), SUPPRESSOR_CONTAINER.setRegistryName("suppressor_container")});
+        EXTRACTOR_ASSEMBLER_CONTAINER = IForgeMenuType.create(ExtractorAssemblerContainer::create);
+        EXTRACTOR_FORGE_CONTAINER = IForgeMenuType.create(ExtractorForgeContainer::create);
+        VAULT_FABRICATOR_CONTAINER = IForgeMenuType.create(xyz.iwolfking.woldsvaults.blocks.containers.VaultFabricatorContainer::create);
+        EXTRACTOR_CARD_CONTAINER = IForgeMenuType.create(ExtractorCardMenu::create);
+        event.getRegistry().registerAll(new MenuType[]{VAULT_SALVAGER_CONTAINER.setRegistryName("vault_salvager_container"), AUGMENT_CRAFTING_TABLE_CONTAINER.setRegistryName("augment_crafting_table"), VAULT_INFUSER_CONTAINER.setRegistryName("vault_infuser"), MOD_BOX_WORKSTATION_CONTAINER.setRegistryName("mod_box_workstation"), WEAVING_STATION_CONTAINER.setRegistryName("weaving_station_container"), FILTER_NECKLACE_CONTAINER.setRegistryName("filter_necklace_container"), SCAVENGER_POUCH_CONTAINER.setRegistryName("scavenger_pouch_container"), TRINKET_FUSION_CONTAINER.setRegistryName("trinket_fusion_container"), GREED_MILESTONES_CONTAINER.setRegistryName("greed_milestones_container"), GOD_TREE_CONTAINER.setRegistryName("god_tree_container"),
+                EXTRACTOR_ASSEMBLER_CONTAINER.setRegistryName("extractor_assembler_container"), EXTRACTOR_FORGE_CONTAINER.setRegistryName("extractor_forge_container"),
+                VAULT_FABRICATOR_CONTAINER.setRegistryName("vault_fabricator_container"),
+                EXTRACTOR_CARD_CONTAINER.setRegistryName("extractor_card_container"),
+                TRINKET_POUCH_CONTAINER.setRegistryName("trinket_pouch"), SUPPRESSOR_CONTAINER.setRegistryName("suppressor_container")});
 
 
     }

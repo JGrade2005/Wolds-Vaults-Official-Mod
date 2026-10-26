@@ -326,14 +326,14 @@
     ],
     "wendarr_temporal_breaking": [
       {
-        "text": "Time acceleration is "
+        "text": "Grants "
       },
       {
-        "text": "50% weaker",
+        "text": "immunity",
         "color": "#ffc854"
       },
       {
-        "text": ". Does not stack."
+        "text": " to time acceleration."
       }
     ],
     "wendarr_pylon_whisperer": [

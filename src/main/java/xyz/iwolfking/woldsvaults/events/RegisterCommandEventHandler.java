@@ -13,5 +13,6 @@ public class RegisterCommandEventHandler {
         TriggerVaultEventCommand.register(event.getDispatcher());
         ResearchMenuCommand.register(event.getDispatcher());
         VaultChampionCommand.register(event.getDispatcher());
+        ExtractionCommand.register(event.getDispatcher());
     }
 }

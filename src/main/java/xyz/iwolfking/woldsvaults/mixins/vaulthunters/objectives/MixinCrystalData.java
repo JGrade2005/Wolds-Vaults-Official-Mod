@@ -13,6 +13,7 @@ import iskallia.vault.item.crystal.CrystalEntry;
 import iskallia.vault.item.crystal.layout.CrystalLayout;
 import iskallia.vault.item.crystal.model.CrystalModel;
 import iskallia.vault.item.crystal.modifiers.CrystalModifiers;
+import iskallia.vault.item.crystal.properties.CrystalProperties;
 import iskallia.vault.item.crystal.theme.CrystalTheme;
 import net.minecraft.nbt.CompoundTag;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,30 +28,40 @@ import xyz.iwolfking.woldsvaults.api.core.layout.impl.ClassicRingsCrystalLayout;
 import xyz.iwolfking.woldsvaults.api.core.layout.impl.ClassicTunnelCrystalLayout;
 import xyz.iwolfking.woldsvaults.api.core.layout.impl.ClassicWaveCrystalLayout;
 import xyz.iwolfking.woldsvaults.api.core.layout.impl.ClassicWaveLayout;
+import xyz.iwolfking.woldsvaults.extraction.jobs.AncientCrystalFlag;
 import xyz.iwolfking.woldsvaults.medallions.GreedMedallionCrystal;
-import xyz.iwolfking.woldsvaults.medallions.GreedMedallionObjectiveTargets;
 import xyz.iwolfking.woldsvaults.medallions.GreedMedallionTier;
 import xyz.iwolfking.woldsvaults.medallions.GreedMedallionVaultState;
 import xyz.iwolfking.woldsvaults.api.core.theme.InfusedCrystalTheme;
+import xyz.iwolfking.woldsvaults.api.util.InfusedThemeHelper;
 import xyz.iwolfking.woldsvaults.models.crystal.UnhingedCrystalModel;
 import xyz.iwolfking.woldsvaults.modifiers.vault.map.modifiers.ChanceCatalystModifierSettable;
 
 import java.util.Optional;
 
 @Mixin(value = CrystalData.class, remap = false)
-public abstract class MixinCrystalData extends CrystalEntry implements ISerializable<CompoundTag, JsonObject>, GreedMedallionCrystal
+public abstract class MixinCrystalData extends CrystalEntry implements ISerializable<CompoundTag, JsonObject>, GreedMedallionCrystal, AncientCrystalFlag
 {
 
     @Unique
     private static final String WOLDSVAULTS$MEDALLION_KEY = "GreedMedallion";
 
+    @Unique
+    private static final String WOLDSVAULTS$ANCIENT_KEY = "AncientCrystal";
+
     /** Rank index of the greed medallion on this crystal, 0 for none; a bare int, not a serialised tier. */
     @Unique
     private int woldsvaults$medallionRank = 0;
 
+    /** Set on crystals made by the Ancient Crystals extraction job; they refuse maps and sigils. */
+    @Unique
+    private boolean woldsvaults$ancient = false;
+
     @Shadow public static TypeSupplierAdapter<CrystalModel> MODEL;
 
     @Shadow private CrystalModifiers modifiers;
+
+    @Shadow private CrystalProperties properties;
 
     @Shadow private CrystalTheme theme;
 
@@ -101,16 +112,30 @@ public abstract class MixinCrystalData extends CrystalEntry implements ISerializ
         this.woldsvaults$medallionRank = Math.max(0, rank);
     }
 
+    @Override
+    public boolean woldsvaults$isAncient() {
+        return this.woldsvaults$ancient;
+    }
+
+    @Override
+    public void woldsvaults$setAncient(boolean ancient) {
+        this.woldsvaults$ancient = ancient;
+    }
+
     @Inject(method = "writeNbt", at = @At("RETURN"))
     private void woldsvaults$writeMedallion(CallbackInfoReturnable<Optional<CompoundTag>> cir) {
         if (this.woldsvaults$medallionRank > 0) {
             cir.getReturnValue().ifPresent(nbt -> nbt.putInt(WOLDSVAULTS$MEDALLION_KEY, this.woldsvaults$medallionRank));
+        }
+        if (this.woldsvaults$ancient) {
+            cir.getReturnValue().ifPresent(nbt -> nbt.putBoolean(WOLDSVAULTS$ANCIENT_KEY, true));
         }
     }
 
     @Inject(method = "readNbt(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
     private void woldsvaults$readMedallion(CompoundTag nbt, CallbackInfo ci) {
         this.woldsvaults$medallionRank = nbt.contains(WOLDSVAULTS$MEDALLION_KEY) ? nbt.getInt(WOLDSVAULTS$MEDALLION_KEY) : 0;
+        this.woldsvaults$ancient = nbt.getBoolean(WOLDSVAULTS$ANCIENT_KEY);
     }
 
     /** Publishes the medallion to the vault at HEAD, before {@code super.configure} walks the children. */
@@ -127,6 +152,18 @@ public abstract class MixinCrystalData extends CrystalEntry implements ISerializ
             return;
         }
         GreedMedallionVaultState.set(vault.get(Vault.ID), tier.get());
-        GreedMedallionObjectiveTargets.register(vault, tier.get());
+    }
+
+    /** Exempts greed challenge vaults from random theme infusion while their theme configures. */
+    @Inject(method = "configure", at = @At("HEAD"))
+    private void woldsvaults$beginChallengeConfigure(Vault vault, RandomSource random, String sigil, CallbackInfo ci) {
+        if (this.properties != null && this.properties.getChallengeUuid() != null && vault != null && vault.has(Vault.ID)) {
+            InfusedThemeHelper.beginChallengeConfigure(vault.get(Vault.ID));
+        }
+    }
+
+    @Inject(method = "configure", at = @At("RETURN"))
+    private void woldsvaults$endChallengeConfigure(Vault vault, RandomSource random, String sigil, CallbackInfo ci) {
+        InfusedThemeHelper.endChallengeConfigure();
     }
 }

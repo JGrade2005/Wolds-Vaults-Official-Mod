@@ -907,7 +907,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             String formattedDescription,
             ResourceLocation icon
     ) {
-        builder.type(VaultMod.id("modifier_type/mob_additional_magic_damage_on_hit").toString(), (typeBuilder) -> {
+        builder.type(WoldsVaults.id("modifier_type/mob_additional_magic_damage_on_hit").toString(), (typeBuilder) -> {
             typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
                 modifierEntryBuilder.property("onHitApplyChance", onHitApplyChance);
                 modifierEntryBuilder.property("amount", amount);
@@ -930,7 +930,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             String formattedDescription,
             ResourceLocation icon
     ) {
-        builder.type(VaultMod.id("modifier_type/mob_additional_void_damage_on_hit").toString(), (typeBuilder) -> {
+        builder.type(WoldsVaults.id("modifier_type/mob_additional_void_damage_on_hit").toString(), (typeBuilder) -> {
             typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
                 modifierEntryBuilder.property("onHitApplyChance", onHitApplyChance);
                 modifierEntryBuilder.property("amount", amount);
@@ -953,7 +953,7 @@ public class ModVaultModifiersProvider extends AbstractVaultModifierProvider {
             String formattedDescription,
             ResourceLocation icon
     ) {
-        builder.type(VaultMod.id("modifier_type/mob_mana_steal_on_hit").toString(), (typeBuilder) -> {
+        builder.type(WoldsVaults.id("modifier_type/mob_mana_steal_on_hit").toString(), (typeBuilder) -> {
             typeBuilder.modifier(modifierId.toString(), (modifierEntryBuilder) -> {
                 modifierEntryBuilder.property("onHitApplyChance", onHitApplyChance);
                 modifierEntryBuilder.property("amount", amount);

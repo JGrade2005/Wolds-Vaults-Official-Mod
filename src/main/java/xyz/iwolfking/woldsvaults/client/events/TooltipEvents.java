@@ -1,10 +1,17 @@
 package xyz.iwolfking.woldsvaults.client.events;
 
 import iskallia.vault.config.TrinketConfig;
+import iskallia.vault.gear.VaultGearState;
+import iskallia.vault.gear.data.GearDataCache;
+import iskallia.vault.gear.item.VaultGearItem;
 import iskallia.vault.gear.trinket.TrinketEffect;
+import iskallia.vault.item.crystal.CrystalData;
+import iskallia.vault.item.crystal.VaultCrystalItem;
 import iskallia.vault.item.gear.TrinketItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -14,9 +21,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
+import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
 import xyz.iwolfking.woldsvaults.api.util.PouchHelper;
 import xyz.iwolfking.woldsvaults.client.init.ModKeybinds;
 import xyz.iwolfking.woldsvaults.effect.trinkets.SpeedLimitTrinketEffect;
+import xyz.iwolfking.woldsvaults.extraction.jobs.AncientCrystalFlag;
 import xyz.iwolfking.woldsvaults.items.CombinedTrinketItem;
 
 import java.util.HashSet;
@@ -58,6 +67,36 @@ public class TooltipEvents {
             loggedInsertFallback = true;
             WoldLogger.warn("Weighted Boots: could not find the expected tooltip position, appended the speed limit line at the end instead.");
         }
+    }
+
+    /** Unidentified gear flagged ancient explains what it will become, right under its name. */
+    @SubscribeEvent
+    public static void onUnidentifiedAncientTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        if (!(stack.getItem() instanceof VaultGearItem) || !stack.hasTag()) {
+            return;
+        }
+        GearDataCache cache = GearDataCache.of(stack);
+        if (cache.getState() != VaultGearState.UNIDENTIFIED || !cache.hasAttribute(xyz.iwolfking.woldsvaults.init.ModGearAttributes.ANCIENT_UNIQUE)) {
+            return;
+        }
+        List<Component> tooltip = event.getToolTip();
+        int at = Math.min(1, tooltip.size());
+        tooltip.add(at, new TextComponent("Identifies into an Ancient unique").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(at, new TextComponent("Ancient Unique").withStyle(Style.EMPTY.withColor(TextColor.fromRgb(AncientUniqueHelper.ANCIENT_COLOR)).withBold(true)));
+    }
+
+    /** Crystals made by the Ancient Crystals extraction job say so right under their name. */
+    @SubscribeEvent
+    public static void onAncientCrystalTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        if (!(stack.getItem() instanceof VaultCrystalItem) || !AncientCrystalFlag.isAncient(CrystalData.read(stack))) {
+            return;
+        }
+        List<Component> tooltip = event.getToolTip();
+        int at = Math.min(1, tooltip.size());
+        tooltip.add(at, new TextComponent("Maps and sigils cannot be applied").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(at, new TextComponent("Ancient Crystal").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
     }
 
     private static int findInsertIndex(ItemStack stack, List<Component> tooltip) {
