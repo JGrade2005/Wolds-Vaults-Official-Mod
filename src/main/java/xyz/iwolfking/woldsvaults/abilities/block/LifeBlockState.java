@@ -49,7 +49,6 @@ public final class LifeBlockState {
         return BLOCKS.containsKey(player.getUUID());
     }
 
-    /** Raises a block worth the ability's multiple of the player's max health as it is now. */
     public static void raise(ServerPlayer player, LifeBlockAbility ability) {
         BlockProgress<LifeBlockAbility> block = new BlockProgress<>(ability,
                 player.getMaxHealth() * ability.getBlockMultiplier(), player.server.getTickCount());
@@ -57,7 +56,6 @@ public final class LifeBlockState {
         block.showProgress(player, "message.woldsvaults.life_block.progress", ChatFormatting.RED);
     }
 
-    /** Takes every heal while the block is up; while the buffs run, every heal adds a Transfusion stack. */
     public static void onHeal(LivingHealEvent event) {
         if (!(event.getEntityLiving() instanceof ServerPlayer player) || event.getAmount() <= 0.0F) {
             return;
@@ -92,10 +90,6 @@ public final class LifeBlockState {
         BlockProgress.announceLift(player, "message.woldsvaults.life_block.lifted", ChatFormatting.RED, clearTicks, buffTicks);
     }
 
-    /**
-     * Passes Life Bond's share of a hit to the living attacker as armour-bypassing damage from the player. The share
-     * is taken from the hit as it stands after armour and resistance.
-     */
     private static float lifeBond(LivingDamageEvent event, float amount) {
         if (amount <= 0.0F || BONDING.get() || event.getSource().isBypassInvul()
                 || !(event.getEntityLiving() instanceof ServerPlayer player)) {
@@ -190,7 +184,7 @@ public final class LifeBlockState {
             this.remainingTicks = durationTicks;
         }
 
-        /** Adds a stack, dropping the oldest at the cap. */
+
         private void addStack(ServerPlayer player) {
             if (this.stacks.size() >= this.transfusionMaxStacks) {
                 this.stacks.pollFirst();
@@ -199,7 +193,6 @@ public final class LifeBlockState {
             this.applyTransfusion(player);
         }
 
-        /** Drops the stacks that have run out; true if any did. */
         private boolean expireStacks(int now) {
             boolean expired = false;
             while (!this.stacks.isEmpty() && this.stacks.peekFirst() <= now) {

@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 
-/** A raised block: the ability that raised it, what it is worth, how much of it has been lifted, and when it went up. */
+
 final class BlockProgress<A extends AbstractBlockAbility> {
     final A ability;
     final float required;
@@ -19,7 +19,6 @@ final class BlockProgress<A extends AbstractBlockAbility> {
         this.raisedTick = raisedTick;
     }
 
-    /** Adds {@code amount} to the lifted total; true once the block is fully lifted. */
     boolean lift(float amount) {
         this.lifted += amount;
         return this.lifted >= this.required;
@@ -29,13 +28,11 @@ final class BlockProgress<A extends AbstractBlockAbility> {
         return player.server.getTickCount() - this.raisedTick;
     }
 
-    /** The action-bar readout while the block is up, {@code key} taking the lifted and required amounts. */
     void showProgress(ServerPlayer player, String key, ChatFormatting color) {
         player.displayClientMessage(new TranslatableComponent(key, Math.round(Math.min(this.lifted, this.required)),
                 Math.round(this.required)).withStyle(color), true);
     }
 
-    /** The lift readout and chime, {@code key} taking the time it took and how long the buffs last. */
     static void announceLift(ServerPlayer player, String key, ChatFormatting color, int clearTicks, int buffTicks) {
         player.displayClientMessage(new TranslatableComponent(key, seconds(clearTicks), seconds(buffTicks))
                 .withStyle(color), true);

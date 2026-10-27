@@ -48,17 +48,17 @@ public class ManaBlockAbility extends AbstractBlockAbility {
         ManaBlockState.raise(player, this);
     }
 
-    /** The share of damage taken that drains mana instead. */
+
     public float getManaShield() {
         return this.scale(this.manaShieldMin, this.manaShieldMax);
     }
 
-    /** Extra regeneration per second, as a share of max mana. */
+
     public float getManaRegen() {
         return this.scale(this.manaRegenMin, this.manaRegenMax);
     }
 
-    /** Added area of effect, 0.5 being +50%. */
+
     public float getSurgingAoe() {
         return this.scale(this.surgingAoeMin, this.surgingAoeMax);
     }

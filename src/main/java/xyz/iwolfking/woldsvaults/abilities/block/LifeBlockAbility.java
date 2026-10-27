@@ -53,12 +53,10 @@ public class LifeBlockAbility extends AbstractBlockAbility {
         LifeBlockState.raise(player, this);
     }
 
-    /** The shield, as a share of max health. */
     public float getAbsorption() {
         return this.scale(this.absorptionMin, this.absorptionMax);
     }
 
-    /** The damage each Transfusion stack adds, 0.03 being +3%. */
     public float getTransfusionPerStack() {
         return this.scale(this.transfusionMin, this.transfusionMax);
     }
@@ -71,7 +69,6 @@ public class LifeBlockAbility extends AbstractBlockAbility {
         return this.transfusionStackTicks;
     }
 
-    /** The share of damage taken that Life Bond passes to the attacker. */
     public float getLifeBond() {
         return this.scale(this.lifeBondMin, this.lifeBondMax);
     }

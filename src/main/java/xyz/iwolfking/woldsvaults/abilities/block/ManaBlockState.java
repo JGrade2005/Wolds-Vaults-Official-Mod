@@ -50,7 +50,7 @@ public final class ManaBlockState {
         return BLOCKS.containsKey(player.getUUID());
     }
 
-    /** Raises a block worth the ability's multiple of the player's max mana as it is now. */
+
     public static void raise(ServerPlayer player, ManaBlockAbility ability) {
         BlockProgress<ManaBlockAbility> block = new BlockProgress<>(ability,
                 Mana.getMax(player) * ability.getBlockMultiplier(), player.server.getTickCount());
@@ -58,7 +58,7 @@ public final class ManaBlockState {
         block.showProgress(player, "message.woldsvaults.mana_block.progress", ChatFormatting.AQUA);
     }
 
-    /** Puts back any gain while the block is up and books it against the block; {@code SYSTEM} writes pass. */
+
     private static void onManaModify(ManaModifyEvent.Data data) {
         if (data.getAction() == ManaAction.SYSTEM || data.getNewAmount() <= data.getOldAmount()
                 || !(data.getPlayer() instanceof ServerPlayer player)) {
@@ -83,7 +83,7 @@ public final class ManaBlockState {
         BlockProgress.announceLift(player, "message.woldsvaults.mana_block.lifted", ChatFormatting.AQUA, clearTicks, buffTicks);
     }
 
-    /** Drains Mana Shield's share of a hit from mana instead of health, as far as the mana goes. */
+
     private static float manaShield(LivingDamageEvent event, float amount) {
         if (amount <= 0.0F || event.getSource().isBypassInvul()
                 || !(event.getEntityLiving() instanceof ServerPlayer player)) {
