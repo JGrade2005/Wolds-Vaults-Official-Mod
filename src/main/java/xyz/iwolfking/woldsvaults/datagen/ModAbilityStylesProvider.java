@@ -49,6 +49,13 @@ public class ModAbilityStylesProvider extends AbstractAbilityGUIStylesProvider {
                 styleBuilder.specialization(UltimateIds.BULLET_TIME, WoldsVaults.id("gui/abilities/bullet_time"));
             });
         });
+
+        add("life_block", builder -> {
+            builder.add("Life_Block", 105, 265, styleBuilder -> {
+                styleBuilder.specialization("Life_Block_Base", WoldsVaults.id("gui/abilities/life_block"));
+                styleBuilder.specialization("Mana_Block", WoldsVaults.id("gui/abilities/mana_block"));
+            });
+        });
     }
 
     public void displayToRightOf(String targetAbility, String abilityName, Builder builder, Consumer<Builder.StyleBuilder> builderConsumer) {

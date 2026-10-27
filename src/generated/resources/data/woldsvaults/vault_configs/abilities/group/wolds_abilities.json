@@ -12,7 +12,9 @@
     ],
     "ULTIMATE": [
       "Fangs_Base",
-      "Fangs_Maw"
+      "Fangs_Maw",
+      "Life_Block_Base",
+      "Mana_Block"
     ]
   }
 }

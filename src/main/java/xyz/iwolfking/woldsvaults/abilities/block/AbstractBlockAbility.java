@@ -30,6 +30,17 @@ public abstract class AbstractBlockAbility extends InstantManaAbility {
     private int fastClearTicks;
     private int slowClearTicks;
 
+    protected AbstractBlockAbility(int unlockLevel, int learnPointCost, int regretPointCost, int cooldownTicks,
+                                   float manaCost, float blockMultiplier, int minBuffTicks, int maxBuffTicks,
+                                   int fastClearTicks, int slowClearTicks) {
+        super(unlockLevel, learnPointCost, regretPointCost, cooldownTicks, manaCost);
+        this.blockMultiplier = blockMultiplier;
+        this.minBuffTicks = minBuffTicks;
+        this.maxBuffTicks = maxBuffTicks;
+        this.fastClearTicks = fastClearTicks;
+        this.slowClearTicks = slowClearTicks;
+    }
+
     protected AbstractBlockAbility() {
     }
 
