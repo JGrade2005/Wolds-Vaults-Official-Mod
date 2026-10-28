@@ -39,14 +39,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Light around the god tree's stars: spiral arms, motes swirling in, rays beaming out and a core glow, tuned per node
- * type in {@code god_tree/node_effects.json} (the export of the God Node Vortex tuning page). This is the page's own
- * renderer: light is summed per pixel of the 64px star cell, then soft-clipped, banded and coloured through the god's row
- * of {@code star_ramps.png}, so overlapping light saturates instead of stacking. Each node type is painted once a frame
- * into a texture (light behind the star on the left half, light over it on the right) and drawn at every star of that
- * type, pixel for pixel with the star sprite.
- */
+// Light around the god tree's stars: spiral arms, motes swirling in, rays beaming out and a core glow, tuned per node
+// type in god_tree/node_effects.json (the export of the God Node Vortex tuning page). This is the page's own
+// renderer: light is summed per pixel of the 64px star cell, then soft-clipped, banded and coloured through the god's row
+// of star_ramps.png, so overlapping light saturates instead of stacking. Each node type is painted once a frame
+// into a texture (light behind the star on the left half, light over it on the right) and drawn at every star of that
+// type, pixel for pixel with the star sprite.
 public final class GodNodeEffects {
     private static final ResourceLocation SETTINGS = new ResourceLocation(WoldsVaults.MOD_ID, "god_tree/node_effects.json");
     private static final ResourceLocation RAMPS = new ResourceLocation(WoldsVaults.MOD_ID, "textures/gui/gods/star_ramps.png");
@@ -127,14 +125,12 @@ public final class GodNodeEffects {
         }
     }
 
-    /**
-     * Draws one layer of effects for every star in the given tree-space rectangle. With {@code front} false it draws
-     * what sits behind the stars (glow, arms, and motes or rays not set over the star) and paints this frame's light;
-     * with {@code front} true, the motes and rays set over the star. Light behind a star adds to what is under it; light
-     * over a star covers it as strongly as it shines. Each star's state darkens its light's colour
-     * ({@link GodNodeWidget#effectBrightness()}) without making it see-through. {@code viewportScale} is the pan
-     * region's zoom.
-     */
+    // Draws one layer of effects for every star in the given tree-space rectangle. With front false it draws
+    // what sits behind the stars (glow, arms, and motes or rays not set over the star) and paints this frame's light;
+    // with front true, the motes and rays set over the star. Light behind a star adds to what is under it; light
+    // over a star covers it as strongly as it shines. Each star's state darkens its light's colour
+    // (GodNodeWidget.effectBrightness()) without making it see-through. viewportScale is the pan
+    // region's zoom.
     public static void render(PoseStack poseStack, VaultGod god, Collection<GodNodeWidget> widgets, boolean front,
                               float minX, float minY, float maxX, float maxY, float viewportScale) {
         Map<GodNodeType, Look> settings = looks();
@@ -266,10 +262,8 @@ public final class GodNodeEffects {
         }
     }
 
-    /**
-     * The tuning page's tone map, as an ABGR pixel: light soft-clips, bands into tone steps and takes its colour from
-     * the ramp. Alpha carries the strength, so additive blending adds colour times strength, as the page does.
-     */
+    // The tuning page's tone map, as an ABGR pixel: light soft-clips, bands into tone steps and takes its colour from
+    // the ramp. Alpha carries the strength, so additive blending adds colour times strength, as the page does.
     private static int tone(Light light, int[] ramp, double value) {
         if (value <= 0.0D) {
             return 0;
@@ -288,10 +282,8 @@ public final class GodNodeEffects {
 
     // painting: the tuning page's drawing code, line for line ------------------------------------------------------
 
-    /**
-     * Light summed per cell pixel for one star, behind it and over it, with the star's centre in the middle. The sums
-     * are floats, as on the page, so they round the same way.
-     */
+    // Light summed per cell pixel for one star, behind it and over it, with the star's centre in the middle. The sums
+    // are floats, as on the page, so they round the same way.
     private static final class Canvas {
         private final int size;
         private final double centre;

@@ -35,12 +35,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Decorations placed on the god trees: tinted sprites from {@code textures/gui/gods/decorations.png} (named in
- * {@code god_tree/decoration_sprites.json}) and soft glows, laid out per god in {@code god_tree/decorations.json}, the
- * export of the God Tree Editor. Each sits behind the constellation lines or over the stars, can spin, and can pulse.
- * Positions and sizes are tree units, as the tree's own layout uses.
- */
+// Decorations placed on the god trees: tinted sprites from textures/gui/gods/decorations.png (named in
+// god_tree/decoration_sprites.json) and soft glows, laid out per god in god_tree/decorations.json, the
+// export of the God Tree Editor. Each sits behind the constellation lines or over the stars, can spin, and can pulse.
+// Positions and sizes are tree units, as the tree's own layout uses.
 public final class GodTreeDecorations {
     private static final ResourceLocation SETTINGS = WoldsVaults.id("god_tree/decorations.json");
     private static final ResourceLocation SPRITES = WoldsVaults.id("god_tree/decoration_sprites.json");
@@ -76,10 +74,8 @@ public final class GodTreeDecorations {
         }
     }
 
-    /**
-     * Draws {@code god}'s decorations of one layer ({@code front}: over the stars, else behind the lines) that touch
-     * the tree-space rectangle in view, in the caller's tree-space pose.
-     */
+    // Draws god's decorations of one layer (front: over the stars, else behind the lines) that touch
+    // the tree-space rectangle in view, in the caller's tree-space pose.
     public static void render(PoseStack poseStack, VaultGod god, boolean front, float minX, float minY, float maxX, float maxY) {
         List<Decoration> list = decorations().get(god);
         if (list == null || list.isEmpty()) {
@@ -140,7 +136,7 @@ public final class GodTreeDecorations {
         RenderSystem.defaultBlendFunc();
     }
 
-    // {@code accent}, {@code dim}, {@code deep} and {@code white} name the god's own colours; anything else is #rrggbb.
+    // accent, dim, deep and white name the god's own colours; anything else is #rrggbb.
     private static int color(VaultGod god, String name) {
         return switch (name) {
             case "accent" -> GodTreeTheme.accent(god) & 0xFFFFFF;

@@ -13,13 +13,11 @@ import net.minecraft.util.Mth;
 
 import java.util.Optional;
 
-/**
- * Shared shell for Life Block and Mana Block. Casting raises a block worth {@code blockMultiplier} times the
- * player's max health or mana, which regeneration lifts instead of refilling the bar. Lifting it grants buffs whose
- * strength runs from each buff's minimum at a {@value #MIN_BLOCK}x block to its maximum at a {@value #MAX_BLOCK}x
- * block. They last {@code maxBuffTicks} if the block was lifted within {@code fastClearTicks}, falling to
- * {@code minBuffTicks} at {@code slowClearTicks} or slower.
- */
+// Shared shell for Life Block and Mana Block. Casting raises a block worth blockMultiplier times the
+// player's max health or mana, which regeneration lifts instead of refilling the bar. Lifting it grants buffs whose
+// strength runs from each buff's minimum at a 1x block to its maximum at a 10x
+// block. They last maxBuffTicks if the block was lifted within fastClearTicks, falling to
+// minBuffTicks at slowClearTicks or slower.
 public abstract class AbstractBlockAbility extends InstantManaAbility {
     public static final float MIN_BLOCK = 1.0F;
     public static final float MAX_BLOCK = 10.0F;

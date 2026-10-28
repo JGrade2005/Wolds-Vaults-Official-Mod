@@ -20,12 +20,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Mana Block's raised blocks and the buffs a lift grants. A block catches every mana gain after the fact on
- * {@code MANA_MODIFY}, puts the bar back and books the gain against the block; a gain clipped by the mana cap only
- * books what reached the bar. Mana Shield is a final-damage sub-stage, Surging Mana an
- * {@link PlayerStat#AREA_OF_EFFECT} listener.
- */
+// Mana Block's raised blocks and the buffs a lift grants. A block catches every mana gain after the fact on
+// MANA_MODIFY, puts the bar back and books the gain against the block; a gain clipped by the mana cap only
+// books what reached the bar. Mana Shield is a final-damage sub-stage, Surging Mana an
+// PlayerStat.AREA_OF_EFFECT listener.
 public final class ManaBlockState {
     private static final ResourceLocation MANA_SHIELD_STAGE = WoldsVaults.id("mana_block_mana_shield");
     private static final Object LISTENER_REF = new Object();

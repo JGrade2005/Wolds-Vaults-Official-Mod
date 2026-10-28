@@ -8,11 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
 
-/**
- * Life Block: every heal lifts the block instead of healing. Lifting it grants an absorption shield worth a share of
- * max health, Transfusion (each heal adds a damage stack for {@code transfusionStackTicks}) and Life Bond (a share of
- * the damage taken is dealt to the attacker instead).
- */
+// Life Block: every heal lifts the block instead of healing. Lifting it grants an absorption shield worth a share of
+// max health, Transfusion (each heal adds a damage stack for transfusionStackTicks) and Life Bond (a share of
+// the damage taken is dealt to the attacker instead).
 public class LifeBlockAbility extends AbstractBlockAbility {
     private float absorptionMin;
     private float absorptionMax;

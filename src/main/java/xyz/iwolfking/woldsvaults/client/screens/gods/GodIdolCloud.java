@@ -30,14 +30,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The smoke round the transfer slots on the God's Mastery idols: the cloud painted over the idol
- * ({@code textures/gui/gods/idol_cloud.png}), kept clear of the slot openings and moved by
- * {@code shaders/core/idol_cloud.fsh}, coloured through the god's row of {@code idol_cloud_ramps.png}. Tuned in
- * {@code god_tree/idol_cloud.json}, the export of the God Idol Cloud tuning page, which runs the same shader body in
- * WebGL. Positions and distances in the settings are pixels of the 256px idol the cloud was painted on; the slot
- * openings also place the page's slots.
- */
+// The smoke round the transfer slots on the God's Mastery idols: the cloud painted over the idol
+// (textures/gui/gods/idol_cloud.png), kept clear of the slot openings and moved by
+// shaders/core/idol_cloud.fsh, coloured through the god's row of idol_cloud_ramps.png. Tuned in
+// god_tree/idol_cloud.json, the export of the God Idol Cloud tuning page, which runs the same shader body in
+// WebGL. Positions and distances in the settings are pixels of the 256px idol the cloud was painted on; the slot
+// openings also place the page's slots.
 public final class GodIdolCloud {
     private static final ResourceLocation SETTINGS = WoldsVaults.id("god_tree/idol_cloud.json");
     private static final ResourceLocation CLOUD = WoldsVaults.id("textures/gui/gods/idol_cloud.png");
@@ -91,16 +89,14 @@ public final class GodIdolCloud {
         return settings().openings();
     }
 
-    // How much of the cloud an idol at {@code level} shows: none at first, then more with every level.
+    // How much of the cloud an idol at level shows: none at first, then more with every level.
     public static float levelFade(int level) {
         Cloud cloud = settings().cloud();
         return Math.max(0.0F, Math.min(1.0F, cloud.levelStart() + cloud.levelStep() * level));
     }
 
-    /**
-     * Draws the cloud over an idol drawn at {@code x, y}, {@code size} across. {@code phaseIndex} sets the god's
-     * place in the page's order, so neighbouring idols don't move in step; {@code alpha} fades the whole cloud.
-     */
+    // Draws the cloud over an idol drawn at x, y, size across. phaseIndex sets the god's
+    // place in the page's order, so neighbouring idols don't move in step; alpha fades the whole cloud.
     public static void render(PoseStack poseStack, VaultGod god, int phaseIndex, float x, float y, float size, float alpha) {
         ShaderInstance shader = GodTreeShaders.idolCloud;
         if (shader == null || alpha <= 0.0F) {

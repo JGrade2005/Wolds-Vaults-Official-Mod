@@ -21,12 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-/**
- * The lines between a god's stars, each drawn as a loose bundle of thin strands that gather at the two stars and drift
- * apart between them, with sparks of light running along every strand. A line between two owned stars burns brightest;
- * a line leaving an owned star runs warm, its sparks flowing out from that star toward the next. Lines that touch no
- * owned star are dim and hold still.
- */
+// The lines between a god's stars, each drawn as a loose bundle of thin strands that gather at the two stars and drift
+// apart between them, with sparks of light running along every strand. A line between two owned stars burns brightest;
+// a line leaving an owned star runs warm, its sparks flowing out from that star toward the next. Lines that touch no
+// owned star are dim and hold still.
 public final class GodConstellationLines {
     private static final int STRANDS = 7;
     private static final float SPREAD = 3.0F;          // tree units between the outermost strands, mid-line
@@ -38,10 +36,8 @@ public final class GodConstellationLines {
     private static final float PIECE_PIXELS = 4.0F;    // aim for strand pieces about this many screen pixels long
     private static final float TAU = (float) (Math.PI * 2.0D);
 
-    /**
-     * How one kind of line looks: strand and spark colours, the strands' strength, the sparks' strength and pace, and
-     * whether the line moves at all.
-     */
+    // How one kind of line looks: strand and spark colours, the strands' strength, the sparks' strength and pace, and
+    // whether the line moves at all.
     private record Palette(int strand, int spark, float strandAlpha, float sparkStrength, float sparkSpeed,
                            boolean animated) {}
 
@@ -51,7 +47,7 @@ public final class GodConstellationLines {
     private GodConstellationLines() {
     }
 
-    // Draws every edge with any part in the given tree-space rectangle. {@code viewportScale} is the chart's zoom.
+    // Draws every edge with any part in the given tree-space rectangle. viewportScale is the chart's zoom.
     public static void render(PoseStack poseStack, VaultGod god, Collection<GodTreeModel.Edge> edges,
                               Map<String, GodNodeWidget> widgets, float minX, float minY, float maxX, float maxY,
                               float viewportScale) {
@@ -131,7 +127,7 @@ public final class GodConstellationLines {
                 length - trimFrom - trimTo, edge.from().hashCode() * 31 + edge.to().hashCode(), palette);
     }
 
-    // How far the bundle has opened at {@code s} (0 at one star, 1 at the other): closed at the stars, widest mid-line.
+    // How far the bundle has opened at s (0 at one star, 1 at the other): closed at the stars, widest mid-line.
     private static float taper(float s) {
         return (float) Math.pow(Mth.sin((float) Math.PI * s), 0.6D);
     }
@@ -190,10 +186,8 @@ public final class GodConstellationLines {
         strip(buf, pose, xs, ys, colours, 0.0F, halves);
     }
 
-    /**
-     * A ribbon through the points, each point's colour (ARGB) at its own place. Every point is widened along the
-     * average of its two neighbouring pieces, so the pieces meet without gaps or overlaps that would flash as beads.
-     */
+    // A ribbon through the points, each point's colour (ARGB) at its own place. Every point is widened along the
+    // average of its two neighbouring pieces, so the pieces meet without gaps or overlaps that would flash as beads.
     private static void strip(BufferBuilder buf, Matrix4f pose, float[] xs, float[] ys, int[] colours, float half,
                               @Nullable float[] halves) {
         int last = xs.length - 1;

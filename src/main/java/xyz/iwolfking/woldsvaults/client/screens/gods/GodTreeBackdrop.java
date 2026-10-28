@@ -183,11 +183,9 @@ public final class GodTreeBackdrop {
         GuiComponent.fill(pose, b.x, b.y, b.x + b.width, b.y + b.height, (Mth.floor(amount * 255.0F) << 24) | rgb);
     }
 
-    /**
-     * Loose clouds scattered over the sky. The sky is split into a grid, and each grid cell rolls its own cloud from
-     * its position: whether it has one, where in the cell, which sheet cell, size, angle and mirroring. Nothing
-     * repeats, and a cloud stays the same while it pans past. All of a layer's clouds go out in one draw.
-     */
+    // Loose clouds scattered over the sky. The sky is split into a grid, and each grid cell rolls its own cloud from
+    // its position: whether it has one, where in the cell, which sheet cell, size, angle and mirroring. Nothing
+    // repeats, and a cloud stays the same while it pans past. All of a layer's clouds go out in one draw.
     private static void clouds(PoseStack pose, Rectangle b, Clouds c, float panX, float panY) {
         float x = panX * c.depth(), y = panY * c.depth();
         if (c.fan() != 0) {
@@ -329,10 +327,8 @@ public final class GodTreeBackdrop {
                 comet ? 7.0F : 3.0F));
     }
 
-    /**
-     * A rare black hole that crosses the sky. Squares it passes over go pure black, stay that way for a few seconds,
-     * then fade back in a few at a time. Loose pixels spiral into it as it goes.
-     */
+    // A rare black hole that crosses the sky. Squares it passes over go pure black, stay that way for a few seconds,
+    // then fade back in a few at a time. Loose pixels spiral into it as it goes.
     private void blackHole(PoseStack pose, Rectangle b, float panX, float panY, float seconds, float dt) {
         float unit = 1.0F / ZOOM, cell = HOLE_CELL * unit, eat = HOLE_EAT_RADIUS * unit, pull = HOLE_PULL_RADIUS * unit;
         float offX = panX * HOLE_DEPTH, offY = panY * HOLE_DEPTH; // a sky position plus this is its position in b

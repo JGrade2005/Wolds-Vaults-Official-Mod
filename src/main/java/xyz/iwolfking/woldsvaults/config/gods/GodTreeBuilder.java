@@ -72,7 +72,7 @@ public final class GodTreeBuilder {
         return this;
     }
 
-    // Draws an already declared node {@code size} pixels across instead of at its type's default size.
+    // Draws an already declared node size pixels across instead of at its type's default size.
     public GodTreeBuilder size(String id, int size) {
         JsonObject style = this.styles.get(id);
         if (style == null) {

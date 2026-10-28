@@ -19,11 +19,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Life Block's raised blocks and the buffs a lift grants. Heals reach the block through {@link LivingHealEvent} at
- * its lowest priority, so every other handler has already scaled them. Transfusion is a timed global damage factor;
- * Life Bond is a final-damage sub-stage at {@link FinalDamageStage#ORDER_SPLIT}, ahead of every reduction.
- */
+// Life Block's raised blocks and the buffs a lift grants. Heals reach the block through LivingHealEvent at
+// its lowest priority, so every other handler has already scaled them. Transfusion is a timed global damage factor;
+// Life Bond is a final-damage sub-stage at FinalDamageStage.ORDER_SPLIT, ahead of every reduction.
 public final class LifeBlockState {
     public static final String LIFE_BOND_DAMAGE = "woldsvaults.life_bond";
 

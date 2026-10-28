@@ -301,11 +301,9 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         this.dialog.setSelectedNode(widget.getNode().id());
     }
 
-    /**
-     * Arrow keys step the selection to the star that lies that way, gliding the view to it: along a constellation line
-     * from the selected star where one runs that way, otherwise to the nearest star in that direction. With nothing
-     * selected yet, the first press picks the star nearest the middle of the view.
-     */
+    // Arrow keys step the selection to the star that lies that way, gliding the view to it: along a constellation line
+    // from the selected star where one runs that way, otherwise to the nearest star in that direction. With nothing
+    // selected yet, the first press picks the star nearest the middle of the view.
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         float dirX;
@@ -362,7 +360,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         return nearest;
     }
 
-    // The candidate within {@code cone} radians of the direction from {@code from}, favouring straight, then near.
+    // The candidate within cone radians of the direction, seen from the star from, favouring straight, then near.
     @Nullable
     private GodNodeWidget closestToward(GodNodeWidget from, float dirX, float dirY, Iterable<GodNodeWidget> candidates, float cone) {
         float fromX = from.x + from.getWidth() / 2.0F;
@@ -482,23 +480,21 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         renderStack.popPose();
     }
 
-    // One layer of the god's placed decorations ({@code front}: over the stars, else behind the lines); see GodTreeDecorations.
+    // One layer of the god's placed decorations (front: over the stars, else behind the lines); see GodTreeDecorations.
     private void renderDecorations(PoseStack renderStack, boolean front) {
         float[] view = this.visibleArea();
         GodTreeDecorations.render(renderStack, this.god, front, view[0], view[1], view[2], view[3]);
     }
 
-    // One layer of star effects ({@code front}: over the stars, else behind them), only for stars in view.
+    // One layer of star effects (front: over the stars, else behind them), only for stars in view.
     private void renderNodeEffects(PoseStack renderStack, boolean front) {
         float[] view = this.visibleArea();
         GodNodeEffects.render(renderStack, this.god, this.nodeWidgets.values(), front,
                 view[0], view[1], view[2], view[3], this.viewportScale);
     }
 
-    /**
-     * Two white rings around each starting star, so a tree's way in stands out. While a start is unclaimed both rings
-     * shine and the outer one slowly breathes; once claimed they hold still, quieter.
-     */
+    // Two white rings around each starting star, so a tree's way in stands out. While a start is unclaimed both rings
+    // shine and the outer one slowly breathes; once claimed they hold still, quieter.
     private void renderStartRings(PoseStack renderStack) {
         float screenPerUnit = this.viewportScale * (float) Minecraft.getInstance().getWindow().getGuiScale();
         float width = Math.max(1.0F, 1.0F / screenPerUnit); // never thinner than a screen pixel
@@ -582,7 +578,7 @@ public class GodTreePanRegion extends GuiComponent implements GuiEventListener {
         buf.vertex(pose, x - half, y - half, 0.0F).color(r, g, b, a).endVertex();
     }
 
-    // The lattice edges, as glimmering bundles of thin strands; see {@link GodConstellationLines}.
+    // The lattice edges, as glimmering bundles of thin strands; see GodConstellationLines.
     private void renderConstellationLines(PoseStack renderStack) {
         float[] view = this.visibleArea();
         GodConstellationLines.render(renderStack, this.god, this.edges, this.nodeWidgets,

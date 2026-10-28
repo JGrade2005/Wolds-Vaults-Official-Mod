@@ -8,11 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
 
-/**
- * Mana Block: every mana gain lifts the block instead of refilling mana. Lifting it grants Mana Shield (a share of
- * the damage taken drains mana instead of health), extra regeneration as a share of max mana per second, and Surging
- * Mana (added area of effect).
- */
+// Mana Block: every mana gain lifts the block instead of refilling mana. Lifting it grants Mana Shield (a share of
+// the damage taken drains mana instead of health), extra regeneration as a share of max mana per second, and Surging
+// Mana (added area of effect).
 public class ManaBlockAbility extends AbstractBlockAbility {
     private float manaShieldMin;
     private float manaShieldMax;
