@@ -19,6 +19,7 @@ import iskallia.vault.task.source.EntityTaskSource;
 import net.minecraft.ChatFormatting;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.milestones.trials.GreedTrialHyper;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.BingoObjectiveAccessor;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.ScavengerBingoObjectiveAccessor;
 import xyz.iwolfking.woldsvaults.objectives.BrutalBossesObjective;
@@ -78,7 +79,7 @@ public class HyperCycleManager extends ObjectiveManager<HyperVaultObjective> {
     private void pinCardJoinCounters() {
         objective.findMini(BingoObjective.class).ifPresent(bingo -> {
             if (bingo.getOr(BingoObjective.JOINED, 0) != 1) {
-                WoldsVaults.LOGGER.info("Re-pinned the bingo card's JOINED counter to 1 (hyper does its own player scaling).");
+                WoldLogger.debug("Re-pinned the bingo card's JOINED counter to 1 (hyper does its own player scaling).");
                 bingo.set(BingoObjective.JOINED, 1);
             }
         });
@@ -145,13 +146,13 @@ public class HyperCycleManager extends ObjectiveManager<HyperVaultObjective> {
             case BINGO -> {
                 Optional<BingoTask> task = ModConfigs.BINGO.generate(HyperVaultObjective.BINGO_POOL, level);
                 if (task.isEmpty()) {
-                    WoldsVaults.LOGGER.warn("Bingo pool {} missing/empty, falling back to the default pool for the Hyper batch.", HyperVaultObjective.BINGO_POOL);
+                    WoldLogger.warn("Bingo pool {} missing/empty, falling back to the default pool for the Hyper batch.", HyperVaultObjective.BINGO_POOL);
                     task = ModConfigs.BINGO.generate(VaultMod.id("default"), level);
                 }
                 if (task.isPresent()) {
                     addMini(BingoObjective.of(task.get(), boardSize(), boardSize(), false));
                 } else {
-                    WoldsVaults.LOGGER.error("Default bingo pool is empty too — the bingo mini will report complete immediately.");
+                    WoldLogger.error("Default bingo pool is empty too — the bingo mini will report complete immediately.");
                 }
             }
             case SCAVENGER -> addMini(ScavengerBingoObjective.of(boardSize(), boardSize(), 0.0F, VaultMod.id("default"), false));
@@ -231,7 +232,7 @@ public class HyperCycleManager extends ObjectiveManager<HyperVaultObjective> {
             tasks.add(task);
         }
         if (tasks.isEmpty()) {
-            WoldsVaults.LOGGER.error("ModConfigs.ELIXIR produced no elixir tasks — the shared elixir bar cannot progress.");
+            WoldLogger.error("ModConfigs.ELIXIR produced no elixir tasks — the shared elixir bar cannot progress.");
         }
     }
 

@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
+import xyz.iwolfking.woldsvaults.api.util.UniqueRollTables;
 import xyz.iwolfking.woldsvaults.api.util.PrestigePowerHelper;
 import xyz.iwolfking.woldsvaults.api.util.WoldGearModifierHelper;
 import xyz.iwolfking.woldsvaults.expertises.CraftsmanExpertise;
@@ -173,10 +174,25 @@ public class MixinGearRollHelper {
         }
     }
 
-    /** Decides whether an identifying unique becomes ancient, before the tier config resolves. */
+    /** Marks the unique being rolled so its modifier lookups can use unique-scoped and ancient rows. */
+    @Inject(method = "initializeUniqueGear(Liskallia/vault/gear/data/VaultGearData;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V", at = @At("HEAD"))
+    private static void beginUniqueRoll(VaultGearData data, ItemStack stack, Player player, CallbackInfo ci) {
+        UniqueRollTables.beginUniqueRoll(data);
+    }
+
+    @Inject(method = "initializeUniqueGear(Liskallia/vault/gear/data/VaultGearData;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V", at = @At("RETURN"))
+    private static void endUniqueRoll(VaultGearData data, ItemStack stack, Player player, CallbackInfo ci) {
+        UniqueRollTables.endUniqueRoll();
+    }
+
+    /**
+     * Decides whether an identifying unique becomes ancient, before the tier config resolves. Gear that dropped
+     * already flagged ancient (an unidentified ancient unique) skips the chance and only takes its name.
+     */
     @Inject(method = "initializeUniqueGear(Liskallia/vault/gear/data/VaultGearData;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)V", at = @At(value = "INVOKE", target = "Liskallia/vault/config/gear/VaultGearTierConfig;getConfig(Lnet/minecraft/world/item/ItemStack;)Ljava/util/Optional;"))
     private static void rollAncientUnique(VaultGearData data, ItemStack stack, Player player, CallbackInfo ci) {
-        if(!AncientUniqueHelper.rollAncient(data, player, rand)) {
+        boolean preset = AncientUniqueHelper.isAncient(data);
+        if(!preset && !AncientUniqueHelper.rollAncient(data, player, rand)) {
             return;
         }
 
@@ -186,7 +202,7 @@ public class MixinGearRollHelper {
                 .ifPresent(name -> data.createOrReplaceAttributeValue(ModGearAttributes.GEAR_NAME, name));
         data.write(stack);
 
-        if(player instanceof ServerPlayer serverPlayer) {
+        if(player instanceof ServerPlayer serverPlayer && AncientUniqueHelper.hasAncientProvenance(data)) {
             Milestones.onAncientUniqueIdentified(serverPlayer);
         }
     }

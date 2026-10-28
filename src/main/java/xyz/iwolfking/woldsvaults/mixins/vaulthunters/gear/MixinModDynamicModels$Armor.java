@@ -21,5 +21,6 @@ public class MixinModDynamicModels$Armor {
         PIECE_REGISTRY.registerAll(AdditionalModels.HEATWAVE);
         PIECE_REGISTRY.registerAll(AdditionalModels.PLAGUE);
         PIECE_REGISTRY.registerAll(AdditionalModels.PASTA);
+        PIECE_REGISTRY.registerAll(AdditionalModels.TIDEBREAKER);
     }
 }

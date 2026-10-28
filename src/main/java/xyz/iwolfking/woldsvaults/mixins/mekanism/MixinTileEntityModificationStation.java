@@ -1,9 +1,12 @@
 package xyz.iwolfking.woldsvaults.mixins.mekanism;
 
+import xyz.iwolfking.woldsvaults.api.gear.sets.GearSetHelper;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import iskallia.vault.gear.data.GearDataCache;
 import iskallia.vault.gear.item.VaultGearItem;
+import me.fallenbreath.conditionalmixin.api.annotation.Condition;
+import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.gear.ModuleData;
@@ -28,6 +31,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.iwolfking.woldsvaults.integration.mekanism.init.ModModuleToVaultGearModifications;
 
+
+@Restriction(
+        require = {
+                @Condition(type = Condition.Type.MOD, value = "mekanism")
+        }
+)
 @Mixin(value = TileEntityModificationStation.class, remap = false)
 public abstract class MixinTileEntityModificationStation extends TileEntityMekanism implements IBoundingBlock {
     @Shadow
@@ -47,30 +56,39 @@ public abstract class MixinTileEntityModificationStation extends TileEntityMekan
 
     @Inject(method = "lambda$getInitialInventory$1", at = @At("HEAD"), cancellable = true)
     private static void allowVaultGear(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-       if(stack.getItem() instanceof VaultGearItem) {
+       if(stack.getItem() instanceof VaultGearItem && !GearSetHelper.isSetPiece(stack)) {
             cir.setReturnValue(true);
        }
    }
 
    @Inject(method = "onUpdateServer", at = @At(value = "INVOKE", target = "Lmekanism/api/MekanismAPI;getModuleHelper()Lmekanism/api/gear/IModuleHelper;", shift = At.Shift.BEFORE))
     private void addVaultGearHandling(CallbackInfo ci, @Local ItemStack stack, @Local ModuleData<?> moduleData, @Local(name = "operated") LocalBooleanRef operatedRef) {
-       if(stack.getItem() instanceof VaultGearItem) {
+       if(stack.getItem() instanceof VaultGearItem && !GearSetHelper.isSetPiece(stack)) {
            Item moduleItem = moduleData.getItemProvider().asItem();
            if(ModModuleToVaultGearModifications.supports(moduleItem)) {
+               if(!ModModuleToVaultGearModifications.getModuleList(stack).isEmpty()) {
+                   return;
+               }
+
                GearDataCache cache = GearDataCache.of(stack);
                if (cache.isModifiable()) {
                    ModModuleToVaultGearModifications.ModuleModifier<?> modifier = ModModuleToVaultGearModifications.getModification(moduleData.getItemProvider().asItem());
+
+                   if (!modifier.itemsSupported().test(stack)) {
+                       return;
+                   }
+
                    if (cache.hasAttribute(modifier.attribute())) {
                        return;
-                   } else {
-                       operatedRef.set(true);
-                       operatingTicks++;
-                       energyContainer.extract(energyContainer.getEnergyPerTick(), Action.EXECUTE, AutomationType.INTERNAL);
-                       if (operatingTicks == ticksRequired) {
-                           operatingTicks = 0;
-                           containerSlot.setStack(modifier.apply(stack));
-                           MekanismUtils.logMismatchedStackSize(moduleSlot.shrinkStack(1, Action.EXECUTE), 1);
-                       }
+                   }
+
+                   operatedRef.set(true);
+                   operatingTicks++;
+                   energyContainer.extract(energyContainer.getEnergyPerTick(), Action.EXECUTE, AutomationType.INTERNAL);
+                   if (operatingTicks == ticksRequired) {
+                       operatingTicks = 0;
+                       containerSlot.setStack(modifier.apply(stack));
+                       MekanismUtils.logMismatchedStackSize(moduleSlot.shrinkStack(1, Action.EXECUTE), 1);
                    }
                }
            }

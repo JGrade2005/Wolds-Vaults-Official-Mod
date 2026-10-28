@@ -20,6 +20,7 @@ import xyz.iwolfking.woldsvaults.modifiers.gear.HeartFragmentOnLootAttribute;
 import iskallia.vault.gear.reader.FloatValueModifierReader;
 import iskallia.vault.gear.reader.IntegerValueModifierReader;
 import xyz.iwolfking.woldsvaults.modifiers.gear.ParticleTrailAttribute;
+import xyz.iwolfking.woldsvaults.modifiers.gear.scepter.ScepterInvokeAttribute;
 
 import javax.annotation.Nullable;
 
@@ -48,7 +49,7 @@ public class ModGearAttributes {
     public static final VaultGearAttribute<Float> RETURNING_DAMAGE = attr("returning_damage", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Returning Damage", 8833629), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> THORNS_SCALING_DAMAGE = attr("thorns_scaling_damage", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Thorns Scaling", 3134464), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> AP_SCALING_DAMAGE = attr("ap_scaling_damage", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Ability Power Scaling", 11422101), VaultGearAttributeComparator.floatComparator());
-    public static final VaultGearAttribute<Float> EXECUTION_DAMAGE = attr("execution_damage", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Execution Damage", 10302464), VaultGearAttributeComparator.floatComparator());
+    public static final VaultGearAttribute<Float> EXECUTION_DAMAGE = attr("execution_damage", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Execute Threshold", 10302464), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> CHAINING_DAMAGE = attr("chaining_damage", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Reduced Chaining Falloff", 6119096), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> INCREASED_EFFECT_CLOUD_CHANCE = attr("effect_cloud_chance_additive", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Effect Cloud Chance", 3109217), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> SECOND_JUDGEMENT = attr("second_judgement", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Second Judgement", 3085471), VaultGearAttributeComparator.floatComparator());
@@ -87,6 +88,13 @@ public class ModGearAttributes {
     public static final VaultGearAttribute<Integer> CRASHWAVE = attr("crashwave", VaultGearAttributeType.intType(), (ConfigurableAttributeGenerator<Integer, ?>)ModGearAttributeGenerators.intRange(), new IntegerValueModifierReader(8833629, value -> "+Crashing into a wall while riptiding releases a <$uniqueHighlight>shockwave<reset> of radius " + value), VaultGearAttributeComparator.intComparator());
     public static final VaultGearAttribute<Float> HEALTH_BOOST = attr("health_boost", VaultGearAttributeType.floatType(), (ConfigurableAttributeGenerator<Float, ?>)ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Total Health", 8057198), VaultGearAttributeComparator.floatComparator());
     public static final VaultGearAttribute<Float> RADIATION_WAVE = attr("radiation_wave", VaultGearAttributeType.floatType(), (ConfigurableAttributeGenerator<Float, ?>)ModGearAttributeGenerators.floatRange(), new FloatValueModifierReader("Radiation Radius", 5149489, value -> "+Irradiates enemies within <$uniqueHighlight>" + value + "<reset> blocks, slowing them the longer they linger"), VaultGearAttributeComparator.floatComparator());
+    public static final VaultGearAttribute<Boolean> RIPTIDE_PIERCE = woldsAttr("riptide_pierce", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Riptide pierces enemies", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_DAMAGE_MORE = woldsAttr("riptide_damage_more", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("More Riptide Damage", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_SHOCK_CONE = woldsAttr("riptide_shock_cone", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Riptide Shock Cone Damage", 2141770));
+    public static final VaultGearAttribute<Integer> RIPTIDE_HOVER = woldsAttr("riptide_hover", VaultGearAttributeType.intType(), ModGearAttributeGenerators.intRange(), ModGearAttributeReaders.addedIntReader("Riptide Hover Ticks", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_BOOST_DAMAGE_REDUCTION = woldsAttr("riptide_boost_damage_reduction", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Damage Reduction while Riptiding", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_BOLT = woldsAttr("riptide_bolt", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Riptide Lightning Damage", 2141770));
+    public static final VaultGearAttribute<Float> RIPTIDE_BOLT_CHILLED = woldsAttr("riptide_bolt_chilled", VaultGearAttributeType.floatType(), ModGearAttributeGenerators.floatRange(), ModGearAttributeReaders.percentageReader("Riptide Lightning Damage vs Chilled", 2141770));
     public static final VaultGearAttribute<Boolean> RADIATION_IMMUNITY = woldsAttr("radiation_immunity", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Radiation Immunity", 5539999), VaultGearAttributeComparator.booleanComparator());
 
 
@@ -135,6 +143,15 @@ public class ModGearAttributes {
 
     public static final VaultGearAttribute<ParticleTrailAttribute> PARTICLE_TRAIL =  attr("particle_trail", ParticleTrailAttribute.type(), ParticleTrailAttribute.generator(), ParticleTrailAttribute.reader(), ParticleTrailAttribute.comparator());
     public static final VaultGearAttribute<HeartFragmentOnLootAttribute> HEART_FRAGMENT_ON_LOOT =  woldsAttr("heart_fragment_on_loot", HeartFragmentOnLootAttribute.type(), HeartFragmentOnLootAttribute.generator(), HeartFragmentOnLootAttribute.reader(), HeartFragmentOnLootAttribute.comparator());
+
+    //Scepter Modifiers
+    public static final VaultGearAttribute<Boolean> SCEPTER_SPARKLES = woldsAttr("scepter_sparkles", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Sparkles", 8247956), VaultGearAttributeComparator.booleanComparator());
+    public static final VaultGearAttribute<Boolean> SCEPTER_BEAM = woldsAttr("scepter_beam", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Beam", 752051), VaultGearAttributeComparator.booleanComparator());
+    public static final VaultGearAttribute<Boolean> FIRE_ELEMENT = woldsAttr("fire_element", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Fire Affinity", 16711680), VaultGearAttributeComparator.booleanComparator());
+    public static final VaultGearAttribute<Boolean> ICE_ELEMENT = woldsAttr("ice_element", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Ice Affinity", 10079487), VaultGearAttributeComparator.booleanComparator());
+    public static final VaultGearAttribute<Boolean> POISON_ELEMENT = woldsAttr("poison_element", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Poison Affinity", 65280), VaultGearAttributeComparator.booleanComparator());
+    public static final VaultGearAttribute<Boolean> LIGHTNING_ELEMENT = woldsAttr("lightning_element", VaultGearAttributeType.booleanType(), ModGearAttributeGenerators.booleanFlag(), ModGearAttributeReaders.booleanReader("Lightning Affinity", 16776960), VaultGearAttributeComparator.booleanComparator());
+    public static final VaultGearAttribute<ScepterInvokeAttribute> SCEPTER_INVOKE = woldsAttr("scepter_invoke", ScepterInvokeAttribute.type(), ScepterInvokeAttribute.generator(), ScepterInvokeAttribute.reader(), ScepterInvokeAttribute.comparator());
 
     @Deprecated
     public static final VaultGearAttribute<String> WEAPON_TYPE = attr("weapon_type", VaultGearAttributeType.stringType(), xyz.iwolfking.woldsvaults.init.ModGearAttributeGenerators.stringValue(), xyz.iwolfking.woldsvaults.init.ModGearAttributeReaders.weaponTypeReader("Weapon Type", 888888, "Type: %s"));
@@ -238,6 +255,20 @@ public class ModGearAttributes {
                       registry.register(HEALTH_BOOST);
                       registry.register(RADIATION_WAVE);
                       registry.register(RADIATION_IMMUNITY);
+                      registry.register(SCEPTER_SPARKLES);
+                      registry.register(SCEPTER_BEAM);
+                      registry.register(SCEPTER_INVOKE);
+                      registry.register(FIRE_ELEMENT);
+                      registry.register(ICE_ELEMENT);
+                      registry.register(POISON_ELEMENT);
+                      registry.register(LIGHTNING_ELEMENT);
+                      registry.register(RIPTIDE_PIERCE);
+                      registry.register(RIPTIDE_DAMAGE_MORE);
+                      registry.register(RIPTIDE_SHOCK_CONE);
+                      registry.register(RIPTIDE_HOVER);
+                      registry.register(RIPTIDE_BOOST_DAMAGE_REDUCTION);
+                      registry.register(RIPTIDE_BOLT);
+                      registry.register(RIPTIDE_BOLT_CHILLED);
        }
   
     public static void registerVanillaAssociations() {

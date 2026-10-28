@@ -19,6 +19,7 @@ import xyz.iwolfking.woldsvaults.talent.loot_trigger.HeartFragmentPerLootedConta
 import xyz.iwolfking.woldsvaults.talent.lucky_hit.CooldownReductionLuckyHitTalent;
 import xyz.iwolfking.woldsvaults.talent.lucky_hit.ExecutionDamageLuckyHitTalent;
 import xyz.iwolfking.woldsvaults.talent.lucky_hit.FangedStrikeLuckyHitTalent;
+import xyz.iwolfking.woldsvaults.talent.special.DebuffDamageBonusTalent;
 import xyz.iwolfking.woldsvaults.talent.special.MomentumEngineTalent;
 import xyz.iwolfking.woldsvaults.talent.special.WoldsAxeSpecializationTalent;
 import xyz.iwolfking.woldsvaults.talent.stat_conversion.MindMeldTalent;
@@ -53,6 +54,7 @@ public class MixinSkill extends TypeSupplierAdapter<Skill> {
         this.register("meteor_storm", MeteorStormAbility.class, MeteorStormAbility::new);
         this.register("life_block", LifeBlockAbility.class, LifeBlockAbility::new);
         this.register("mana_block", ManaBlockAbility.class, ManaBlockAbility::new);
+        this.register("ultimate_shield", UltimateShieldAbility.class, UltimateShieldAbility::new);
 
         this.register("stirrings_of_power", StirringsOfPowerAbility.class, StirringsOfPowerAbility::new);
         this.register("cope_de_grace", CopeDeGraceAbility.class, CopeDeGraceAbility::new);
@@ -79,5 +81,6 @@ public class MixinSkill extends TypeSupplierAdapter<Skill> {
         this.register("momentum_engine", MomentumEngineTalent.class, MomentumEngineTalent::new);
         this.register("potent_elixir", PotentElixirTalent.class, PotentElixirTalent::new);
         this.register("healthy_elixir", HealthyElixirTalent.class, HealthyElixirTalent::new);
+        this.register("debuff_damage_bonus", DebuffDamageBonusTalent.class, DebuffDamageBonusTalent::new);
     }
 }

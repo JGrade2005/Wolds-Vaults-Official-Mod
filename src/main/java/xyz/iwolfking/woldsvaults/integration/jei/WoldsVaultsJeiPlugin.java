@@ -30,9 +30,11 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import net.mehvahdjukaar.cagerium.Cagerium;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -60,6 +62,7 @@ import xyz.iwolfking.vhapi.api.util.ConditionalModUtils;
 import xyz.iwolfking.vhapi.integration.jevh.LabeledLootInfo;
 import xyz.iwolfking.vhapi.integration.jevh.LabeledLootInfoRecipeCategory;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.config.lib.GenericLootableConfig;
 import xyz.iwolfking.woldsvaults.config.lib.GenericShopPedestalConfig;
 import xyz.iwolfking.woldsvaults.init.*;
@@ -67,6 +70,7 @@ import xyz.iwolfking.woldsvaults.integration.jei.category.*;
 import xyz.iwolfking.woldsvaults.integration.jei.category.lib.GenericLootableBoxCategory;
 import xyz.iwolfking.woldsvaults.integration.jei.category.lib.ShopTierCategory;
 import xyz.iwolfking.woldsvaults.integration.jei.compat.CageriumJEIProvider;
+import xyz.iwolfking.woldsvaults.integration.mekanism.recipe.jei.MekanismJEIProvider;
 import xyz.iwolfking.woldsvaults.items.CombinedTrinketItem;
 import xyz.iwolfking.woldsvaults.items.LayoutModificationItem;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.TaskLootCardModifierConfigAccessor;
@@ -119,6 +123,18 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
         return WoldsVaults.id("wolds_jei_integration");
     }
 
+    /** The Extractor Assembler fills its window; a null property set tells JEI to keep its overlay off that screen. */
+    @Override
+    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiScreenHandler(xyz.iwolfking.woldsvaults.blocks.containers.ExtractorAssemblerScreen.class, screen -> null);
+    }
+
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        registration.useNbtForSubtypes(ModItems.CHISELING_FOCUS);
+        // layout manipulator? but first add all in jei
+    }
+
     @Override @SuppressWarnings("removal")
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModItems.ENIGMA_EGG), ENIGMA_EGG);
@@ -131,6 +147,7 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModItems.VAULTAR_BOX), VAULTAR_BOX);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.VAULT_INFUSER_BLOCK), InfuserCraftingCategory.UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHROMATIC_STEEL_INFUSER_BLOCK), InfuserCraftingCategory.UID);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.OMEGA_INFUSER_BLOCK), InfuserCraftingCategory.UID);
         registration.addRecipeCatalyst(new ItemStack(ModItems.UNIDENTIFIED_GATEWAY_PEARL), GATEWAY_PEARL);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ETCHING_PEDESTAL), ETCHING_SHOP_PEDESTAL);
@@ -165,7 +182,11 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
             registration.addRecipeCatalyst(new ItemStack(Cagerium.TERRARIUM.get()), CageriumJEIProvider.CAGERIUM_EGG_SUPPORT);
             registration.addRecipeCatalyst(new ItemStack(Cagerium.PLATE.get()), CageriumJEIProvider.CAGERIUM_EGG_SUPPORT);
         }
-    }
+
+        if(ConditionalModUtils.isModPresent("mekanism")) {
+            MekanismJEIProvider.registerRecipeCatalysts(registration);
+        }
+     }
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
@@ -205,6 +226,10 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
 
         if(ConditionalModUtils.isModPresent("cagerium")) {
             registration.addRecipeCategories(makeLabeledIngredientPoolCategory(guiHelper, CageriumJEIProvider.CAGERIUM_EGG_SUPPORT, Cagerium.CAGE.get(), new TextComponent("Cagerium Egg Support")));
+        }
+
+        if(ConditionalModUtils.isModPresent("mekanism")) {
+            MekanismJEIProvider.registerCategories(registration);
         }
     }
 
@@ -277,6 +302,10 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
 
         if(ConditionalModUtils.isModPresent("cagerium")) {
             registration.addRecipes(CageriumJEIProvider.CAGERIUM_EGG_SUPPORT, CageriumJEIProvider.getEggsPerTier());
+        }
+
+        if(ConditionalModUtils.isModPresent("mekanism")) {
+            MekanismJEIProvider.registerRecipes(registration);
         }
     }
 
@@ -441,7 +470,7 @@ public class WoldsVaultsJeiPlugin implements IModPlugin {
                 } else if (reward instanceof Reward.StackReward stackReward) {
                     // the stack is visible in the tooltip, I won't bother with jei
                 } else {
-                    WoldsVaults.LOGGER.warn("[JEI] UNSUPPORTED GATEWAY REWARD " + reward.getClass());
+                    WoldLogger.error("[JEI] UNSUPPORTED GATEWAY REWARD " + reward.getClass());
                 }
             }
         }

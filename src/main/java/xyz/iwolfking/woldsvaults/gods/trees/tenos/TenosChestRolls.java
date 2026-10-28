@@ -4,9 +4,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Massive Chests and Expert Looter: extra chest loot rolls, additive. The sheet's "+N maximum item
- * stacks" is implemented as +N extra rolls; the bonus joins the table's base roll and lifts the
- * generator's roll cap by the same amount.
+ * Massive Chests and Expert Looter: "+N maximum item stacks", additive. The bonus raises the
+ * generator's roll cap only; the table's base roll and Item Quantity scaling are unchanged.
  */
 public final class TenosChestRolls {
     private TenosChestRolls() {

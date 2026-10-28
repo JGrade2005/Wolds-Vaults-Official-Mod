@@ -7,6 +7,7 @@ import iskallia.vault.core.vault.player.Completion;
 import iskallia.vault.core.vault.stat.StatCollector;
 import iskallia.vault.core.vault.stat.StatsCollector;
 import iskallia.vault.greed.GreedChallengeSlot;
+import iskallia.vault.greed.GreedNodeHelper;
 import iskallia.vault.greed.GreedTree;
 import iskallia.vault.init.ModConfigs;
 import iskallia.vault.util.MiscUtils;

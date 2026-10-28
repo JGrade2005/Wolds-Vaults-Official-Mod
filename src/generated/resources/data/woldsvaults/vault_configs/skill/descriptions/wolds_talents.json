@@ -36,7 +36,7 @@
         "text": "\n\n2 "
       },
       {
-        "text": "+5 max stacks, 4% Movement Speed per stack, stacking every 3.5 seconds. 7 Radius with 140% Knockback",
+        "text": "5 max stacks, 4% Movement Speed per stack, stacking every 3.5 seconds. 7 Radius with 140% Knockback",
         "color": "#C7FFE7"
       },
       {
@@ -211,21 +211,21 @@
         "text": ".\n\n1 "
       },
       {
-        "text": "+2% reduced cooldown",
+        "text": "+1% reduced cooldown",
         "color": "#cbe6fe"
       },
       {
         "text": "\n\n2 "
       },
       {
-        "text": "+3% reduced cooldown",
+        "text": "+2% reduced cooldown",
         "color": "#cbe6fe"
       },
       {
         "text": "\n\n3 "
       },
       {
-        "text": "+4% reduced cooldown",
+        "text": "+3% reduced cooldown",
         "color": "#cbe6fe"
       },
       {
@@ -261,24 +261,27 @@
         "color": "#6DF5A3"
       },
       {
-        "text": "causing them to deal a portion of the target's "
+        "text": "so they "
       },
       {
-        "text": "missing health ",
+        "text": "execute ",
+        "color": "#d80000"
+      },
+      {
+        "text": "targets: a lucky hit on a target at or below your execute threshold of its "
+      },
+      {
+        "text": "max health ",
         "color": "red"
       },
       {
-        "text": "as bonus "
+        "text": "kills it outright. Adds to the execute threshold from your gear. Bosses take half the threshold."
       },
       {
-        "text": "damage ",
-        "color": "red"
+        "text": "\n\n1 "
       },
       {
-        "text": ".\n\n1 "
-      },
-      {
-        "text": "+15% of missing health",
+        "text": "+4% execute threshold",
         "color": "#d80000"
       },
       {
@@ -301,7 +304,7 @@
         "text": "add "
       },
       {
-        "text": "+1% increased missing health damage",
+        "text": "+2% execute threshold",
         "color": "#d80000"
       }
     ],
@@ -543,6 +546,160 @@
       {
         "text": "+1% increased damage",
         "color": "#C23627"
+      }
+    ],
+    "Hexbreaker": [
+      {
+        "text": "Deal additional damage with abilities to mobs that have a debuff"
+      },
+      {
+        "text": ".\n\n1 "
+      },
+      {
+        "text": "+20% Damage",
+        "color": "#f99b21"
+      },
+      {
+        "text": "\n\n2 "
+      },
+      {
+        "text": "+40% Damage",
+        "color": "#f99b21"
+      },
+      {
+        "text": "\n\n3 "
+      },
+      {
+        "text": "+60% Damage",
+        "color": "#f99b21"
+      },
+      {
+        "text": "\n\n4 "
+      },
+      {
+        "text": "+80% Damage",
+        "color": "#f99b21"
+      },
+      {
+        "text": "\n\n"
+      },
+      {
+        "text": "\n\n"
+      },
+      {
+        "text": "Overlevels of the "
+      },
+      {
+        "text": "Hexbreaker",
+        "color": "gold"
+      },
+      {
+        "text": " talent "
+      },
+      {
+        "text": "add "
+      },
+      {
+        "text": "+5% Damage",
+        "color": "#f99b21"
+      }
+    ],
+    "Blood_Chakra": [
+      {
+        "text": "Killing a mob grants "
+      },
+      {
+        "text": "+3% Increased Ability Power",
+        "color": "#bd49bf"
+      },
+      {
+        "text": ". This effect can "
+      },
+      {
+        "text": "stack ",
+        "color": "yellow"
+      },
+      {
+        "text": "and lasts for a short time."
+      },
+      {
+        "text": ".\n\n1 "
+      },
+      {
+        "text": "+4 Max Stacks",
+        "color": "yellow"
+      },
+      {
+        "text": ", "
+      },
+      {
+        "text": "4 seconds",
+        "color": "#7e1c80"
+      },
+      {
+        "text": "\n\n2 "
+      },
+      {
+        "text": "+6 Max Stacks",
+        "color": "yellow"
+      },
+      {
+        "text": ", "
+      },
+      {
+        "text": "6 seconds",
+        "color": "#7e1c80"
+      },
+      {
+        "text": "\n\n3 "
+      },
+      {
+        "text": "+8 Max Stacks",
+        "color": "yellow"
+      },
+      {
+        "text": ", "
+      },
+      {
+        "text": "8 seconds",
+        "color": "#7e1c80"
+      },
+      {
+        "text": "\n\n4 "
+      },
+      {
+        "text": "+10 Max Stacks",
+        "color": "yellow"
+      },
+      {
+        "text": ", "
+      },
+      {
+        "text": "10 seconds",
+        "color": "#7e1c80"
+      },
+      {
+        "text": "\n\n"
+      },
+      {
+        "text": "\n\n"
+      },
+      {
+        "text": "Overlevels of the "
+      },
+      {
+        "text": "Blood_Chakra",
+        "color": "gold"
+      },
+      {
+        "text": " talent "
+      },
+      {
+        "text": "add "
+      },
+      {
+        "text": "one additional max stack",
+        "color": "#36ffa7"
       }
     ],
     "Healthy_Elixir": [

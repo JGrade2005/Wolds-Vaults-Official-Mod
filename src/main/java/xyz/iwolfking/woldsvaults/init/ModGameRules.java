@@ -25,7 +25,10 @@ public class ModGameRules {
     public static GameRules.Key<GameRules.BooleanValue> ALLOW_WATERFRAMES;
     public static GameRules.Key<GameRules.BooleanValue> OLD_OVERPOWER_MECHANIC;
     public static GameRules.Key<GameRules.BooleanValue> VANILLA_WILD_WEST_ROOMS;
-    public static GameRules.Key<GameRules.BooleanValue> GREED_SCALES_WITH_DIFFICULTY;
+    public static GameRules.Key<GameRules.BooleanValue> ENABLE_TELEPORTING_CHAMPIONS;
+    public static GameRules.Key<GameRules.BooleanValue> ENABLE_FULL_RESEARCH_TEAM_SYNC;
+    public static GameRules.Key<GameRules.BooleanValue> ENABLE_ALL_ITEMS_IN_VAULTS;
+    public static GameRules.Key<GameRules.BooleanValue> ENABLE_RANDOM_THEME_INFUSION;
 
     public static void initialize() {
         ALLOW_FLIGHT_IN_VAULTS = GameRules.register("enableFlightInVaults", GameRules.Category.PLAYER, booleanRule(false));
@@ -41,7 +44,10 @@ public class ModGameRules {
         ALLOW_WATERFRAMES = GameRules.register("enableWaterframes", GameRules.Category.PLAYER, booleanRule(true));
         OLD_OVERPOWER_MECHANIC = GameRules.register("oldOverpowerMechanic", GameRules.Category.PLAYER, booleanRule(false));
         VANILLA_WILD_WEST_ROOMS = GameRules.register("vanillaWildWestRooms", GameRules.Category.PLAYER, booleanRule(false));
-        GREED_SCALES_WITH_DIFFICULTY = GameRules.register("greedScalesWithDifficulty", GameRules.Category.PLAYER, booleanRule(true));
+        ENABLE_TELEPORTING_CHAMPIONS = GameRules.register("enableChampionTeleporting", GameRules.Category.PLAYER, booleanRule(false));
+        ENABLE_FULL_RESEARCH_TEAM_SYNC = GameRules.register("enableFullResearchTeamSync", GameRules.Category.PLAYER, booleanRule(false));
+        ENABLE_ALL_ITEMS_IN_VAULTS = GameRules.register("enableAllItemsInVaults", GameRules.Category.PLAYER, booleanRule(false));
+        ENABLE_RANDOM_THEME_INFUSION = GameRules.register("enableRandomThemeInfusion", GameRules.Category.PLAYER, booleanRule(true));
     }
 
 

@@ -26,6 +26,7 @@ public final class TrialMasteryDamage {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void applyTrialMastery(LivingHurtEvent event) {
+        PostMultiplierFlatAdds.apply(event);
         if (isDerivedProc()) {
             return;
         }

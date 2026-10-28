@@ -3,6 +3,7 @@ package xyz.iwolfking.woldsvaults.gods.trees.wendarr;
 import iskallia.vault.core.card.CardDeck;
 import iskallia.vault.core.vault.influence.VaultGod;
 import iskallia.vault.gear.attribute.type.VaultGearAttributeTypeMerger;
+import iskallia.vault.init.ModEffects;
 import iskallia.vault.init.ModGearAttributes;
 import iskallia.vault.item.CardDeckItem;
 import iskallia.vault.snapshot.AttributeSnapshotHelper;
@@ -60,7 +61,7 @@ public final class WendarrNodeHandlers {
         GodNodeHandlers.register(WendarrNodes.GARDENER, GardenerParams.class, ListenerBoundHandler::new);
         GodNodeHandlers.register(WendarrNodes.PYLON_WHISPERER, PylonWhispererParams.class, ListenerBoundHandler::new);
         GodNodeHandlers.register(WendarrNodes.CLOCK_ARTIFICIER, ClockArtificierParams.class, ListenerBoundHandler::new);
-        GodNodeHandlers.register(WendarrNodes.TEMPORAL_BREAKING, ListenerBoundHandler::new);
+        GodNodeHandlers.register(WendarrNodes.TEMPORAL_BREAKING, TemporalBreakingHandler::new);
         GodNodeHandlers.register(WendarrNodes.MASTER_IMBUER, ListenerBoundHandler::new);
         GodNodeHandlers.register(WendarrNodes.EXTRACTION_SUPERVISER, DeferredHandler::new);
         GodNodeHandlers.register(WendarrNodes.ARMORED_EXTRACTORS, DeferredHandler::new);
@@ -127,6 +128,17 @@ public final class WendarrNodeHandlers {
                 return;
             }
             GodFocusGear.copyAttributes(offhand, sink);
+        }
+    }
+
+    /**
+     * Temporal Breaking: grants the same time acceleration immunity as the plushie implicit, so the
+     * effect is denied on application and stripped every tick by the base mod's immunity handling.
+     */
+    public record TemporalBreakingHandler(GodEffect effect) implements StatContributor {
+        @Override
+        public void contribute(GodNodeContext context, GodStatSink sink) {
+            sink.add(ModGearAttributes.EFFECT_IMMUNITY, ModEffects.TIMER_ACCELERATION);
         }
     }
 

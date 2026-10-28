@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.init.ModBlocks;
 import xyz.iwolfking.woldsvaults.init.ModCompressibleBlocks;
+import xyz.iwolfking.woldsvaults.init.ModTags;
 
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,19 @@ public class ModBlockTagProvider extends BlockTagsProvider {
     @Override
     protected void addTags() {
 
+        tag(ModTags.MINEABLE_WITH_SWORD).addOptionalTag(ModTags.CHIPPED_COBWEB.location());
+
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(ModBlocks.GRAVEYARD_LOOT_BLOCK)
                 .add(ModBlocks.AUGMENT_CRAFTING_TABLE)
                 .add(ModBlocks.VAULT_INFUSER_BLOCK)
                 .add(ModBlocks.CHROMATIC_STEEL_INFUSER_BLOCK)
+                .add(ModBlocks.OMEGA_INFUSER_BLOCK)
+                .add(ModBlocks.VAULT_FABRICATOR_BLOCK)
+                .add(ModBlocks.EXTRACTOR_ASSEMBLER_BLOCK)
+                .add(ModBlocks.EXTRACTOR_FORGE_BLOCK)
+                .add(ModBlocks.EXTRACTOR_ASSEMBLER_PART_BLOCK)
+                .add(ModBlocks.EXTRACTION_FORGE_PART_BLOCK)
                 .add(ModBlocks.VAULT_SALVAGER_BLOCK)
                 .add(ModBlocks.NULLITE_ORE)
                 .add(ModBlocks.WUTODIE_SLAB)
@@ -109,7 +118,9 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.DECO_IDONA_ALTAR_BLOCK)
                 .add(ModBlocks.DECO_TENOS_ALTAR_BLOCK)
                 .add(ModBlocks.DECO_WENDARR_ALTAR_BLOCK)
-                .add(ModBlocks.DECO_VELARA_ALTAR_BLOCK);
+                .add(ModBlocks.DECO_VELARA_ALTAR_BLOCK)
+                .add(ModBlocks.SUPPRESSOR_BLOCK)
+                .add(iskallia.auxiliaryblocks.init.ModBlocks.PURPLE_DIORITE.get());
         tag(BlockTags.MINEABLE_WITH_HOE)
                 .add(ModBlocks.ISKALLIAN_LEAVES_BLOCK)
                 .add(ModBlocks.PRISMATIC_FIBER_BLOCK);

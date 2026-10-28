@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
+import xyz.iwolfking.woldsvaults.api.util.UniqueRollTables;
 import xyz.iwolfking.woldsvaults.init.ModItems;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.VaultGearCommonConfigAccessor;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.VaultGearRollTypeConfigAccessor;
@@ -42,15 +43,13 @@ public class MixinModConfigs {
     private static final int TOTAL_MAP_TIERS = 6;
 
     /**
-     * Registers the per-unique ancient tier configs right after the gear config map is built. Not a TAIL
+     * Registers the shared ancient unique tier table right after the gear config map is built. Not a TAIL
      * injection: vhapi's own TAIL overlay skips keys not yet in {@code VAULT_GEAR_CONFIG}.
      */
     @Inject(method = "register", at = @At(value = "FIELD", target = "Liskallia/vault/init/ModConfigs;VAULT_GEAR_CONFIG:Ljava/util/Map;", opcode = Opcodes.PUTSTATIC, shift = At.Shift.AFTER), remap = false)
     private static void registerAncientUniqueConfigs(CallbackInfo ci) {
         AncientUniqueHelper.invalidateConfigCache();
-        for(ResourceLocation key : AncientUniqueHelper.ancientConfigKeys()) {
-            VAULT_GEAR_CONFIG.put(key, new VaultGearTierConfig(key).readConfig());
-        }
+        VAULT_GEAR_CONFIG.put(UniqueRollTables.ANCIENT_TABLE, new VaultGearTierConfig(UniqueRollTables.ANCIENT_TABLE).readConfig());
     }
 
     @Inject(method = "register", at = @At("TAIL"), remap = false)
@@ -61,7 +60,7 @@ public class MixinModConfigs {
 
 
         for(ResourceLocation loc : CURRENT_GEAR_CONFIGS) {
-            if(loc.getPath().startsWith(AncientUniqueHelper.CONFIG_PREFIX)) {
+            if(loc.equals(UniqueRollTables.ANCIENT_TABLE)) {
                 continue;
             }
             VAULT_GEAR_CONFIG.put(VaultMod.id(loc.getPath() + "_mythic"), new VaultGearTierConfig(VaultMod.id(loc.getPath() + "_mythic")).readConfig());

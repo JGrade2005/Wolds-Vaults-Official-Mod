@@ -277,7 +277,7 @@
     ],
     "tenos_expert_looter": [
       {
-        "text": "Chests roll "
+        "text": "Chests can roll up to "
       },
       {
         "text": "+4 more item stacks",
@@ -390,7 +390,7 @@
     ],
     "tenos_massive_chests": [
       {
-        "text": "Chests roll "
+        "text": "Chests can roll up to "
       },
       {
         "text": "+20 more item stacks",

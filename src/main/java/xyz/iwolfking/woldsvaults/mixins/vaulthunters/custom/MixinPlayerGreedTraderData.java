@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.iwolfking.woldsvaults.api.util.GreedShopHelper;
 
+import net.minecraft.world.item.ItemStack;
+import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
+
 import java.util.Random;
 import java.util.UUID;
 
@@ -27,6 +30,19 @@ public abstract class MixinPlayerGreedTraderData {
      * Narrows {@code random_etching} to ungated etchings, adds {@code powerful_etching} for the gated
      * ones, and passes the greed tier to {@code xp_burger}. All three take over the return value.
      */
+    /**
+     * A pool entry of type {@code ancient_unique} sells an unidentified ancient rolled exactly like an extractor
+     * payout: a random ancient-capable unique's own gear item, flagged ancient. The caller still runs loot
+     * initialisation on it, so it takes the buyer's vault level.
+     */
+    @Inject(method = "buildPoolEntryStack", at = @At("HEAD"), cancellable = true)
+    private void buildAncientUniqueEntry(GreedTraderConfig.PoolEntry poolEntry, Random random, int playerVaultLevel, CallbackInfoReturnable<ItemStack> cir) {
+        if (!"ancient_unique".equals(poolEntry.getType())) {
+            return;
+        }
+        cir.setReturnValue(AncientUniqueHelper.rollUnidentifiedAncient(random));
+    }
+
     @Inject(method = "rollSingleOffer", at = @At("HEAD"), cancellable = true)
     private void rollReworkedOfferTypes(GreedTraderConfig.TradeEntry entry,
                                         int greedTier,

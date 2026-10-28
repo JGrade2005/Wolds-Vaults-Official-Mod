@@ -32,9 +32,12 @@ public class SacrificeAltarScreen extends Screen {
     private static final int FOOTER_MARGIN = 16;
     private static final int HINT_LINE_HEIGHT = 7;
     private static final float HINT_SCALE = 0.75F;
+    private static final int LIST_COLUMNS = 2;
+    private static final int ROW_HEIGHT = 16;
 
     private ClientboundSacrificeMenuMessage data;
     private int pollTicks;
+    private int scrollRow;
 
     private SacrificeAltarScreen(ClientboundSacrificeMenuMessage data) {
         super(new TextComponent("Sacrificial Altar"));
@@ -139,26 +142,6 @@ public class SacrificeAltarScreen extends Screen {
         }
         drawCenteredString(matrixStack, this.font, snapshot.gateLabel + "  —  " + god.getName(),
                 x + PANEL_WIDTH / 2, y + 54, (accent & 0xFFFFFF) | 0xFF000000);
-        int listTop = y + 66;
-        int rows = (snapshot.entries.size() + 1) / 2;
-        ItemStack hoveredStack = ItemStack.EMPTY;
-        for (int i = 0; i < snapshot.entries.size(); i++) {
-            ClientboundSacrificeMenuMessage.EntrySnapshot entry = snapshot.entries.get(i);
-            int column = i / rows;
-            int row = i % rows;
-            int entryX = x + 16 + column * 126;
-            int entryY = listTop + row * 15;
-            Item item = ForgeRegistries.ITEMS.getValue(entry.item());
-            ItemStack stack = item == null ? ItemStack.EMPTY : new ItemStack(item);
-            this.itemRenderer.renderGuiItem(stack, entryX, entryY - 4);
-            boolean complete = entry.have() >= entry.required();
-            String text = String.format("%,d / %,d", entry.have(), entry.required());
-            this.font.drawShadow(matrixStack, text, entryX + 20, entryY,
-                    complete ? 0xFF7BE87B : 0xFFE0DCE8);
-            if (new Rectangle(entryX, entryY - 4, 120, 15).contains(mouseX, mouseY) && !stack.isEmpty()) {
-                hoveredStack = stack;
-            }
-        }
         boolean itemsComplete = snapshot.entries.stream().allMatch(entry -> entry.have() >= entry.required());
         String offering = itemsComplete ? "Offering complete." : "Offering incomplete.";
         String xpLine = snapshot.xpReady ? "God experience full." : "God experience not yet full.";
@@ -171,6 +154,40 @@ public class SacrificeAltarScreen extends Screen {
         hints.addAll(this.font.split(new TextComponent("Apply a redstone signal to the cauldron to perform the sacrifice."),
                 (int) (wrapWidth / HINT_SCALE)));
         int footerY = y + PANEL_HEIGHT - 10 - (status.size() * 10 + hints.size() * HINT_LINE_HEIGHT);
+
+        int listTop = y + 68;
+        int totalRows = (snapshot.entries.size() + LIST_COLUMNS - 1) / LIST_COLUMNS;
+        int fitRows = Math.max(1, (footerY - 4 - (listTop - 4)) / ROW_HEIGHT);
+        boolean overflow = totalRows > fitRows;
+        int visibleRows = overflow ? Math.max(1, fitRows - 1) : totalRows;
+        this.scrollRow = Math.max(0, Math.min(this.scrollRow, totalRows - visibleRows));
+        int columnWidth = (PANEL_WIDTH - 2 * FOOTER_MARGIN) / LIST_COLUMNS;
+        ItemStack hoveredStack = ItemStack.EMPTY;
+        for (int row = 0; row < visibleRows; row++) {
+            for (int column = 0; column < LIST_COLUMNS; column++) {
+                int i = (row + this.scrollRow) * LIST_COLUMNS + column;
+                if (i >= snapshot.entries.size()) {
+                    break;
+                }
+                ClientboundSacrificeMenuMessage.EntrySnapshot entry = snapshot.entries.get(i);
+                int entryX = x + FOOTER_MARGIN + column * columnWidth;
+                int entryY = listTop + row * ROW_HEIGHT;
+                Item item = ForgeRegistries.ITEMS.getValue(entry.item());
+                ItemStack stack = item == null ? ItemStack.EMPTY : new ItemStack(item);
+                this.itemRenderer.renderGuiItem(stack, entryX, entryY - 4);
+                boolean complete = entry.have() >= entry.required();
+                String text = amountText(entry.have(), entry.required(), columnWidth - 24);
+                this.font.drawShadow(matrixStack, text, entryX + 20, entryY,
+                        complete ? 0xFF7BE87B : 0xFFE0DCE8);
+                if (new Rectangle(entryX, entryY - 4, columnWidth - 4, ROW_HEIGHT).contains(mouseX, mouseY) && !stack.isEmpty()) {
+                    hoveredStack = stack;
+                }
+            }
+        }
+        if (overflow) {
+            String more = "Scroll for more  (" + (this.scrollRow + 1) + "-" + (this.scrollRow + visibleRows) + " of " + totalRows + " rows)";
+            drawCenteredString(matrixStack, this.font, more, x + PANEL_WIDTH / 2, listTop + visibleRows * ROW_HEIGHT, 0xFF7A7488);
+        }
         int statusColor = itemsComplete && snapshot.xpReady ? 0xFF7BE87B : 0xFF9A93A8;
         for (int i = 0; i < status.size(); i++) {
             this.font.drawShadow(matrixStack, status.get(i), textLeft, footerY + i * 10, statusColor);
@@ -200,6 +217,27 @@ public class SacrificeAltarScreen extends Screen {
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        this.scrollRow -= (int) Math.signum(delta);
+        return true;
+    }
+
+    private String amountText(long have, long required, int maxWidth) {
+        String full = String.format("%,d / %,d", have, required);
+        return this.font.width(full) <= maxWidth ? full : compact(have) + " / " + compact(required);
+    }
+
+    private static String compact(long value) {
+        if (value >= 1_000_000L) {
+            return String.format("%.1fM", value / 1_000_000.0D);
+        }
+        if (value >= 10_000L) {
+            return String.format("%.1fk", value / 1_000.0D);
+        }
+        return String.format("%,d", value);
     }
 
     @Nullable

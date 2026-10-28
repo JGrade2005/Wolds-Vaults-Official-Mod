@@ -1,5 +1,7 @@
 package xyz.iwolfking.woldsvaults.mixins.vaulthunters.custom;
 
+import xyz.iwolfking.woldsvaults.api.gear.sets.GearSetHelper;
+import iskallia.vault.gear.VaultGearRarity;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -35,6 +37,12 @@ import xyz.iwolfking.woldsvaults.WoldsVaults;
 import xyz.iwolfking.woldsvaults.init.ModGearAttributes;
 import xyz.iwolfking.woldsvaults.items.gear.VaultMapItem;
 
+import iskallia.vault.init.ModConfigs;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
+import xyz.iwolfking.woldsvaults.api.util.AncientUniqueHelper;
 import java.util.UUID;
 
 @Mixin(value = VaultGearHelper.class, remap = false)
@@ -48,6 +56,38 @@ public class MixinVaultGearHelper {
                 data.write(stack);
             }
         }
+    }
+
+    /** Unidentified gear that is already flagged ancient says so in its name, in the ancient ember colour. */
+    @Inject(method = "getDisplayName(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/Component;", at = @At("HEAD"), cancellable = true)
+    private static void nameUnidentifiedAncient(ItemStack stack, Component defaultName, CallbackInfoReturnable<Component> cir) {
+        if (!ModConfigs.isInitialized()) {
+            return;
+        }
+        GearDataCache cache = GearDataCache.of(stack);
+        if (cache.getState() != VaultGearState.UNIDENTIFIED || !cache.hasAttribute(xyz.iwolfking.woldsvaults.init.ModGearAttributes.ANCIENT_UNIQUE)) {
+            return;
+        }
+        Style style = defaultName.getStyle().withColor(TextColor.fromRgb(AncientUniqueHelper.ANCIENT_COLOR));
+        cir.setReturnValue(new TextComponent("Unidentified Ancient ").setStyle(style).append(defaultName.copy().setStyle(style)));
+    }
+
+    /** Identified set pieces show their name in the set colour instead of the Unique colour. */
+    @Inject(method = "getDisplayName(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/Component;", at = @At("HEAD"), cancellable = true)
+    private static void nameSetPiece(ItemStack stack, Component defaultName, CallbackInfoReturnable<Component> cir) {
+        if (!ModConfigs.isInitialized() || GearSetHelper.config() == null) {
+            return;
+        }
+        GearDataCache cache = GearDataCache.of(stack);
+        if (cache.getState() != VaultGearState.IDENTIFIED || cache.getRarity() != VaultGearRarity.UNIQUE) {
+            return;
+        }
+        GearSetHelper.setOf(stack).flatMap(GearSetHelper.config()::getSet).ifPresent(set -> {
+            boolean ancient = cache.hasAttribute(xyz.iwolfking.woldsvaults.init.ModGearAttributes.ANCIENT_UNIQUE);
+            Style style = Style.EMPTY.withColor(TextColor.fromRgb(ancient ? set.ancientColorRgb() : set.colorRgb()));
+            String name = cache.getGearName();
+            cir.setReturnValue(name == null ? defaultName.copy().setStyle(style) : new TextComponent(name).setStyle(style));
+        });
     }
 
     /** Applies {@code health_boost} as MULTIPLY_TOTAL on max health, so a 0.10 roll is 1.10x the total. */

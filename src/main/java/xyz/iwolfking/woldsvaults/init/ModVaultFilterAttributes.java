@@ -1,8 +1,10 @@
 package xyz.iwolfking.woldsvaults.init;
 
 import xyz.iwolfking.woldsvaults.integration.vaultfilters.*;
+import xyz.iwolfking.woldsvaults.integration.vaultfilters.etched_layout.*;
 import xyz.iwolfking.woldsvaults.integration.vaultfilters.gte.GatePearlRewardsAttribute;
 import xyz.iwolfking.woldsvaults.integration.vaultfilters.gte.GatePearlSizeAttribute;
+import xyz.iwolfking.woldsvaults.integration.vaultfilters.extractor.*;
 import xyz.iwolfking.woldsvaults.integration.vaultfilters.gte.GatePearlWavesAttribute;
 
 public class ModVaultFilterAttributes {
@@ -13,6 +15,17 @@ public class ModVaultFilterAttributes {
         new EtchedLayoutTypeAttribute("Infinite").register(EtchedLayoutTypeAttribute::new);
         new EtchedLayoutTunnelAttribute(1).register(EtchedLayoutTunnelAttribute::new);
         new EtchedLayoutValueAttribute(1).register(EtchedLayoutValueAttribute::new);
+        new EtchedLayoutCircleAttribute(1).register(EtchedLayoutCircleAttribute::new);
+        new EtchedLayoutPolygonAttribute("").register(EtchedLayoutPolygonAttribute::new);
+        new EtchedLayoutRingsAttribute(1).register(EtchedLayoutRingsAttribute::new);
+        new EtchedLayoutRingsIntervalAttribute(1).register(EtchedLayoutRingsIntervalAttribute::new);
+        new EtchedLayoutSpiralAttribute(1).register(EtchedLayoutSpiralAttribute::new);
+        new EtchedLayoutTunnelHeightAttribute(1).register(EtchedLayoutTunnelHeightAttribute::new);
+        new EtchedLayoutTunnelIntervalAttribute(1).register(EtchedLayoutTunnelIntervalAttribute::new);
+        new EtchedLayoutTunnelWidthAttribute(1).register(EtchedLayoutTunnelWidthAttribute::new);
+        new EtchedLayoutWaveAmplitudeAttribute(1).register(EtchedLayoutWaveAmplitudeAttribute::new);
+        new EtchedLayoutWaveLengthAttribute(1).register(EtchedLayoutWaveLengthAttribute::new);
+        new EtchedLayoutWaveFrequencyAttribute(1.0).register(EtchedLayoutWaveFrequencyAttribute::new);
         new AntiqueAttribute("Acquired taste").register(AntiqueAttribute::new);
         new GatePearlSizeAttribute("").register(GatePearlSizeAttribute::new);
         new GatePearlRewardsAttribute("").register(GatePearlRewardsAttribute::new);
@@ -24,5 +37,19 @@ public class ModVaultFilterAttributes {
         new CatalystItemAttribute(true).register(CatalystItemAttribute::new);
         new AlchemyIngredientTypeAttribute("Negative").register(AlchemyIngredientTypeAttribute::new);
         new VaultDollCompletedAttribute(true).register(VaultDollCompletedAttribute::new);
+        new IsExtractorPartAttribute(true).register(IsExtractorPartAttribute::new);
+        new ExtractorPartTypeAttribute("Chassis").register(ExtractorPartTypeAttribute::new);
+        new ExtractorPartSeriesAttribute("Chromatic").register(ExtractorPartSeriesAttribute::new);
+        new ExtractorDrillClassAttribute("Auger").register(ExtractorDrillClassAttribute::new);
+        new ExtractorPartRarityAttribute("Omega").register(ExtractorPartRarityAttribute::new);
+        new ExtractorPartQualityAttribute(0.0D).register(ExtractorPartQualityAttribute::new);
+        new ExtractorPartAffixAttribute("Reinforced").register(ExtractorPartAffixAttribute::new);
+        new ExtractorPartPrefixAttribute("Reinforced").register(ExtractorPartPrefixAttribute::new);
+        new ExtractorPartSuffixAttribute("of Recharging").register(ExtractorPartSuffixAttribute::new);
+        new ExtractorPartAffixValueAttribute("Reinforced").register(ExtractorPartAffixValueAttribute::new);
+        new IsExtractorBlueprintAttribute(true).register(IsExtractorBlueprintAttribute::new);
+        new ExtractorBlueprintIdentifiedAttribute(true).register(ExtractorBlueprintIdentifiedAttribute::new);
+        new ExtractorAttachmentDurabilityAttribute(0).register(ExtractorAttachmentDurabilityAttribute::new);
+        //new CardDeckModifierAttribute("").register(CardDeckModifierAttribute::new);
     }
 }

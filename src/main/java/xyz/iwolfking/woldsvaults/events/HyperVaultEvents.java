@@ -9,12 +9,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,15 +24,24 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.objectives.HyperVaultObjective;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = WoldsVaults.MOD_ID)
 public final class HyperVaultEvents {
+    private static final ResourceLocation RADAR = WoldsVaults.id("radar");
+    private static final Set<UUID> RADAR_PLAYERS = new HashSet<>();
+
     private HyperVaultEvents() {
     }
 
@@ -47,7 +58,7 @@ public final class HyperVaultEvents {
     /** True when the entity stands in a vault carrying the hyper Radar modifier. */
     public static boolean hasRadar(LivingEntity entity) {
         return ServerVaults.get(entity.level)
-                .map(vault -> vault.get(Vault.MODIFIERS).hasModifier(WoldsVaults.id("radar")))
+                .map(vault -> vault.get(Vault.MODIFIERS).hasModifier(RADAR))
                 .orElse(false);
     }
 
@@ -63,6 +74,32 @@ public final class HyperVaultEvents {
         if (isHyperBoss(event.getEntityLiving())) {
             event.setCanceled(true);
         }
+    }
+
+    /** Cached Radar state for hot targeting paths, refreshed once per second and on dimension change. */
+    public static boolean isUnderRadar(Player player) {
+        return RADAR_PLAYERS.contains(player.getUUID());
+    }
+
+    private static boolean refreshRadar(ServerPlayer player) {
+        if (hasRadar(player)) {
+            RADAR_PLAYERS.add(player.getUUID());
+            return true;
+        }
+        RADAR_PLAYERS.remove(player.getUUID());
+        return false;
+    }
+
+    @SubscribeEvent
+    public static void refreshRadarOnDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getPlayer() instanceof ServerPlayer player) {
+            refreshRadar(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void clearRadarOnLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        RADAR_PLAYERS.remove(event.getPlayer().getUUID());
     }
 
     @SubscribeEvent
@@ -85,7 +122,7 @@ public final class HyperVaultEvents {
         }
         event.setResult(Event.Result.DENY);
         if (mob.addTag("woldsvaults_hyper_immortality_denied")) {
-            WoldsVaults.LOGGER.info("Denied Immortality on {} in a hyper vault (mob immortality is disabled here).",
+            WoldLogger.debug("Denied Immortality on {} in a hyper vault (mob immortality is disabled here).",
                     mob.getType().getRegistryName());
         }
     }
@@ -111,7 +148,7 @@ public final class HyperVaultEvents {
         if (castStealth) {
             player.displayClientMessage(new TextComponent("The Vault's radar reveals you — stealth has no effect!")
                     .withStyle(ChatFormatting.RED), true);
-            WoldsVaults.LOGGER.info("Radar denied {} on {}.", effect.getRegistryName(), player.getGameProfile().getName());
+            WoldLogger.debug("Radar denied {} on {}.", effect.getRegistryName(), player.getGameProfile().getName());
         }
     }
 
@@ -124,7 +161,7 @@ public final class HyperVaultEvents {
         if (event.phase != TickEvent.Phase.END || event.side.isClient() || event.player.tickCount % 20 != 0) {
             return;
         }
-        if (!(event.player instanceof ServerPlayer player) || !hasRadar(player)) {
+        if (!(event.player instanceof ServerPlayer player) || !refreshRadar(player)) {
             return;
         }
         boolean stripped = player.removeEffect(ModEffects.GHOST_WALK);
@@ -133,7 +170,7 @@ public final class HyperVaultEvents {
         if (stripped) {
             player.displayClientMessage(new TextComponent("The Vault's radar reveals you — stealth has no effect!")
                     .withStyle(ChatFormatting.RED), true);
-            WoldsVaults.LOGGER.info("Radar stripped an active stealth effect from {}.", player.getGameProfile().getName());
+            WoldLogger.debug("Radar stripped an active stealth effect from {}.", player.getGameProfile().getName());
         }
     }
 
@@ -167,7 +204,7 @@ public final class HyperVaultEvents {
         float multiplier = (float) HyperVaultObjective.cfg().getWaveBlastDamageMultiplier();
         float amount = event.getAmount() * multiplier;
         player.hurt(DamageSource.mobAttack(boss), amount);
-        WoldsVaults.LOGGER.info("Normalized a hyperboss ability hit on {} to physical: {} raw x{} = {} dealt (armor applies).",
+        WoldLogger.debug("Normalized a hyperboss ability hit on {} to physical: {} raw x{} = {} dealt (armor applies).",
                 player.getGameProfile().getName(), Math.round(event.getAmount()), multiplier, Math.round(amount));
     }
 
@@ -191,7 +228,7 @@ public final class HyperVaultEvents {
         event.getAffectedBlocks().removeIf(pos -> isPoolOrCasing(level, pos));
         int removed = before - event.getAffectedBlocks().size();
         if (removed > 0) {
-            WoldsVaults.LOGGER.info("Shielded {} pool block(s) from an explosion in a hyper vault.", removed);
+            WoldLogger.debug("Shielded {} pool block(s) from an explosion in a hyper vault.", removed);
         }
     }
 

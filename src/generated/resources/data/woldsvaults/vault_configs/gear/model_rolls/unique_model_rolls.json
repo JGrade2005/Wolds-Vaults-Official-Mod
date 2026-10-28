@@ -54,7 +54,11 @@
     "EPIC": [],
     "OMEGA": [],
     "UNIQUE": [
-      "the_vault:gear/armor/plague/boots"
+      "the_vault:gear/armor/plague/boots",
+      "the_vault:gear/armor/tidebreaker/helmet",
+      "the_vault:gear/armor/tidebreaker/chestplate",
+      "the_vault:gear/armor/tidebreaker/leggings",
+      "the_vault:gear/armor/tidebreaker/boots"
     ],
     "SPECIAL": [],
     "CHAOTIC": [],
@@ -94,7 +98,8 @@
       "woldsvaults:gear/magnet/aural",
       "the_vault:magnets/heart_magnet",
       "the_vault:magnets/treasure_magnet",
-      "the_vault:magnets/bloody_magnet"
+      "the_vault:magnets/bloody_magnet",
+      "woldsvaults:gear/magnet/hurricane"
     ],
     "SPECIAL": [],
     "CHAOTIC": [],
@@ -108,7 +113,8 @@
     "OMEGA": [],
     "UNIQUE": [
       "woldsvaults:gear/trident/ocean_current",
-      "woldsvaults:gear/trident/fork"
+      "woldsvaults:gear/trident/fork",
+      "woldsvaults:gear/trident/tideripper"
     ],
     "SPECIAL": [],
     "CHAOTIC": [],

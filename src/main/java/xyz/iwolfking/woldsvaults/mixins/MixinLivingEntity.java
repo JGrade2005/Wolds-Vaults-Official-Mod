@@ -3,6 +3,7 @@ package xyz.iwolfking.woldsvaults.mixins;
 import com.llamalad7.mixinextras.sugar.Local;
 import iskallia.vault.client.data.ClientPrestigePowersData;
 import iskallia.vault.core.vault.ClientVaults;
+import iskallia.vault.entity.boss.TheVesselEntity;
 import iskallia.vault.skill.base.Skill;
 import iskallia.vault.skill.prestige.TreasureHunterPrestigePower;
 import iskallia.vault.world.data.PlayerPrestigePowersData;
@@ -15,12 +16,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 import org.spongepowered.asm.mixin.Mixin;
+import xyz.iwolfking.woldsvaults.config.GearSetConfig;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,6 +32,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
+import xyz.iwolfking.woldsvaults.api.util.VesselSlowCapHelper;
 import xyz.iwolfking.woldsvaults.events.HyperVaultEvents;
 import xyz.iwolfking.woldsvaults.init.ModEffects;
 import xyz.iwolfking.woldsvaults.prestige.ReachPrestigePower;
@@ -47,6 +53,13 @@ public abstract class MixinLivingEntity extends Entity {
 
     @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/world/effect/MobEffect;)Z", ordinal = 2), cancellable = true)
     private void doLevitates(Vec3 pTravelVector, CallbackInfo ci, @Local(ordinal = 1) float f3, @Local(ordinal = 1) Vec3 vec35) {
+        if (this.hasEffect(ModEffects.TIDAL_HOVER) && !this.isShiftKeyDown()) {
+            GearSetConfig.Riptide tuning = xyz.iwolfking.woldsvaults.init.ModConfigs.GEAR_SETS.getRiptide();
+            double horizontal = f3 * tuning.hoverHorizontalFriction;
+            this.setDeltaMovement(vec35.x * horizontal, vec35.y * tuning.hoverVerticalDamping, vec35.z * horizontal);
+            ci.cancel();
+            return;
+        }
 
         int levels = (this.hasEffect(ModEffects.LEVITATEII)
                     ? this.getEffect(ModEffects.LEVITATEII).getAmplifier()+1
@@ -90,7 +103,7 @@ public abstract class MixinLivingEntity extends Entity {
         LivingEntity self = (LivingEntity) (Object) this;
         if (!HyperVaultEvents.isInHyperVault(self)) {
             if (this.addTag("woldsvaults_nonfinite_health_seen")) {
-                WoldsVaults.LOGGER.error(
+                WoldLogger.error(
                         "Non-finite health write ({}) on {} outside a hyper vault — left untouched (NaN guards are hyper-scoped).",
                         health, this.getType().getRegistryName());
             }
@@ -103,7 +116,7 @@ public abstract class MixinLivingEntity extends Entity {
         } else {
             sanitized = health > 0.0F ? Float.MAX_VALUE : 0.0F;
         }
-        WoldsVaults.LOGGER.error("HYPER NaN-guard: sanitized health write {} -> {} on {} (was {}, max {}).",
+        WoldLogger.error("HYPER NaN-guard: sanitized health write {} -> {} on {} (was {}, max {}).",
                 health, sanitized, this.getType().getRegistryName(), previous, self.getMaxHealth());
         return sanitized;
     }
@@ -121,6 +134,16 @@ public abstract class MixinLivingEntity extends Entity {
                     double increase =  PlayerPrestigePowersData.get((ServerLevel) this.level).getPowers(player).getAll(ReachPrestigePower.class, Skill::isUnlocked).stream().mapToDouble(ReachPrestigePower::getReachIncrease).sum();
                     cir.setReturnValue(Math.min(this.getAttributes().getValue(attribute), 7.0F + increase));
                 }
+            }
+        }
+    }
+
+    @Inject(method = "getAttributeValue", at = @At("RETURN"), cancellable = true)
+    private void woldsVaults$capVesselSlow(Attribute attribute, CallbackInfoReturnable<Double> cir) {
+        if (attribute == Attributes.MOVEMENT_SPEED && (Object) this instanceof TheVesselEntity vessel) {
+            AttributeInstance instance = vessel.getAttribute(Attributes.MOVEMENT_SPEED);
+            if (instance != null) {
+                cir.setReturnValue(VesselSlowCapHelper.capSlow(vessel, cir.getReturnValue(), instance));
             }
         }
     }

@@ -22,6 +22,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xyz.iwolfking.woldsvaults.WoldsVaults;
 import iskallia.vault.world.data.ServerVaults;
+import xyz.iwolfking.woldsvaults.api.core.WoldLogger;
 import xyz.iwolfking.woldsvaults.config.forge.WoldsVaultsConfig;
 import xyz.iwolfking.woldsvaults.milestones.trials.TrialMastery;
 import xyz.iwolfking.woldsvaults.mixins.vaulthunters.accessors.DamageMultiplierAccessor;
@@ -177,7 +178,7 @@ public final class HyperBossDamageInstrumentation {
                         access.getTickTimeout() == Integer.MAX_VALUE ? "inf" : String.valueOf(access.getTickTimeout())));
             }
             MobEffectInstance vulnerable = boss.getEffect(ModEffects.VULNERABLE);
-            WoldsVaults.LOGGER.info(
+            WoldLogger.debug(
                     "  hit detail: charge={} fatalStrike={} (chance {} | +{}% dmg) | damageHelper x{} = (1+{}) x {} from:{} | rage {} (x{}/pt) | retribution {} (x{}/pt) | target vulnerableAmp={}",
                     String.format("%.2f", AttackScaleHelper.getLastAttackScale(player)),
                     CritHelper.getCrit(player),
@@ -191,7 +192,7 @@ public final class HyperBossDamageInstrumentation {
                     String.format("%.3f", PlayerRelentlessStrikeHelper.getDamagePerPoint(player)),
                     vulnerable == null ? "none" : vulnerable.getAmplifier());
         } catch (Exception e) {
-            WoldsVaults.LOGGER.error("Hyperboss hit-detail logging failed", e);
+            WoldLogger.error("Hyperboss hit-detail logging failed", e);
         }
     }
 
@@ -222,7 +223,7 @@ public final class HyperBossDamageInstrumentation {
         }
         Float start = DAMAGE_PHASE_START.get();
         DAMAGE_PHASE_START.remove();
-        WoldsVaults.LOGGER.info("Hyperboss post-armor: {} -> {} (x{})",
+        WoldLogger.debug("Hyperboss post-armor: {} -> {} (x{})",
                 start == null ? "?" : String.format("%.1f", start),
                 String.format("%.1f", event.getAmount()),
                 start == null || start == 0.0F ? "?" : String.format("%.2f", event.getAmount() / start));

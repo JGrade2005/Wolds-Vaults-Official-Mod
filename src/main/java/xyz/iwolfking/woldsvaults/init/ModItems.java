@@ -62,6 +62,9 @@ public class ModItems {
     public static VaultLootSackItem LOOT_SACK;
     public static VaultRangItem RANG;
     public static VaultMapItem MAP;
+    public static VaultScepterItem SCEPTER;
+    public static VaultDaggerMainItem DAGGER_MAIN;
+    public static VaultDaggerSubItem DAGGER_SUB;
 
     public static CombinedTrinketItem COMBINED_TRINKET;
 
@@ -124,6 +127,7 @@ public class ModItems {
     public static final BasicItem WEAPON_TYPE_FOCUS;
     public static final BasicItem BLAZING_FOCUS;
     public static final BasicItem SUSPENSION_FOCUS;
+    public static final BasicItem INSCRIBING_FOCUS;
 
     public static BasicItem FRENZY_CAPSTONE;
     public static BasicItem PROSPEROUS_CAPSTONE;
@@ -131,6 +135,7 @@ public class ModItems {
     public static BasicItem ENCHANTED_CAPSTONE;
     public static ConcealedChaosItem CONCEALED_CHAOS;
     public static MythicVaultCharmItem MYTHIC_VAULT_CHARM;
+    public static InfusionPreventionItem INFUSION_PREVENTION;
     public static BasicItem COMMUNITY_TOKEN;
     public static BasicItem RESEARCH_TOKEN;
 
@@ -150,11 +155,8 @@ public class ModItems {
      */
     public static final Map<GreedMedallionTier, GreedMedallionItem> GREED_MEDALLIONS = new EnumMap<>(GreedMedallionTier.class);
 
-    /**
-     * Testing-only source of ancient uniques: yields a level 100 ancient unique drawn uniformly from every unique
-     * with an ancient tier config.
-     */
-    public static UnidentifiedAncientUniqueItem UNIDENTIFIED_ANCIENT_UNIQUE;
+    /** Retired item kept registered so stacks from older builds convert into real unidentified ancient gear. */
+    public static LegacyUnidentifiedAncientItem UNIDENTIFIED_ANCIENT_UNIQUE;
 
     public static BasicItem STYLISH_FOCUS;
     public static BasicItem MERCY_ORB;
@@ -175,6 +177,10 @@ public class ModItems {
     public static BasicItem VAULT_DECO_SCROLL;
     public static BasicItem ARCANE_ESSENCE;
     public static BasicItem ARCANE_SHARD;
+    public static xyz.iwolfking.woldsvaults.items.ExtractorItem EXTRACTOR;
+    public static xyz.iwolfking.woldsvaults.items.PowerCellItem POWER_CELL;
+    public static final EnumMap<xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType, xyz.iwolfking.woldsvaults.items.ExtractorBlueprintItem> EXTRACTOR_BLUEPRINTS = new EnumMap<>(xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType.class);
+    public static final EnumMap<xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType, xyz.iwolfking.woldsvaults.items.ExtractorPartItem> EXTRACTOR_PARTS = new EnumMap<>(xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType.class);
     public static BasicItem EXTRAORDINARY_POG_PRISM;
     public static BasicItem HEART_OF_CHAOS;
     public static BasicItem GEM_REAGENT_ASHIUM;
@@ -236,6 +242,8 @@ public class ModItems {
 
     public static CompanionRerollingItem COMPANION_REROLLER;
 
+    public static InfusedAugmentItem INFUSED_AUGMENT;
+
     public static BasicItem POGGING_SEED_BASE;
     public static BasicItem ECHOING_SEED_BASE;
 
@@ -243,6 +251,7 @@ public class ModItems {
 
     public static BasicItem UNINFUSED_TERRASTEEL_INGOT;
     public static BasicItem LEAD_DYE_BASE;
+    public static BasicItem CONCENTRATED_VOID;
 
     public static Map<DyeColor, BasicItem> COLORED_UNOBTANIUMS = new HashMap<>();
     public static BasicItem RAINBOW_UNOBTANIUM;
@@ -251,6 +260,16 @@ public class ModItems {
     public static TimeTrialTrophyItem TIME_TRIAL_TROPHY;
 
     public static BucketItem PRISMATIC_GLUE_BUCKET = (BucketItem) new BucketItem(ModFluids.PRISMATIC_GLUE, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).tab(ModCreativeTabs.WOLDS_VAULTS)).setRegistryName(WoldsVaults.id("prismatic_glue_bucket"));
+    public static xyz.iwolfking.woldsvaults.items.FabricationPatternItem BLANK_FABRICATION_PATTERN;
+    public static xyz.iwolfking.woldsvaults.items.FabricationPatternItem FABRICATION_PATTERN;
+    /** The Vault Fabricator's products, keyed like {@code extractor_costs.json} COMPONENTS. */
+    public static final java.util.LinkedHashMap<String, BasicItem> EXTRACTOR_COMPONENTS = new java.util.LinkedHashMap<>();
+    public static final String[][] EXTRACTOR_COMPONENT_IDS = {
+            {"blast_chamber", "blast_chamber"}, {"vpu", "vault_processing_unit"}, {"field_emitter", "field_emitter"},
+            {"heat_exchanger", "heat_exchanger"}, {"servo_actuator", "servo_actuator"}, {"spine", "structural_spine"},
+            {"containment_ring", "containment_ring"}, {"phase_lattice", "phase_lattice"}, {"cryo_exchanger", "cryogenic_exchanger"},
+            {"qpu", "quantum_processing_unit"}};
+
     public static BucketItem MOLTEN_TRINKET_BUCKET = (BucketItem) new BucketItem(ModFluids.MOLTEN_TRINKET, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).tab(ModCreativeTabs.WOLDS_VAULTS)).setRegistryName(WoldsVaults.id("molten_trinket_bucket"));
 
     @SubscribeEvent
@@ -269,7 +288,10 @@ public class ModItems {
         registry.register(CRYSTAL_SEAL_UNHINGED_SCAVINGO);
         registry.register(CRYSTAL_SEAL_RAID_ROCK_INFINITE_HARD);
         registry.register(BATTLESTAFF);
+        registry.register(DAGGER_MAIN);
+        registry.register(DAGGER_SUB);
         registry.register(TRIDENT);
+        registry.register(SCEPTER);
         registry.register(PLUSHIE);
         registry.register(LOOT_SACK);
         registry.register(GEM_BOX);
@@ -334,6 +356,14 @@ public class ModItems {
         registry.register(VAULT_DECO_SCROLL);
         registry.register(ARCANE_ESSENCE);
         registry.register(ARCANE_SHARD);
+        registry.register(EXTRACTOR);
+        registry.register(POWER_CELL);
+        EXTRACTOR_BLUEPRINTS.values().forEach(registry::register);
+        EXTRACTOR_PARTS.values().forEach(registry::register);
+        registry.register(BLANK_FABRICATION_PATTERN);
+        registry.register(FABRICATION_PATTERN);
+        EXTRACTOR_COMPONENTS.values().forEach(registry::register);
+        ModFluids.EXTRACTION_FLUIDS.values().forEach(fluid -> registry.register(fluid.bucket));
         registry.register(EXTRAORDINARY_POG_PRISM);
         registry.register(HEART_OF_CHAOS);
         registry.register(GEM_REAGENT_GORGINITE);
@@ -371,6 +401,7 @@ public class ModItems {
         registry.register(SOUL_ICHOR);
         registry.register(BLAZING_FOCUS);
         registry.register(SUSPENSION_FOCUS);
+        registry.register(INSCRIBING_FOCUS);
         registry.register(TARGETED_MOD_BOX);
         registry.register(UNIDENTIFIED_GATEWAY_PEARL);
         registry.register(TRINKET_POUCH);
@@ -419,6 +450,9 @@ public class ModItems {
         registry.register(TENOS_GOD_NEURALIZER);
         registry.register(WENDARR_GOD_NEURALIZER);
         registry.register(LEAD_DYE_BASE);
+        registry.register(CONCENTRATED_VOID);
+        registry.register(INFUSED_AUGMENT);
+        registry.register(INFUSION_PREVENTION);
         COLORED_UNOBTANIUMS.forEach((s, bi) -> {
             registry.register(bi);
         });
@@ -458,6 +492,9 @@ public class ModItems {
         LOOT_SACK = new VaultLootSackItem(VaultMod.id("loot_sack"), (new Item.Properties()).tab(GEAR_GROUP).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1));
         RANG = new VaultRangItem(VaultMod.id("rang"), new Item.Properties().stacksTo(1).tab(GEAR_GROUP).tab(ModCreativeTabs.WOLDS_VAULTS));
         MAP = new VaultMapItem(VaultMod.id("map"), (new Item.Properties()).tab(GEAR_GROUP).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1));
+        SCEPTER = new VaultScepterItem(VaultMod.id("scepter"), (new Item.Properties()).tab(GEAR_GROUP).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1));
+        DAGGER_MAIN = new VaultDaggerMainItem(VaultMod.id("dagger"), (new Item.Properties()).tab(GEAR_GROUP).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1));
+        DAGGER_SUB = new VaultDaggerSubItem(VaultMod.id("dagger_sub"), (new Item.Properties()).tab(GEAR_GROUP).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1));
 
         GEM_BOX = new LootableItem(WoldsVaults.id("gem_box"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS), () -> (ModConfigs.GEM_BOX.POOL.getRandom(rand).generateItemStack()));
         SUPPLY_BOX = new LootableItem(WoldsVaults.id("supply_box"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS), () -> (ModConfigs.SUPPLY_BOX.POOL.getRandom(rand).generateItemStack()));
@@ -511,7 +548,7 @@ public class ModItems {
             GREED_MEDALLIONS.put(medallionTier, new GreedMedallionItem(medallionTier, (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16)));
         }
 
-        UNIDENTIFIED_ANCIENT_UNIQUE = new UnidentifiedAncientUniqueItem(WoldsVaults.id("unidentified_ancient_unique"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16));
+        UNIDENTIFIED_ANCIENT_UNIQUE = new LegacyUnidentifiedAncientItem(WoldsVaults.id("unidentified_ancient_unique"), (new Item.Properties()).stacksTo(16));
 
         STYLISH_FOCUS = new BasicItem(WoldsVaults.id("stylish_focus"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS));
         CHISELING_FOCUS = new ToolModifierNullifyingItem(WoldsVaults.id("chiseling_focus"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS));
@@ -519,6 +556,7 @@ public class ModItems {
         WEAPON_TYPE_FOCUS = new BasicItem(WoldsVaults.id("accoutre_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         BLAZING_FOCUS = new BasicItem(WoldsVaults.id("blazing_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         SUSPENSION_FOCUS = new BasicItem(WoldsVaults.id("suspension_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
+        INSCRIBING_FOCUS = new BasicItem(WoldsVaults.id("inscribing_focus"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
 
         MERCY_ORB = new BasicItem(WoldsVaults.id("mercy_orb"), (new Item.Properties()).tab(ModCreativeTabs.WOLDS_VAULTS));
 
@@ -543,6 +581,21 @@ public class ModItems {
         EXTRAORDINARY_POG_PRISM = new BasicItem(WoldsVaults.id("extraordinary_pog_prism"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         ARCANE_ESSENCE = new BasicItem(WoldsVaults.id("arcane_essence"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         ARCANE_SHARD = new BasicItem(WoldsVaults.id("arcane_shard"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
+        EXTRACTOR = new xyz.iwolfking.woldsvaults.items.ExtractorItem(WoldsVaults.id("extractor"));
+        POWER_CELL = new xyz.iwolfking.woldsvaults.items.PowerCellItem(WoldsVaults.id("power_cell"));
+        for (xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType type : xyz.iwolfking.woldsvaults.extraction.parts.ExtractorPartType.values()) {
+            EXTRACTOR_BLUEPRINTS.put(type, new xyz.iwolfking.woldsvaults.items.ExtractorBlueprintItem(WoldsVaults.id(type.getId() + "_blueprint"),
+                    new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1), type));
+            EXTRACTOR_PARTS.put(type, new xyz.iwolfking.woldsvaults.items.ExtractorPartItem(WoldsVaults.id("extractor_" + type.getId()),
+                    new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(1), type));
+        }
+        BLANK_FABRICATION_PATTERN = new xyz.iwolfking.woldsvaults.items.FabricationPatternItem(WoldsVaults.id("blank_fabrication_pattern"),
+                new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16), false);
+        FABRICATION_PATTERN = new xyz.iwolfking.woldsvaults.items.FabricationPatternItem(WoldsVaults.id("fabrication_pattern"),
+                new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS).stacksTo(16), true);
+        for (String[] component : EXTRACTOR_COMPONENT_IDS) {
+            EXTRACTOR_COMPONENTS.put(component[0], new BasicItem(WoldsVaults.id(component[1]), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS)));
+        }
         HEART_OF_CHAOS = new BasicItem(WoldsVaults.id("heart_of_chaos"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         AUGMENT_PIECE = new BasicItem(WoldsVaults.id("augment_piece"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         VAULT_DIAMOND_NUGGET = new BasicItem(WoldsVaults.id("vault_diamond_nugget"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
@@ -604,11 +657,14 @@ public class ModItems {
 
         COMPANION_REROLLER = new CompanionRerollingItem(WoldsVaults.id("companion_reroller"));
 
+        INFUSED_AUGMENT = new InfusedAugmentItem(ModCreativeTabs.WOLDS_VAULTS, WoldsVaults.id("infused_augment"));
+
         POGGING_SEED_BASE = new BasicItem(WoldsVaults.id("pogging_seed_base"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         ECHOING_SEED_BASE = new BasicItem(WoldsVaults.id("echoing_seed_base"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
 
         UNINFUSED_TERRASTEEL_INGOT = new BasicItem(WoldsVaults.id("uninfused_terrasteel_ingot"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         LEAD_DYE_BASE = new BasicItem(WoldsVaults.id("lead_dye_base"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
+        CONCENTRATED_VOID = new BasicItem(WoldsVaults.id("concentrated_void"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
 
         COMBINED_TRINKET = new CombinedTrinketItem(WoldsVaults.id("combined_trinket"));
 
@@ -628,5 +684,6 @@ public class ModItems {
         GREED_TREE_RESET_ITEM = new GreedTreeResetItem(WoldsVaults.id("greed_neuralizer"));
         CONCEALED_CHAOS = new ConcealedChaosItem(WoldsVaults.id("concealed_chaos"), new Item.Properties().tab(ModCreativeTabs.WOLDS_VAULTS));
         MYTHIC_VAULT_CHARM = new MythicVaultCharmItem(WoldsVaults.id("mythic_vault_charm"));
+        INFUSION_PREVENTION = new InfusionPreventionItem(WoldsVaults.id("crystal_duller"));
     }
 }

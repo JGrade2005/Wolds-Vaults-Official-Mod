@@ -57,12 +57,12 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             TalentDescriptionsHelper.appendOverlevelDescription("Mana_Harvest", builder, "add", "+1 Additional Mana", "#0353d7");
             TalentDescriptionsHelper.appendOverlevelDescription("Fatal_Strike", builder, "add", "+20% Additional Damage", "#C23627");
             TalentDescriptionsHelper.appendOverlevelDescription("Heart_Fragments", builder, "add", "+3% Heart Fragment Chance", "#7DF587");
-            TalentDescriptionsHelper.appendOverlevelDescription("Mana_Steal", builder, "add", "+1% Max Mana Restored", "#19A6E4");
-            TalentDescriptionsHelper.appendOverlevelDescription("Life_Steal", builder, "add", "+2% Life Leeched", "#C23627");
+            TalentDescriptionsHelper.appendOverlevelDescription("Mana_Steal", builder, "add", "+0.5% Max Mana Restored", "#19A6E4");
+            TalentDescriptionsHelper.appendOverlevelDescription("Life_Steal", builder, "add", "+0.5% Life Leeched", "#C23627");
             TalentDescriptionsHelper.appendOverlevelDescription("Cleave", builder, "add", "+1% Additional damage and +5% Additional Range", "#5ae09c");
             TalentDescriptionsHelper.appendOverlevelDescription("Prudent", builder, "add", "+4% Additional Chance", "#5ae09c");
             TalentDescriptionsHelper.appendOverlevelDescription("Ethereal", builder,"add", "+3% Additional Chance", "#5ae09c");
-            TalentDescriptionsHelper.appendOverlevelDescription("Quickening", builder, "add", "+10% Mana Refunded", "#19A6E4");
+            TalentDescriptionsHelper.appendOverlevelDescription("Quickening", builder, "add", "+10% Cooldown Refunded", "#19A6E4");
             TalentDescriptionsHelper.appendOverlevelDescription("Trap_Disarm", builder, "add", "+10% Trap Disarm Chance", "#4800FF");
             TalentDescriptionsHelper.appendOverlevelDescription("Executioner", builder, "add", "+5% Additional Damage", "#C23627");
             TalentDescriptionsHelper.appendOverlevelDescription("Blizzard", builder, "adds an additional level to the", "Frost Nova", "#2FE1FA");
@@ -141,6 +141,46 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
                 TalentDescriptionsHelper.appendOverlevelDescription("Healthy Elixir", "add", "+3% max health restored", "#7DF587", description);
             });
 
+            builder.addDescription("Blood_Chakra", description -> {
+                description.add(JsonDescription.text("Killing a mob grants "));
+                description.add(JsonDescription.text("+3% Increased Ability Power", "#bd49bf"));
+                description.add(JsonDescription.text(". This effect can "));
+                description.add(JsonDescription.text("stack ", "yellow"));
+                description.add(JsonDescription.text("and lasts for a short time."));
+                description.add(JsonDescription.text(".\n\n1 "));
+                description.add(JsonDescription.text("+4 Max Stacks", "yellow"));
+                description.add(JsonDescription.text(", "));
+                description.add(JsonDescription.text("4 seconds", "#7e1c80"));
+                description.add(JsonDescription.text("\n\n2 "));
+                description.add(JsonDescription.text("+6 Max Stacks", "yellow"));
+                description.add(JsonDescription.text(", "));
+                description.add(JsonDescription.text("6 seconds", "#7e1c80"));
+                description.add(JsonDescription.text("\n\n3 "));
+                description.add(JsonDescription.text("+8 Max Stacks", "yellow"));
+                description.add(JsonDescription.text(", "));
+                description.add(JsonDescription.text("8 seconds", "#7e1c80"));
+                description.add(JsonDescription.text("\n\n4 "));
+                description.add(JsonDescription.text("+10 Max Stacks", "yellow"));
+                description.add(JsonDescription.text(", "));
+                description.add(JsonDescription.text("10 seconds", "#7e1c80"));
+                description.add(JsonDescription.text("\n\n"));
+                TalentDescriptionsHelper.appendOverlevelDescription("Blood_Chakra", "add", "one additional max stack", "#36ffa7", description);
+            });
+
+            builder.addDescription("Hexbreaker", description -> {
+                description.add(JsonDescription.text("Deal additional damage with abilities to mobs that have a debuff"));
+                description.add(JsonDescription.text(".\n\n1 "));
+                description.add(JsonDescription.text("+20% Damage", "#f99b21"));
+                description.add(JsonDescription.text("\n\n2 "));
+                description.add(JsonDescription.text("+40% Damage", "#f99b21"));
+                description.add(JsonDescription.text("\n\n3 "));
+                description.add(JsonDescription.text("+60% Damage", "#f99b21"));
+                description.add(JsonDescription.text("\n\n4 "));
+                description.add(JsonDescription.text("+80% Damage", "#f99b21"));
+                description.add(JsonDescription.text("\n\n"));
+                TalentDescriptionsHelper.appendOverlevelDescription("Hexbreaker", "add", "+5% Damage", "#f99b21", description);
+            });
+
             builder.addDescription("Ransack", description -> {
                 description.add(JsonDescription.text("Breaking sliceable "));
                 description.add(JsonDescription.text("Vault Chests ", "#e88a12"));
@@ -201,7 +241,7 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
                 description.add(JsonDescription.text(".\n\n1 "));
                 description.add(JsonDescription.text("5 max stacks, 4% Movement Speed per stack, stacking every 4 seconds. 6 Radius with 120% Knockback.", "#C7FFE7"));
                 description.add(JsonDescription.text("\n\n2 "));
-                description.add(JsonDescription.text("+5 max stacks, 4% Movement Speed per stack, stacking every 3.5 seconds. 7 Radius with 140% Knockback", "#C7FFE7"));
+                description.add(JsonDescription.text("5 max stacks, 4% Movement Speed per stack, stacking every 3.5 seconds. 7 Radius with 140% Knockback", "#C7FFE7"));
                 description.add(JsonDescription.text("\n\n3 "));
                 description.add(JsonDescription.text("5 max stacks, 4% Movement Speed per stack, stacking every 3 seconds. 8 Radius with 160% Knockback.", "#C7FFE7"));
                 description.add(JsonDescription.text("\n\n"));
@@ -229,11 +269,11 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
                 description.add(JsonDescription.text("causing them to reduce all of your abilities "));
                 description.add(JsonDescription.text("cooldowns by a percentage of their maximum cooldown time"));
                 description.add(JsonDescription.text(".\n\n1 "));
-                description.add(JsonDescription.text("+2% reduced cooldown", "#cbe6fe"));
+                description.add(JsonDescription.text("+1% reduced cooldown", "#cbe6fe"));
                 description.add(JsonDescription.text("\n\n2 "));
-                description.add(JsonDescription.text("+3% reduced cooldown", "#cbe6fe"));
+                description.add(JsonDescription.text("+2% reduced cooldown", "#cbe6fe"));
                 description.add(JsonDescription.text("\n\n3 "));
-                description.add(JsonDescription.text("+4% reduced cooldown", "#cbe6fe"));
+                description.add(JsonDescription.text("+3% reduced cooldown", "#cbe6fe"));
                 description.add(JsonDescription.text("\n\n"));
                 TalentDescriptionsHelper.appendOverlevelDescription("Arcane Cascade", "add", "+0.5% reduced cooldown", "#cbe6fe", description);
             });
@@ -256,14 +296,15 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             builder.addDescription("Execution_Strike", description -> {
                 description.add(JsonDescription.text("Enhances your "));
                 description.add(JsonDescription.text("Lucky Hits ", "#6DF5A3"));
-                description.add(JsonDescription.text("causing them to deal a portion of the target's "));
-                description.add(JsonDescription.text("missing health ", "red"));
-                description.add(JsonDescription.text("as bonus "));
-                description.add(JsonDescription.text("damage ", "red"));
-                description.add(JsonDescription.text(".\n\n1 "));
-                description.add(JsonDescription.text("+15% of missing health", "#d80000"));
+                description.add(JsonDescription.text("so they "));
+                description.add(JsonDescription.text("execute ", "#d80000"));
+                description.add(JsonDescription.text("targets: a lucky hit on a target at or below your execute threshold of its "));
+                description.add(JsonDescription.text("max health ", "red"));
+                description.add(JsonDescription.text("kills it outright. Adds to the execute threshold from your gear. Bosses take half the threshold."));
+                description.add(JsonDescription.text("\n\n1 "));
+                description.add(JsonDescription.text("+4% execute threshold", "#d80000"));
                 description.add(JsonDescription.text("\n\n"));
-                TalentDescriptionsHelper.appendOverlevelDescription("Executing Strike", "add", "+1% increased missing health damage", "#d80000", description);
+                TalentDescriptionsHelper.appendOverlevelDescription("Executing Strike", "add", "+2% execute threshold", "#d80000", description);
             });
 
             builder.addDescription("Mind_Meld", description -> {
@@ -639,6 +680,10 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
                      disabledInVaults().forEach(innerDesc::add);
                      innerDesc.add(JsonDescription.simple("Harness immense power with advanced tech, massive energy storage, and endgame gear. Build powerful reactors, upgrade your equipment beyond your limits!", "$text"));
                 }).forEach(jsonElements::add))
+                .addDescription("Just Dire Things", jsonElements -> modDesc("Just Dire Things", innerDesc -> {
+                            disabledInVaults().forEach(innerDesc::add);
+                            innerDesc.add(JsonDescription.simple("Just Dire Things is a collection of various cool items, blocks, and utilities."));
+                        }))
                 .build());
     }
 
@@ -1617,9 +1662,9 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             description.add(JsonDescription.text(" (+4 minutes). Stacks with other players."));
         });
         builder.addDescription("wendarr_temporal_breaking", description -> {
-            description.add(JsonDescription.text("Time acceleration is "));
-            description.add(JsonDescription.text("50% weaker", gold));
-            description.add(JsonDescription.text(". Does not stack."));
+            description.add(JsonDescription.text("Grants "));
+            description.add(JsonDescription.text("immunity", gold));
+            description.add(JsonDescription.text(" to time acceleration."));
         });
         godNode(builder, "wendarr_plushie_lover", "Doubles the rolled stats", gold, " of an equipped plushie.");
         builder.addDescription("wendarr_pylon_whisperer", description -> {
@@ -1813,7 +1858,7 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             description.add(JsonDescription.text("."));
         });
         builder.addDescription("tenos_expert_looter", description -> {
-            description.add(JsonDescription.text("Chests roll "));
+            description.add(JsonDescription.text("Chests can roll up to "));
             description.add(JsonDescription.text("+4 more item stacks", sky));
             description.add(JsonDescription.text("."));
         });
@@ -1842,7 +1887,7 @@ public class ModSkillDescriptionsProvider extends AbstractSkillDescriptionsProvi
             description.add(JsonDescription.text(", scaling with your chests per minute averaged over the last five minutes."));
         });
         builder.addDescription("tenos_massive_chests", description -> {
-            description.add(JsonDescription.text("Chests roll "));
+            description.add(JsonDescription.text("Chests can roll up to "));
             description.add(JsonDescription.text("+20 more item stacks", sky));
             description.add(JsonDescription.text(", but your Item Rarity is "));
             description.add(JsonDescription.text("halved", sky));

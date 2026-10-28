@@ -45,6 +45,11 @@ public class ModConfigs {
     public static AlchemyObjectiveConfig ALCHEMY_OBJECTIVE;
     public static SurvivalObjectiveConfig SURVIVAL_OBJECTIVE;
     public static HyperObjectiveConfig HYPER_OBJECTIVE;
+    public static ExtractionObjectiveConfig EXTRACTION_OBJECTIVE;
+    public static xyz.iwolfking.woldsvaults.config.ExtractorPartsConfig EXTRACTOR_PARTS;
+    public static xyz.iwolfking.woldsvaults.config.ExtractorCostsConfig EXTRACTOR_COSTS;
+    public static xyz.iwolfking.woldsvaults.config.ObjectiveDifficultyConfig OBJECTIVE_DIFFICULTY;
+    public static xyz.iwolfking.woldsvaults.config.GearSetConfig GEAR_SETS;
 
     public static AugmentRecipesConfig AUGMENT_RECIPES;
     public static ModBoxRecipesConfig MOD_BOX_RECIPES_CONFIG;
@@ -81,6 +86,8 @@ public class ModConfigs {
     public static final Map<VaultGod, GodTreeConfig> GOD_TREES = new EnumMap<>(VaultGod.class);
     public static final Map<VaultGod, GodTreeGuiStylesConfig> GOD_TREE_GUI_STYLES = new EnumMap<>(VaultGod.class);
     public static final Map<VaultGod, GodNodeEffectsConfig> GOD_NODE_EFFECTS = new EnumMap<>(VaultGod.class);
+    public static ThemeModifiersConfig THEME_MODIFIERS = new ThemeModifiersConfig();
+    public static ThemePaletteRegistryConfig THEME_PALETTE_REGISTRY = new ThemePaletteRegistryConfig();
 
     public static void register() {
         GEM_BOX = new GenericLootableConfig("gem_box").readConfig();
@@ -101,6 +108,11 @@ public class ModConfigs {
         ALCHEMY_OBJECTIVE = new AlchemyObjectiveConfig().readConfig();
         SURVIVAL_OBJECTIVE = new SurvivalObjectiveConfig().readConfig();
         HYPER_OBJECTIVE = new HyperObjectiveConfig().readConfig();
+        EXTRACTION_OBJECTIVE = new ExtractionObjectiveConfig().readConfig();
+        EXTRACTOR_PARTS = new xyz.iwolfking.woldsvaults.config.ExtractorPartsConfig().readConfig();
+        EXTRACTOR_COSTS = new xyz.iwolfking.woldsvaults.config.ExtractorCostsConfig().readConfig();
+        OBJECTIVE_DIFFICULTY = new xyz.iwolfking.woldsvaults.config.ObjectiveDifficultyConfig().readConfig();
+        GEAR_SETS = new xyz.iwolfking.woldsvaults.config.GearSetConfig().readConfig();
         AUGMENT_RECIPES = new AugmentRecipesConfig().readConfig();
         MOD_BOX_RECIPES_CONFIG = new ModBoxRecipesConfig().readConfig();
         CUSTOM_RECYCLER_CONFIG = new CustomVaultRecyclerConfig().readConfig();
@@ -122,6 +134,8 @@ public class ModConfigs {
         IMPLICIT_DECK_MODIFIERS = new ImplicitDeckModifiersConfig().readConfig();
         registerGreedProgression();
         registerGodTrees();
+        THEME_MODIFIERS = new ThemeModifiersConfig().readConfig();
+        THEME_PALETTE_REGISTRY = new ThemePaletteRegistryConfig().readConfig();
     }
 
     /**
