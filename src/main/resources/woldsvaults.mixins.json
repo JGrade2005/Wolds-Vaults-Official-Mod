@@ -35,6 +35,7 @@
     "MixinThrownTrident",
     "RangedAttributeAccessor",
     "ThrownTridentAccessor",
+    "accessors.AbstractArrowAccessor",
     "accessors.ChaosTaskAccessor",
     "accessors.EvokerFangsAccessor",
     "accessors.MobEffectInstanceAccessor",
@@ -643,6 +644,7 @@
   ],
   "client": [
     "AccessorParticleEngine",
+    "accessors.ModelAccessor",
     "MixinAbstractContainerScreen",
     "MixinAnvilScreen",
     "MixinDynamicBakedModelOverrides",
